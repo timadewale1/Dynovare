@@ -45,13 +45,20 @@ export async function saveScrapedPolicy(policy: any) {
     `Year: ${policy.policyYear ?? "N/A"}`,
   ];
 
-  const { pdfBuffer, usedOriginalPdf } = await fetchOrGeneratePdf({
-    title: policy.title,
-    sourceUrl: policy.source.url,
-    bodyText: policy.contentText ?? "",
-    meta,
-    pdfUrl: policy.source?.pdfUrl ?? null,
-  });
+  const { pdfBuffer, usedOriginalPdf, extractedText } = await fetchOrGeneratePdf({
+  title: policy.title,
+  sourceUrl: policy.source.url,
+  bodyText: policy.contentText ?? "",
+  meta,
+  pdfUrl: policy.source?.pdfUrl ?? null,
+});
+
+// ✅ Use extracted text if it’s good
+const finalText =
+  (extractedText ?? "").trim().length >= 200
+    ? extractedText.trim()
+    : (policy.contentText ?? "").trim();
+
 
   const bucket = adminStorage.bucket();
 
@@ -86,7 +93,27 @@ await bucket.file(storagePath).save(pdfBuffer, {
     createdAt: now,
     updatedAt: now,
   })
+);await policyRef.set(
+  stripUndefined({
+    ...policy,
+    contentText: finalText, // ✅ now always has PDF text if possible
+    slug,
+    dedupeKey,
+    type: "public_source",
+    visibility: "public",
+    storagePath,
+
+    createdByUid: SYSTEM_UID,
+    createdByName: `${policy.source.publisher} Scraper`,
+    createdByEmail: null,
+
+    usedOriginalPdf,
+
+    createdAt: now,
+    updatedAt: now,
+  })
 );
+
 
 
   console.log(`✅ Saved: ${policy.title} (${usedOriginalPdf ? "PDF" : "text→PDF"})`);

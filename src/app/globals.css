@@ -60,10 +60,22 @@
 }
 
 /* Base body styles */
+html,
 body {
   color: var(--text-primary);
   background-color: #ffffff;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+   max-width: 100%;
+  overflow-x: hidden;
+}
+
+* {
+  min-width: 0;
+}
+
+.break-anywhere {
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 /* Utility helpers */

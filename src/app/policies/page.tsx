@@ -253,11 +253,13 @@ export default function PoliciesPage() {
               {policies.map((p: any) => (
                 <div
                   key={p.id}
-                  className="border rounded-xl p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3"
+className="border rounded-xl p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3 max-w-full overflow-hidden"
                 >
-                  <div className="min-w-0">
+<div className="min-w-0 max-w-full">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <p className="font-bold text-blue-deep truncate">{p.title}</p>
+<p className="font-bold text-blue-deep break-anywhere line-clamp-2">
+  {p.title}
+</p>
                       {typeBadge(p.type)}
 
                       <Badge variant="outline">
@@ -286,7 +288,7 @@ export default function PoliciesPage() {
                     )}
                   </div>
 
-                  <div className="flex gap-2 flex-wrap">
+                 <div className="flex gap-2 flex-wrap max-w-full">
                     <Button
                       variant="secondary"
                       onClick={() => router.push(`/policies/${p.slug ?? p.id}`)}

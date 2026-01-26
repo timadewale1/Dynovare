@@ -19,7 +19,7 @@ const navItems = [
   { name: "Policy Repository", href: "/policies", icon: FileText },
   { name: "Uploaded Policies", href: "/uploaded-policies", icon: FileText },
   { name: "AI Critique", href: "/critique", icon: Sparkles },
-{ name: "AI Generate", href: "/ai-generate", icon: Sparkles },
+  { name: "AI Generate", href: "/ai-generate", icon: Sparkles },
   { name: "Simulations", href: "/simulations", icon: BarChart3 },
   { name: "My Critiques", href: "/my-critiques", icon: Sparkles },
   { name: "My Simulations", href: "/my-simulations", icon: BarChart3 },
@@ -51,7 +51,7 @@ export default function Sidebar({
         flex flex-col
         transform transition-transform duration-200
         ${isOpen ? "translate-x-0" : "-translate-x-full"}
-        md:static md:translate-x-0
+        md:translate-x-0
       `}
     >
       {/* Mobile close button */}
@@ -63,12 +63,12 @@ export default function Sidebar({
       </button>
 
       {/* Logo */}
-      <div className="mb-10 px-2">
+      <div className="mb-8 px-2">
         <DynovareLogo />
       </div>
 
-      {/* Navigation */}
-      <nav className="space-y-2">
+      {/* Scrollable nav list (so sidebar height stays normal) */}
+      <nav className="space-y-2 overflow-y-auto pr-1 flex-1">
         {navItems.map((item) => {
           const active = pathname === item.href;
 
@@ -87,16 +87,16 @@ export default function Sidebar({
               `}
             >
               <item.icon size={18} />
-              {item.name}
+              <span className="truncate">{item.name}</span>
             </Link>
           );
         })}
       </nav>
 
-      {/* Logout (always bottom) */}
+      {/* Logout fixed at bottom */}
       <button
         onClick={handleLogout}
-        className="mt-auto flex items-center gap-3 px-4 py-3 rounded-lg
+        className="mt-4 flex items-center gap-3 px-4 py-3 rounded-lg
           text-sm font-semibold text-red-600 hover:bg-red-50 transition"
       >
         <LogOut size={18} />
