@@ -21,6 +21,7 @@ import {
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { ArrowRight, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 type UploadedPolicyRow = {
   id: string;
@@ -40,6 +41,8 @@ export default function UploadedPoliciesPage() {
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<UploadedPolicyRow[]>([]);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+    const router = useRouter();
+  
 
   useEffect(() => {
     const load = async () => {
@@ -115,9 +118,13 @@ export default function UploadedPoliciesPage() {
       <DashboardLayout>
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-blue-deep">Uploaded Policies</h1>
-          <p className="text-sm text-[var(--text-secondary)] mt-1">
+          <p className="text-sm mb-5 text-[var(--text-secondary)] mt-1">
             Manage policies you uploaded. You can delete them anytime.
           </p>
+
+           <Button onClick={() => router.push("/policies/upload")}>
+              Upload New Policy
+            </Button>
         </div>
 
         <Card className="p-6">
