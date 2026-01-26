@@ -559,7 +559,7 @@ export default function CritiqueClient() {
                   onClick={generateImproved}
                   disabled={generating}
                 >
-                  {generating ? "Generating…" : "Generate improved policy"}
+                  {generating ? "Generating…" : "AI Generate improved policy"}
                 </Button>
 
                 <input
