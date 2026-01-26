@@ -17,9 +17,12 @@ import { useUser } from "@/components/providers/UserProvider";
 const navItems = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Policy Repository", href: "/policies", icon: FileText },
+  { name: "Uploaded Policies", href: "/uploaded-policies", icon: FileText },
   { name: "AI Critique", href: "/critique", icon: Sparkles },
-{ name: "AI Generate", href: "/generate", icon: Sparkles },
+{ name: "AI Generate", href: "/ai-generate", icon: Sparkles },
   { name: "Simulations", href: "/simulations", icon: BarChart3 },
+  { name: "My Critiques", href: "/my-critiques", icon: Sparkles },
+  { name: "My Simulations", href: "/my-simulations", icon: BarChart3 },
   { name: "Rankings", href: "/rankings", icon: Trophy },
 ];
 

@@ -13,6 +13,8 @@ export type Policy = {
   jurisdictionLevel: JurisdictionLevel;
   state?: string; // required if jurisdictionLevel === "state", optional if federal
   policyYear?: number;
+  revisionNumber?: number;
+
 
   type: PolicyType;
 
