@@ -190,7 +190,7 @@ function Hero() {
               </Button>
 
               <Button asChild variant="ghost" className="gap-2 h-11">
-                <Link href="/policies">
+                <Link href="/public/policies">
                   Browse repository <Search size={16} />
                 </Link>
               </Button>
@@ -407,7 +407,7 @@ function HowItWorks() {
             </Link>
           </Button>
           <Button asChild variant="outline" className="gap-2 h-11">
-            <Link href="/policies">Browse repository</Link>
+            <Link href="/public/policies">Browse repository</Link>
           </Button>
         </div>
       </div>
