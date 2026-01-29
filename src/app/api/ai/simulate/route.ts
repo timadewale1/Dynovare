@@ -13,11 +13,15 @@ export async function POST(req: Request) {
     const inputs = body?.inputs ?? null;
 
     if (!policyId || !inputs) {
-      return NextResponse.json({ error: "Missing policyId or inputs" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing policyId or inputs" },
+        { status: 400 }
+      );
     }
 
     const snap = await adminDb.collection("policies").doc(policyId).get();
-    if (!snap.exists) return NextResponse.json({ error: "Policy not found" }, { status: 404 });
+    if (!snap.exists)
+      return NextResponse.json({ error: "Policy not found" }, { status: 404 });
 
     const policy = snap.data() as any;
     const policyText = String(policy?.contentText || "").trim();
@@ -39,12 +43,15 @@ export async function POST(req: Request) {
       system,
       user,
       temperature: 0.25,
-      webSearch: true, // ✅
+      webSearch: true,
     });
 
     return NextResponse.json(out);
   } catch (e: any) {
     console.error(e);
-    return NextResponse.json({ error: e?.message ?? "AI simulation failed" }, { status: 500 });
+    return NextResponse.json(
+      { error: e?.message ?? "AI simulation failed" },
+      { status: 500 }
+    );
   }
 }

@@ -19,8 +19,9 @@ function buildGenerateFromPrompt(args: {
 }) {
   const system = `
 You are Dynovare's policy drafting AI.
+
 You MAY use the web_search tool to ground best practices + realistic implementation details.
-Return ONLY strict JSON.
+Return ONLY strict JSON (no markdown, no extra keys outside schema).
 
 JSON schema:
 {
@@ -31,9 +32,15 @@ JSON schema:
   ]
 }
 
-Rules:
-- Write a complete policy with headings, roles/responsibilities, financing, implementation plan, and monitoring metrics.
-- Nigeria-first realism when applicable.
+HARD REQUIREMENTS:
+- Produce a long-form policy draft intended to be ~5–10 pages (2,500–5,000+ words).
+- Use clean headings and spacing.
+- Include: Executive Summary, Background, Problem Statement, Objectives, Scope/Definitions,
+  Policy Measures, Implementation Plan (phases), Roles/Responsibilities, Financing & Budget,
+  Legal/Regulatory Alignment, Inclusion/Equity/Safeguards, Stakeholder Engagement,
+  Monitoring & Evaluation (KPIs + cadence), Risk Register, Annexes (KPI & timeline tables).
+- Nigeria-first realism where applicable.
+- DO NOT put URLs inside improvedText. Put URLs ONLY in evidence[].
 - Avoid fake citations. If unsure, be cautious.
 `;
 
@@ -57,7 +64,7 @@ ${args.context ?? "N/A"}
 Constraints:
 ${args.constraints ?? "N/A"}
 
-Reference links (optional):
+Reference links (optional, may inform web_search):
 ${args.references ?? "N/A"}
 
 Output must be the JSON schema exactly.
@@ -75,11 +82,8 @@ export async function POST(req: Request) {
     const jurisdictionLevel = body?.jurisdictionLevel === "state" ? "state" : "federal";
     const state = jurisdictionLevel === "state" ? String(body?.state || "").trim() : null;
 
-    const policyYear =
-      typeof body?.policyYear === "number" ? body.policyYear : null;
-
+    const policyYear = typeof body?.policyYear === "number" ? body.policyYear : null;
     const sector = body?.sector ? String(body.sector) : null;
-
     const tags = Array.isArray(body?.tags) ? body.tags.map(String) : [];
 
     if (!title) return NextResponse.json({ error: "Missing title" }, { status: 400 });
@@ -105,21 +109,29 @@ export async function POST(req: Request) {
     const out = await llmJSON<any>({
       system,
       user,
-      temperature: 0.45,
-      webSearch: true, // ✅
+      temperature: 0.4,
+      webSearch: true,
+      maxOutputTokens: 9000,
     });
 
     const improvedText = String(out?.improvedText || "").trim();
-    if (improvedText.length < 200) {
+    if (improvedText.length < 2500) {
       return NextResponse.json(
         { error: "Generated text too short", code: "TEXT_TOO_SHORT" },
         { status: 400 }
       );
     }
 
-    return NextResponse.json(out);
+    return NextResponse.json({
+      title: out.title ?? title,
+      generatedText: improvedText, // ✅ matches your client expectation
+      evidence: Array.isArray(out?.evidence) ? out.evidence : [],
+    });
   } catch (e: any) {
     console.error(e);
-    return NextResponse.json({ error: e?.message ?? "AI generate-from-prompt failed" }, { status: 500 });
+    return NextResponse.json(
+      { error: e?.message ?? "AI generate-from-prompt failed" },
+      { status: 500 }
+    );
   }
 }

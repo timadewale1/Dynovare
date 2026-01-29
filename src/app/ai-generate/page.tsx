@@ -11,10 +11,7 @@ import { Sparkles, CheckCircle2, Plus, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/components/providers/UserProvider";
 
-import {
-  CRITIQUE_STANDARDS,
-  type CritiqueStandardId,
-} from "@/lib/critiqueStandards";
+import { CRITIQUE_STANDARDS, type CritiqueStandardId } from "@/lib/critiqueStandards";
 import { saveCritique } from "@/lib/critiqueWrites";
 import { createAIGeneratedPolicy } from "@/lib/policyAIWrites";
 
@@ -59,9 +56,7 @@ export default function AIGeneratePage() {
 
   const [title, setTitle] = useState("");
   const [country] = useState("Nigeria");
-  const [jurisdictionLevel, setJurisdictionLevel] = useState<
-    "federal" | "state"
-  >("federal");
+  const [jurisdictionLevel, setJurisdictionLevel] = useState<"federal" | "state">("federal");
   const [stateName, setStateName] = useState("");
   const [policyYear, setPolicyYear] = useState<number | "">(2026);
 
@@ -72,14 +67,10 @@ export default function AIGeneratePage() {
   const [sector, setSector] = useState<string>("Electricity");
   const [references, setReferences] = useState<string>("");
 
-  // Tags (chips)
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState<string[]>([]);
 
-  // Criteria selection like critique page
-  const [selectedStandards, setSelectedStandards] = useState<
-    CritiqueStandardId[]
-  >([
+  const [selectedStandards, setSelectedStandards] = useState<CritiqueStandardId[]>([
     "sdg_alignment",
     "inclusivity_equity",
     "implementation_feasibility",
@@ -89,9 +80,7 @@ export default function AIGeneratePage() {
   const [generating, setGenerating] = useState(false);
 
   const toggleStandard = (id: CritiqueStandardId) => {
-    setSelectedStandards((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
+    setSelectedStandards((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   };
 
   const addTag = () => {
@@ -146,7 +135,7 @@ export default function AIGeneratePage() {
     try {
       setGenerating(true);
 
-      // 1) LLM generate policy text (server) ✅ use generate-from-prompt
+      // ✅ 1) Generate-from-prompt route (NOT generate-policy)
       const genRes = await fetch("/api/ai/generate-from-prompt", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -156,22 +145,19 @@ export default function AIGeneratePage() {
       const genData = await genRes.json();
       if (!genRes.ok) throw new Error(genData?.error || "Policy generation failed");
 
-      // expected shape: { title, improvedText, evidence? }
-      const generatedText = String(genData?.improvedText || "").trim();
-      const finalTitle = String(genData?.title || promptPayload.title).trim();
-
-      if (generatedText.length < 400) {
-        toast.error("Generated policy text was too short. Add more detail and try again.");
+      const generatedText = String(genData?.generatedText || "").trim();
+      if (generatedText.length < 2500) {
+        toast.error("Generated policy is still too short. Add more detail and try again.");
         return;
       }
 
-      // 2) Save AI-generated policy (creates PDF via your helper)
+      // ✅ 2) Save AI-generated policy
       const created = await createAIGeneratedPolicy({
         uid: user.uid,
         userName: profile?.fullName,
         userEmail: user.email ?? null,
         basePolicy: {
-          title: finalTitle,
+          title: promptPayload.title,
           country: promptPayload.country,
           jurisdictionLevel: promptPayload.jurisdictionLevel,
           state: promptPayload.state ?? null,
@@ -184,7 +170,7 @@ export default function AIGeneratePage() {
         mode: "from_scratch",
       } as any);
 
-      // 3) LLM critique (server)
+      // ✅ 3) Critique via server route
       const critRes = await fetch("/api/ai/critique", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -197,10 +183,10 @@ export default function AIGeneratePage() {
       const out = await critRes.json();
       if (!critRes.ok) throw new Error(out?.error || "Critique failed");
 
-      // 4) Save critique
+      // ✅ 4) Save critique
       await saveCritique({
         policyId: created.id,
-        policyTitle: created.title ?? finalTitle,
+        policyTitle: created.title ?? promptPayload.title,
         policySlug: created.slug,
         policyType: "ai_generated",
         jurisdictionLevel: promptPayload.jurisdictionLevel,
@@ -244,7 +230,6 @@ export default function AIGeneratePage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* LEFT: form */}
           <Card className="p-6 lg:col-span-2">
             <h2 className="text-lg font-bold text-blue-deep mb-4">Policy details</h2>
 
@@ -262,11 +247,7 @@ export default function AIGeneratePage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <p className="text-sm font-semibold mb-2">Country</p>
-                  <input
-                    className="w-full border rounded-xl px-3 py-2 bg-gray-50"
-                    value={country}
-                    disabled
-                  />
+                  <input className="w-full border rounded-xl px-3 py-2 bg-gray-50" value={country} disabled />
                 </div>
 
                 <div>
@@ -276,9 +257,7 @@ export default function AIGeneratePage() {
                       type="button"
                       onClick={() => setJurisdictionLevel("federal")}
                       className={`flex-1 border rounded-xl px-3 py-2 font-semibold transition ${
-                        jurisdictionLevel === "federal"
-                          ? "border-blue-electric bg-blue-soft"
-                          : "hover:border-blue-electric"
+                        jurisdictionLevel === "federal" ? "border-blue-electric bg-blue-soft" : "hover:border-blue-electric"
                       }`}
                     >
                       Federal
@@ -287,9 +266,7 @@ export default function AIGeneratePage() {
                       type="button"
                       onClick={() => setJurisdictionLevel("state")}
                       className={`flex-1 border rounded-xl px-3 py-2 font-semibold transition ${
-                        jurisdictionLevel === "state"
-                          ? "border-blue-electric bg-blue-soft"
-                          : "hover:border-blue-electric"
+                        jurisdictionLevel === "state" ? "border-blue-electric bg-blue-soft" : "hover:border-blue-electric"
                       }`}
                     >
                       State
@@ -318,9 +295,7 @@ export default function AIGeneratePage() {
                         type="button"
                         onClick={() => setStateName(s)}
                         className={`border rounded-lg px-3 py-2 text-sm font-medium transition ${
-                          stateName === s
-                            ? "border-blue-electric bg-blue-soft"
-                            : "hover:border-blue-electric"
+                          stateName === s ? "border-blue-electric bg-blue-soft" : "hover:border-blue-electric"
                         }`}
                       >
                         {s}
@@ -355,11 +330,7 @@ export default function AIGeneratePage() {
                     {tags.map((t) => (
                       <Badge key={t} variant="outline" className="flex items-center gap-2">
                         {t}
-                        <button
-                          type="button"
-                          onClick={() => removeTag(t)}
-                          className="text-[var(--text-secondary)]"
-                        >
+                        <button type="button" onClick={() => removeTag(t)} className="text-[var(--text-secondary)]">
                           <X size={14} />
                         </button>
                       </Badge>
@@ -428,7 +399,6 @@ export default function AIGeneratePage() {
             </div>
           </Card>
 
-          {/* RIGHT: criteria + generate */}
           <div className="space-y-6">
             <Card className="p-6">
               <div className="flex items-center gap-2 mb-3">
@@ -455,9 +425,7 @@ export default function AIGeneratePage() {
                       <div className="flex items-start justify-between gap-2">
                         <div>
                           <p className="font-bold text-blue-deep">{s.label}</p>
-                          <p className="text-xs text-[var(--text-secondary)] mt-1">
-                            {s.description}
-                          </p>
+                          <p className="text-xs text-[var(--text-secondary)] mt-1">{s.description}</p>
                         </div>
                         {on ? <CheckCircle2 className="text-blue-electric" size={18} /> : null}
                       </div>
@@ -467,22 +435,17 @@ export default function AIGeneratePage() {
               </div>
 
               <p className="text-xs text-[var(--text-secondary)] mt-3">
-                Selected:{" "}
-                <span className="font-semibold text-blue-deep">{selectedStandards.length}</span>
+                Selected: <span className="font-semibold text-blue-deep">{selectedStandards.length}</span>
               </p>
             </Card>
 
             <Card className="p-6">
               <h2 className="text-lg font-bold text-blue-deep mb-2">Generate</h2>
               <p className="text-sm text-[var(--text-secondary)] mb-4">
-                Dynovare will generate a full policy draft, save it to the repository, create a PDF, and auto-score it.
+                Dynovare will generate a long-form policy draft (5–10 pages), save it, create a PDF, and auto-score it.
               </p>
 
-              <Button
-                className="w-full gap-2"
-                onClick={handleGenerate}
-                disabled={!canGenerate || generating}
-              >
+              <Button className="w-full gap-2" onClick={handleGenerate} disabled={!canGenerate || generating}>
                 <Sparkles size={16} />
                 {generating ? "Generating…" : "Generate policy"}
               </Button>

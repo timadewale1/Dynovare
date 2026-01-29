@@ -3,14 +3,14 @@ import "server-only";
 import OpenAI from "openai";
 
 function reqEnv(name: string) {
-  const v = process.env[name];
-  if (!v) throw new Error(`Missing env var: ${name}`);
-  return v;
+  return process.env[name];
 }
 
-export const openai = new OpenAI({
-  apiKey: reqEnv("OPENAI_API_KEY"),
-});
+export function getOpenAI() {
+  const apiKey = reqEnv("OPENAI_API_KEY");
+  if (!apiKey) throw new Error("Missing env var: OPENAI_API_KEY");
+  return new OpenAI({ apiKey });
+}
 
 export function getDefaultModel() {
   return process.env.OPENAI_MODEL || "gpt-4.1-mini";

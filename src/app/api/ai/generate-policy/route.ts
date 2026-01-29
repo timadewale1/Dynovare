@@ -41,12 +41,28 @@ export async function POST(req: Request) {
       system,
       user,
       temperature: 0.35,
-      webSearch: true, // ✅
+      webSearch: true,
+      maxOutputTokens: 9000,
     });
 
-    return NextResponse.json(out);
+    const improvedText = String(out?.improvedText || "").trim();
+    if (improvedText.length < 2500) {
+      return NextResponse.json(
+        { error: "Generated text too short", code: "TEXT_TOO_SHORT" },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json({
+      title: out?.title ?? policy.title ?? "Untitled policy",
+      improvedText,
+      evidence: Array.isArray(out?.evidence) ? out.evidence : [],
+    });
   } catch (e: any) {
     console.error(e);
-    return NextResponse.json({ error: e?.message ?? "AI generation failed" }, { status: 500 });
+    return NextResponse.json(
+      { error: e?.message ?? "AI generation failed" },
+      { status: 500 }
+    );
   }
 }
