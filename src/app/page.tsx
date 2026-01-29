@@ -51,9 +51,7 @@ function Nav() {
     <header className="sticky top-0 z-50 border-b bg-white/70 backdrop-blur">
       <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between gap-3">
         <Link href="/" className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-xl bg-blue-soft border grid place-items-center">
             <DynovareLogo />
-          </div>
           {/* <div className="leading-tight">
             <p className="font-extrabold text-blue-deep tracking-tight">Dynovare</p>
             <p className="text-xs text-[var(--text-secondary)] -mt-0.5">
@@ -532,9 +530,7 @@ function Footer() {
       <div className="mx-auto max-w-6xl px-4 py-10">
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-8">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-white/10 border border-white/15 grid place-items-center">
-              <DynovareLogo/>
-            </div>
+            <DynovareLogo />
             {/* <div>
               <p className="font-extrabold tracking-tight">Dynovare</p>
               <p className="text-xs text-white/70">
