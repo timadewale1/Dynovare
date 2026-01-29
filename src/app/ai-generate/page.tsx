@@ -15,10 +15,8 @@ import {
   CRITIQUE_STANDARDS,
   type CritiqueStandardId,
 } from "@/lib/critiqueStandards";
-import { runCritiqueMVP } from "@/lib/critiqueEngine";
 import { saveCritique } from "@/lib/critiqueWrites";
 import { createAIGeneratedPolicy } from "@/lib/policyAIWrites";
-import { generatePolicyFromPromptMVP } from "@/lib/policyGenerateEngine";
 
 const NIGERIA_STATES = [
   "Abia","Adamawa","Akwa Ibom","Anambra","Bauchi","Bayelsa","Benue","Borno",
@@ -41,13 +39,29 @@ const SECTORS = [
   "Climate & Emissions",
 ];
 
+type GeneratePromptPayload = {
+  title: string;
+  country: string;
+  jurisdictionLevel: "federal" | "state";
+  state: string | null;
+  policyYear: number | null;
+  sector: string;
+  tags: string[];
+  goals: string;
+  context: string;
+  constraints: string;
+  references: string;
+};
+
 export default function AIGeneratePage() {
   const router = useRouter();
   const { user, profile } = useUser();
 
   const [title, setTitle] = useState("");
   const [country] = useState("Nigeria");
-  const [jurisdictionLevel, setJurisdictionLevel] = useState<"federal" | "state">("federal");
+  const [jurisdictionLevel, setJurisdictionLevel] = useState<
+    "federal" | "state"
+  >("federal");
   const [stateName, setStateName] = useState("");
   const [policyYear, setPolicyYear] = useState<number | "">(2026);
 
@@ -63,7 +77,9 @@ export default function AIGeneratePage() {
   const [tags, setTags] = useState<string[]>([]);
 
   // Criteria selection like critique page
-  const [selectedStandards, setSelectedStandards] = useState<CritiqueStandardId[]>([
+  const [selectedStandards, setSelectedStandards] = useState<
+    CritiqueStandardId[]
+  >([
     "sdg_alignment",
     "inclusivity_equity",
     "implementation_feasibility",
@@ -73,12 +89,10 @@ export default function AIGeneratePage() {
   const [generating, setGenerating] = useState(false);
 
   const toggleStandard = (id: CritiqueStandardId) => {
-    setSelectedStandards((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+    setSelectedStandards((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
   };
-
-//   const toggleSector = (s: string) => {
-//     setSelectedSectors((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]));
-//   };
 
   const addTag = () => {
     const t = tagInput.trim();
@@ -115,63 +129,83 @@ export default function AIGeneratePage() {
       return;
     }
 
+    const promptPayload: GeneratePromptPayload = {
+      title: title.trim(),
+      country,
+      jurisdictionLevel,
+      state: jurisdictionLevel === "state" ? stateName : null,
+      policyYear: typeof policyYear === "number" ? policyYear : null,
+      sector,
+      tags,
+      goals: goals.trim(),
+      context: context.trim(),
+      constraints: constraints.trim(),
+      references: references.trim(),
+    };
+
     try {
       setGenerating(true);
 
-      // 1) Generate policy text from a structured prompt
-      const generatedText = generatePolicyFromPromptMVP({
-        title,
-        country,
-        jurisdictionLevel,
-        state: jurisdictionLevel === "state" ? stateName : null,
-        policyYear: typeof policyYear === "number" ? policyYear : null,
-        tags,
-        goals,
-        context,
-        constraints,
-        sectors: [sector],
-        references,
+      // 1) LLM generate policy text (server) ✅ use generate-from-prompt
+      const genRes = await fetch("/api/ai/generate-from-prompt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(promptPayload),
       });
 
-      if (!generatedText || generatedText.trim().length < 200) {
-        toast.error("Generated policy text was too short. Add more details and try again.");
+      const genData = await genRes.json();
+      if (!genRes.ok) throw new Error(genData?.error || "Policy generation failed");
+
+      // expected shape: { title, improvedText, evidence? }
+      const generatedText = String(genData?.improvedText || "").trim();
+      const finalTitle = String(genData?.title || promptPayload.title).trim();
+
+      if (generatedText.length < 400) {
+        toast.error("Generated policy text was too short. Add more detail and try again.");
         return;
       }
 
-      // 2) Save as AI-generated policy (also creates PDF in storage via your existing helper)
+      // 2) Save AI-generated policy (creates PDF via your helper)
       const created = await createAIGeneratedPolicy({
         uid: user.uid,
         userName: profile?.fullName,
         userEmail: user.email ?? null,
         basePolicy: {
-  title,
-  country,
-  jurisdictionLevel,
-  state: jurisdictionLevel === "state" ? stateName : null,
-  policyYear: typeof policyYear === "number" ? policyYear : null,
-  tags,
-  sector, // ✅ add this
-  type: "ai_generated",
-} as any,
-
-        improvedText: generatedText, // reuse field name (it's just “finalText”)
+          title: finalTitle,
+          country: promptPayload.country,
+          jurisdictionLevel: promptPayload.jurisdictionLevel,
+          state: promptPayload.state ?? null,
+          policyYear: promptPayload.policyYear ?? null,
+          tags: promptPayload.tags,
+          sector: promptPayload.sector,
+          type: "ai_generated",
+        } as any,
+        improvedText: generatedText,
         mode: "from_scratch",
       } as any);
 
-      // 3) Auto-critique the generated policy using selected standards
-      const out = runCritiqueMVP({
-        policyText: generatedText,
-        standards: selectedStandards,
+      // 3) LLM critique (server)
+      const critRes = await fetch("/api/ai/critique", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          policyId: created.id,
+          selectedStandards,
+        }),
       });
 
+      const out = await critRes.json();
+      if (!critRes.ok) throw new Error(out?.error || "Critique failed");
+
+      // 4) Save critique
       await saveCritique({
         policyId: created.id,
-        policyTitle: created.title ?? title,
+        policyTitle: created.title ?? finalTitle,
         policySlug: created.slug,
         policyType: "ai_generated",
-        jurisdictionLevel,
-state: jurisdictionLevel === "state" ? stateName : undefined,
-policyYear: typeof policyYear === "number" ? policyYear : undefined,
+        jurisdictionLevel: promptPayload.jurisdictionLevel,
+        state: promptPayload.state ?? undefined,
+        policyYear: promptPayload.policyYear ?? undefined,
 
         userId: user.uid,
         userName: profile?.fullName,
@@ -186,14 +220,14 @@ policyYear: typeof policyYear === "number" ? policyYear : undefined,
         strengths: out.strengths,
         risks: out.risks,
 
-previousOverallScore: undefined,
+        previousOverallScore: null,
       });
 
       toast.success(`Policy generated & scored ${out.overallScore}/100`);
       router.push(`/policies/${created.slug}`);
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
-      toast.error("AI generation failed");
+      toast.error(e?.message || "AI generation failed");
     } finally {
       setGenerating(false);
     }
@@ -228,7 +262,11 @@ previousOverallScore: undefined,
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <p className="text-sm font-semibold mb-2">Country</p>
-                  <input className="w-full border rounded-xl px-3 py-2 bg-gray-50" value={country} disabled />
+                  <input
+                    className="w-full border rounded-xl px-3 py-2 bg-gray-50"
+                    value={country}
+                    disabled
+                  />
                 </div>
 
                 <div>
@@ -238,7 +276,9 @@ previousOverallScore: undefined,
                       type="button"
                       onClick={() => setJurisdictionLevel("federal")}
                       className={`flex-1 border rounded-xl px-3 py-2 font-semibold transition ${
-                        jurisdictionLevel === "federal" ? "border-blue-electric bg-blue-soft" : "hover:border-blue-electric"
+                        jurisdictionLevel === "federal"
+                          ? "border-blue-electric bg-blue-soft"
+                          : "hover:border-blue-electric"
                       }`}
                     >
                       Federal
@@ -247,7 +287,9 @@ previousOverallScore: undefined,
                       type="button"
                       onClick={() => setJurisdictionLevel("state")}
                       className={`flex-1 border rounded-xl px-3 py-2 font-semibold transition ${
-                        jurisdictionLevel === "state" ? "border-blue-electric bg-blue-soft" : "hover:border-blue-electric"
+                        jurisdictionLevel === "state"
+                          ? "border-blue-electric bg-blue-soft"
+                          : "hover:border-blue-electric"
                       }`}
                     >
                       State
@@ -266,30 +308,28 @@ previousOverallScore: undefined,
                 </div>
               </div>
 
-              {/* ✅ Styled state selector */}
-            {jurisdictionLevel === "state" && (
-              <div>
-                <p className="text-sm font-semibold mb-2">Select state *</p>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-56 overflow-y-auto">
-                  {NIGERIA_STATES.map((s) => (
-                    <button
-                      key={s}
-                      type="button"
-                      onClick={() => setStateName(s)}
-                      className={`border rounded-lg px-3 py-2 text-sm font-medium transition ${
-                        stateName === s
-                          ? "border-blue-electric bg-blue-soft"
-                          : "hover:border-blue-electric"
-                      }`}
-                    >
-                      {s}
-                    </button>
-                  ))}
+              {jurisdictionLevel === "state" && (
+                <div>
+                  <p className="text-sm font-semibold mb-2">Select state *</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-56 overflow-y-auto">
+                    {NIGERIA_STATES.map((s) => (
+                      <button
+                        key={s}
+                        type="button"
+                        onClick={() => setStateName(s)}
+                        className={`border rounded-lg px-3 py-2 text-sm font-medium transition ${
+                          stateName === s
+                            ? "border-blue-electric bg-blue-soft"
+                            : "hover:border-blue-electric"
+                        }`}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-              {/* Tags */}
               <div>
                 <p className="text-sm font-semibold mb-2">Tags</p>
                 <div className="flex gap-2">
@@ -315,7 +355,11 @@ previousOverallScore: undefined,
                     {tags.map((t) => (
                       <Badge key={t} variant="outline" className="flex items-center gap-2">
                         {t}
-                        <button type="button" onClick={() => removeTag(t)} className="text-[var(--text-secondary)]">
+                        <button
+                          type="button"
+                          onClick={() => removeTag(t)}
+                          className="text-[var(--text-secondary)]"
+                        >
                           <X size={14} />
                         </button>
                       </Badge>
@@ -324,26 +368,23 @@ previousOverallScore: undefined,
                 )}
               </div>
 
-              {/* ✅ Single sector */}
-            <div>
-              <p className="text-sm font-semibold mb-2">Sector *</p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {SECTORS.map((s) => (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() => setSector(s)}
-                    className={`border rounded-xl px-3 py-2 font-semibold transition ${
-                      sector === s
-                        ? "border-blue-electric bg-blue-soft"
-                        : "hover:border-blue-electric"
-                    }`}
-                  >
-                    {s}
-                  </button>
-                ))}
+              <div>
+                <p className="text-sm font-semibold mb-2">Sector *</p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {SECTORS.map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => setSector(s)}
+                      className={`border rounded-xl px-3 py-2 font-semibold transition ${
+                        sector === s ? "border-blue-electric bg-blue-soft" : "hover:border-blue-electric"
+                      }`}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
 
               <div>
                 <p className="text-sm font-semibold mb-2">Policy goals *</p>
@@ -392,9 +433,7 @@ previousOverallScore: undefined,
             <Card className="p-6">
               <div className="flex items-center gap-2 mb-3">
                 <Sparkles className="text-blue-electric" size={18} />
-                <h2 className="text-lg font-bold text-blue-deep">
-                  Criteria for scoring *
-                </h2>
+                <h2 className="text-lg font-bold text-blue-deep">Criteria for scoring *</h2>
               </div>
 
               <p className="text-sm text-[var(--text-secondary)] mb-4">
@@ -428,7 +467,8 @@ previousOverallScore: undefined,
               </div>
 
               <p className="text-xs text-[var(--text-secondary)] mt-3">
-                Selected: <span className="font-semibold text-blue-deep">{selectedStandards.length}</span>
+                Selected:{" "}
+                <span className="font-semibold text-blue-deep">{selectedStandards.length}</span>
               </p>
             </Card>
 

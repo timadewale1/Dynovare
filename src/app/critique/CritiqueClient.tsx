@@ -20,32 +20,17 @@ import {
 } from "firebase/firestore";
 import type { Policy } from "@/lib/policyTypes";
 import PolicyPicker from "@/components/policies/PolicyPicker";
-import {
-  Upload,
-  Sparkles,
-  CheckCircle2,
-  AlertTriangle,
-  RefreshCw,
-} from "lucide-react";
+import { Upload, Sparkles, CheckCircle2, AlertTriangle, RefreshCw } from "lucide-react";
 import toast from "react-hot-toast";
 
-import {
-  CRITIQUE_STANDARDS,
-  type CritiqueStandardId,
-} from "@/lib/critiqueStandards";
-import { runCritiqueMVP } from "@/lib/critiqueEngine";
+import { CRITIQUE_STANDARDS, type CritiqueStandardId } from "@/lib/critiqueStandards";
 import { saveCritique } from "@/lib/critiqueWrites";
 import { Badge } from "@/components/ui/badge";
 
 import { useUser } from "@/components/providers/UserProvider";
 import { extractPolicyText } from "@/lib/extractText";
-import {
-  getStorage,
-  ref as storageRef,
-  uploadBytesResumable,
-} from "firebase/storage";
+import { getStorage, ref as storageRef, uploadBytesResumable } from "firebase/storage";
 
-import { generateImprovedPolicyMVP } from "@/lib/policyImproveEngine";
 import { createAIGeneratedPolicy } from "@/lib/policyAIWrites";
 
 export default function CritiqueClient() {
@@ -86,18 +71,12 @@ export default function CritiqueClient() {
       else setPolicy(null);
 
       const critSnap = await getDocs(
-        query(
-          collection(db, "policies", policyId, "critiques"),
-          orderBy("createdAt", "desc"),
-          limit(1)
-        )
+        query(collection(db, "policies", policyId, "critiques"), orderBy("createdAt", "desc"), limit(1))
       );
 
       if (!critSnap.empty) {
         const last = critSnap.docs[0].data() as any;
-        setPreviousScore(
-          typeof last.overallScore === "number" ? last.overallScore : null
-        );
+        setPreviousScore(typeof last.overallScore === "number" ? last.overallScore : null);
       } else {
         setPreviousScore(null);
       }
@@ -108,101 +87,13 @@ export default function CritiqueClient() {
     load();
   }, [policyId]);
 
-  const autoCritiqueGeneratedPolicy = async (args: {
-    aiPolicyId: string;
-    aiPolicySlug: string;
-    aiPolicyTitle: string;
-    improvedText: string;
-  }) => {
-    if (!user) return;
-
-    const out = runCritiqueMVP({
-      policyText: args.improvedText,
-      standards: selected,
-    });
-
-    await saveCritique({
-      policyId: args.aiPolicyId,
-      policyTitle: args.aiPolicyTitle,
-      policySlug: args.aiPolicySlug,
-      policyType: "ai_generated",
-      jurisdictionLevel: policy?.jurisdictionLevel,
-      state: policy?.state,
-      policyYear: policy?.policyYear ?? null,
-
-      userId: user.uid,
-      userName: profile?.fullName,
-      userEmail: user.email ?? null,
-
-      revisionNumber: 0,
-
-      selectedStandards: selected,
-      overallScore: out.overallScore,
-      perStandard: out.perStandard,
-      summary: out.summary,
-      strengths: out.strengths,
-      risks: out.risks,
-
-      previousOverallScore: null,
-    });
-
-    return out.overallScore;
-  };
-
   const isOwner = useMemo(() => {
     if (!user || !policy) return false;
     return (policy as any).createdByUid === user.uid;
   }, [user, policy]);
 
-  const generateImproved = async () => {
-    if (!user || !policy || !result) {
-      toast.error("Missing policy or critique result");
-      return;
-    }
-
-    try {
-      setGenerating(true);
-
-      const improvedText = generateImprovedPolicyMVP({
-        originalTitle: policy.title,
-        originalText: policy.contentText ?? "",
-        selectedStandards: selected,
-        perStandard: result.perStandard,
-        overallScore: result.overallScore,
-      });
-
-      const created = await createAIGeneratedPolicy({
-        uid: user.uid,
-        userName: profile?.fullName,
-        userEmail: user.email ?? null,
-        basePolicy: policy,
-        improvedText,
-      });
-
-      const aiScore = await autoCritiqueGeneratedPolicy({
-        aiPolicyId: created.id,
-        aiPolicySlug: created.slug,
-        aiPolicyTitle: created.title,
-        improvedText,
-      });
-
-      toast.success(
-        aiScore ? `AI policy created & scored ${aiScore}/100` : "AI policy created"
-      );
-
-      router.push(`/policies/${created.slug}`);
-    } catch (e) {
-      console.error(e);
-      toast.error("Failed to generate improved policy");
-    } finally {
-      setGenerating(false);
-    }
-  };
-
   const toggle = (id: CritiqueStandardId) => {
-    setSelected((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
+    setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   };
 
   const overallTone = useMemo(() => {
@@ -211,6 +102,29 @@ export default function CritiqueClient() {
     if (result.overallScore >= 65) return "mid";
     return "bad";
   }, [result]);
+
+  async function callCritiqueAPI(args: { targetPolicyId: string; selectedStandards: CritiqueStandardId[] }) {
+    const res = await fetch("/api/ai/critique", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        policyId: args.targetPolicyId,
+        selectedStandards: args.selectedStandards,
+      }),
+    });
+
+    const out = await res.json();
+
+    if (!res.ok) {
+      // handle the server's explicit code
+      if (out?.code === "TEXT_TOO_SHORT") {
+        throw new Error("Policy text is too short for critique. Upload a richer PDF/DOCX.");
+      }
+      throw new Error(out?.error || "Critique failed");
+    }
+
+    return out;
+  }
 
   const run = async (opts?: { forcePreviousScore?: number | null }) => {
     if (!policyId) return;
@@ -240,12 +154,11 @@ export default function CritiqueClient() {
     try {
       setRunning(true);
 
-      const out = runCritiqueMVP({ policyText: text, standards: selected });
+      // ✅ use the API (production engine)
+      const out = await callCritiqueAPI({ targetPolicyId: policyId, selectedStandards: selected });
 
       const prev =
-        typeof opts?.forcePreviousScore === "number"
-          ? opts.forcePreviousScore
-          : previousScore;
+        typeof opts?.forcePreviousScore === "number" ? opts.forcePreviousScore : previousScore;
 
       await saveCritique({
         policyId,
@@ -275,11 +188,99 @@ export default function CritiqueClient() {
       setResult(out);
       setPreviousScore(out.overallScore);
       toast.success("Critique complete");
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
-      toast.error("Critique failed");
+      toast.error(e?.message || "Critique failed");
     } finally {
       setRunning(false);
+    }
+  };
+
+  const autoCritiqueGeneratedPolicy = async (args: {
+    aiPolicyId: string;
+    aiPolicySlug: string;
+    aiPolicyTitle: string;
+  }) => {
+    if (!user) return null;
+
+    // ✅ critique the NEW AI policy, not the original policyId from URL
+    const out = await callCritiqueAPI({ targetPolicyId: args.aiPolicyId, selectedStandards: selected });
+
+    await saveCritique({
+      policyId: args.aiPolicyId,
+      policyTitle: args.aiPolicyTitle,
+      policySlug: args.aiPolicySlug,
+      policyType: "ai_generated",
+      jurisdictionLevel: policy?.jurisdictionLevel,
+      state: policy?.state,
+      policyYear: policy?.policyYear ?? null,
+
+      userId: user.uid,
+      userName: profile?.fullName,
+      userEmail: user.email ?? null,
+
+      revisionNumber: 0,
+
+      selectedStandards: selected,
+      overallScore: out.overallScore,
+      perStandard: out.perStandard,
+      summary: out.summary,
+      strengths: out.strengths,
+      risks: out.risks,
+
+      previousOverallScore: null,
+    });
+
+    return out.overallScore as number;
+  };
+
+  const generateImproved = async () => {
+    if (!user || !policy || !result) {
+      toast.error("Missing policy or critique result");
+      return;
+    }
+
+    try {
+      setGenerating(true);
+
+      const res = await fetch("/api/ai/generate-policy", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ policyId, critique: result }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        if (data?.code === "TEXT_TOO_SHORT") {
+          throw new Error("Policy text is too short. Upload a richer PDF/DOCX.");
+        }
+        throw new Error(data?.error || "Generation failed");
+      }
+
+      const improvedText = String(data?.improvedText || "").trim();
+      if (improvedText.length < 200) throw new Error("Generated policy text was too short. Try again.");
+
+      const created = await createAIGeneratedPolicy({
+        uid: user.uid,
+        userName: profile?.fullName,
+        userEmail: user.email ?? null,
+        basePolicy: policy,
+        improvedText,
+      });
+
+      const aiScore = await autoCritiqueGeneratedPolicy({
+        aiPolicyId: created.id,
+        aiPolicySlug: created.slug,
+        aiPolicyTitle: created.title,
+      });
+
+      toast.success(aiScore ? `AI policy created & scored ${aiScore}/100` : "AI policy created");
+      router.push(`/policies/${created.slug}`);
+    } catch (e: any) {
+      console.error(e);
+      toast.error(e?.message || "Failed to generate improved policy");
+    } finally {
+      setGenerating(false);
     }
   };
 
@@ -322,9 +323,7 @@ export default function CritiqueClient() {
         task.on(
           "state_changed",
           (snap) => {
-            const pct = Math.round(
-              (snap.bytesTransferred / snap.totalBytes) * 100
-            );
+            const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
             setRevProgress(pct);
           },
           reject,
@@ -363,6 +362,7 @@ export default function CritiqueClient() {
     }
   };
 
+  // If no policy selected: chooser
   if (!policyId) {
     return (
       <ProtectedRoute>
@@ -376,26 +376,16 @@ export default function CritiqueClient() {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2">
-              <PolicyPicker
-                onSelect={(p) => router.push(`/critique?policyId=${p.id}`)}
-              />
+              <PolicyPicker onSelect={(p) => router.push(`/critique?policyId=${p.id}`)} />
             </div>
 
             <Card className="p-6">
-              <h3 className="text-lg font-bold text-blue-deep mb-2">
-                Upload a policy
-              </h3>
+              <h3 className="text-lg font-bold text-blue-deep mb-2">Upload a policy</h3>
               <p className="text-sm text-[var(--text-secondary)] mb-4">
-                Upload your own PDF/DOCX. It will be added to the repository and
-                then you can critique it.
+                Upload your own PDF/DOCX. It will be added to the repository and then you can critique it.
               </p>
 
-              <Button
-                className="w-full gap-2"
-                onClick={() =>
-                  router.push("/policies/upload?redirect=/critique")
-                }
-              >
+              <Button className="w-full gap-2" onClick={() => router.push("/policies/upload?redirect=/critique")}>
                 <Upload size={16} />
                 Upload policy
               </Button>
@@ -406,6 +396,7 @@ export default function CritiqueClient() {
     );
   }
 
+  // Selected policy view
   return (
     <ProtectedRoute>
       <DashboardLayout>
@@ -413,11 +404,7 @@ export default function CritiqueClient() {
           <div>
             <h1 className="text-2xl font-bold text-blue-deep">AI Critique</h1>
             <p className="text-sm text-[var(--text-secondary)] mt-1">
-              {loadingPolicy
-                ? "Loading selected policy…"
-                : policy
-                ? `Selected: ${policy.title}`
-                : "Selected policy not found."}
+              {loadingPolicy ? "Loading selected policy…" : policy ? `Selected: ${policy.title}` : "Selected policy not found."}
             </p>
           </div>
 
@@ -429,9 +416,7 @@ export default function CritiqueClient() {
         <Card className="p-6 mb-6">
           <div className="flex items-center gap-2 mb-3">
             <Sparkles className="text-blue-electric" size={18} />
-            <h2 className="text-lg font-bold text-blue-deep">
-              Select critique standards
-            </h2>
+            <h2 className="text-lg font-bold text-blue-deep">Select critique standards</h2>
           </div>
 
           <p className="text-sm text-[var(--text-secondary)] mb-4">
@@ -447,21 +432,15 @@ export default function CritiqueClient() {
                   type="button"
                   onClick={() => toggle(s.id)}
                   className={`border rounded-xl p-4 text-left transition ${
-                    on
-                      ? "border-blue-electric bg-blue-soft"
-                      : "hover:border-blue-electric"
+                    on ? "border-blue-electric bg-blue-soft" : "hover:border-blue-electric"
                   }`}
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <p className="font-bold text-blue-deep">{s.label}</p>
-                      <p className="text-sm text-[var(--text-secondary)] mt-1">
-                        {s.description}
-                      </p>
+                      <p className="text-sm text-[var(--text-secondary)] mt-1">{s.description}</p>
                     </div>
-                    {on ? (
-                      <CheckCircle2 className="text-blue-electric" size={18} />
-                    ) : null}
+                    {on ? <CheckCircle2 className="text-blue-electric" size={18} /> : null}
                   </div>
                 </button>
               );
@@ -493,38 +472,27 @@ export default function CritiqueClient() {
                     <AlertTriangle size={16} /> Needs improvement
                   </span>
                 )}
-                {overallTone === "mid" && (
-                  <span className="text-sm text-amber-700 font-semibold">
-                    Moderate
-                  </span>
-                )}
-                {overallTone === "good" && (
-                  <span className="text-sm text-green-700 font-semibold">Strong</span>
-                )}
+                {overallTone === "mid" && <span className="text-sm text-amber-700 font-semibold">Moderate</span>}
+                {overallTone === "good" && <span className="text-sm text-green-700 font-semibold">Strong</span>}
               </div>
 
               {typeof previousScore === "number" && (
                 <p className="text-sm text-[var(--text-secondary)] mb-4">
                   {result.overallScore > previousScore ? (
                     <span className="font-semibold text-green-700">
-                      Improvement acknowledged: +
-                      {result.overallScore - previousScore} points compared to the previous critique.
+                      Improvement acknowledged: +{result.overallScore - previousScore} points compared to the previous critique.
                     </span>
                   ) : result.overallScore < previousScore ? (
                     <span className="font-semibold text-red-600">
                       Score dropped by {previousScore - result.overallScore} points compared to the previous critique.
                     </span>
                   ) : (
-                    <span className="font-semibold">
-                      Score unchanged compared to the previous critique.
-                    </span>
+                    <span className="font-semibold">Score unchanged compared to the previous critique.</span>
                   )}
                 </p>
               )}
 
-              <p className="text-sm text-[var(--text-secondary)] mb-5">
-                {result.summary}
-              </p>
+              <p className="text-sm text-[var(--text-secondary)] mb-5">{result.summary}</p>
 
               <div className="space-y-3">
                 {result.perStandard.map((r: any) => (
@@ -537,7 +505,7 @@ export default function CritiqueClient() {
                     </div>
 
                     <ul className="mt-2 list-disc ml-5 text-sm text-[var(--text-secondary)] space-y-1">
-                      {r.suggestions.map((s: string, i: number) => (
+                      {(r.suggestions ?? []).map((s: string, i: number) => (
                         <li key={i}>{s}</li>
                       ))}
                     </ul>
@@ -554,11 +522,7 @@ export default function CritiqueClient() {
               </p>
 
               <div className="space-y-2">
-                <Button
-                  className="w-full"
-                  onClick={generateImproved}
-                  disabled={generating}
-                >
+                <Button className="w-full" onClick={generateImproved} disabled={generating}>
                   {generating ? "Generating…" : "AI Generate improved policy"}
                 </Button>
 
