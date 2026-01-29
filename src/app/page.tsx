@@ -6,7 +6,6 @@ import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import {
   ArrowRight,
-  Sparkles,
   ShieldCheck,
   LineChart,
   FileText,
@@ -17,6 +16,7 @@ import {
   ChevronRight,
   Menu,
   X,
+  Sparkles,
 } from "lucide-react";
 
 import DynovareLogo from "@/components/branding/DynovareLogo";
@@ -27,7 +27,6 @@ import { Badge } from "@/components/ui/badge";
 function Nav() {
   const [open, setOpen] = useState(false);
 
-  // lock body scroll when menu open
   useEffect(() => {
     if (!open) return;
     const prev = document.body.style.overflow;
@@ -48,10 +47,11 @@ function Nav() {
   );
 
   return (
-    <header className="sticky top-0 z-50 border-b bg-white/70 backdrop-blur">
+    // ✅ Make sticky work reliably: sticky + top-0 + z + no parent overflow clipping.
+    <header className="sticky top-0 z-[60] border-b bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/70">
       <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between gap-3">
         <Link href="/" className="flex items-center gap-3">
-            <DynovareLogo />
+            <DynovareLogo/>
           {/* <div className="leading-tight">
             <p className="font-extrabold text-blue-deep tracking-tight">Dynovare</p>
             <p className="text-xs text-[var(--text-secondary)] -mt-0.5">
@@ -60,7 +60,6 @@ function Nav() {
           </div> */}
         </Link>
 
-        {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-2">
           {navItems.map((it) => (
             <a
@@ -83,7 +82,6 @@ function Nav() {
             </Link>
           </Button>
 
-          {/* Mobile menu button */}
           <Button
             variant="outline"
             size="icon"
@@ -96,7 +94,6 @@ function Nav() {
         </div>
       </div>
 
-      {/* Mobile drawer */}
       {open && (
         <div className="sm:hidden border-t bg-white">
           <div className="mx-auto max-w-6xl px-4 py-4">
@@ -132,11 +129,7 @@ function Nav() {
   );
 }
 
-function SectionHeading(props: {
-  kicker: string;
-  title: string;
-  subtitle?: string;
-}) {
+function SectionHeading(props: { kicker: string; title: string; subtitle?: string }) {
   return (
     <div className="text-center max-w-2xl mx-auto">
       <p className="text-sm text-[var(--text-secondary)]">{props.kicker}</p>
@@ -154,13 +147,12 @@ function SectionHeading(props: {
 
 function Hero() {
   return (
-    <section className="relative overflow-hidden bg-blue-soft">
+<section className="relative overflow-hidden bg-[var(--blue-soft)]">
       <div className="absolute -top-28 -right-24 h-80 w-80 rounded-full bg-blue-electric/10 blur-3xl" />
       <div className="absolute -bottom-28 -left-24 h-80 w-80 rounded-full bg-blue-electric/10 blur-3xl" />
 
       <div className="relative mx-auto max-w-6xl px-4 py-12 md:py-16">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
-          {/* Left */}
           <div>
             <div className="flex flex-wrap items-center gap-2 mb-4">
               <Badge variant="outline" className="border-blue-electric/30 bg-white">
@@ -180,8 +172,8 @@ function Hero() {
             </h1>
 
             <p className="mt-4 text-base md:text-lg text-[var(--text-secondary)] max-w-xl">
-              Dynovare helps you evaluate policy quality, test scenarios, and generate
-              stronger drafts with clear scoring, trends, and structured outputs.
+              Dynovare helps you evaluate policy quality, test scenarios, and generate stronger
+              drafts with clear scoring, trends, and structured outputs.
             </p>
 
             <div className="mt-7 flex flex-col sm:flex-row gap-3">
@@ -220,7 +212,6 @@ function Hero() {
             </div>
           </div>
 
-          {/* Right snapshot */}
           <Card className="p-6 md:p-7 rounded-2xl shadow-sm">
             <div className="flex items-center justify-between mb-5">
               <div>
@@ -293,7 +284,6 @@ function Hero() {
           </Card>
         </div>
 
-        {/* Screenshot mockup under both columns */}
         <div className="mt-10">
           <Card className="p-3 md:p-4 rounded-2xl shadow-sm">
             <div className="relative w-full overflow-hidden rounded-xl border bg-white">
@@ -316,32 +306,32 @@ function Hero() {
 function Features() {
   const items = [
     {
-      icon: <Scale className="text-blue-electric" size={22} />,
+      icon: <Scale className="text-blue-electric" size={24} />,
       title: "Standards-based scoring",
       desc: "Score policies across chosen criteria with per-standard recommendations and an overall score.",
     },
     {
-      icon: <LineChart className="text-blue-electric" size={22} />,
+      icon: <LineChart className="text-blue-electric" size={24} />,
       title: "Rankings and trends",
       desc: "Track performance over time with averages, trend deltas, and quick comparisons.",
     },
     {
-      icon: <FileText className="text-blue-electric" size={22} />,
+      icon: <FileText className="text-blue-electric" size={24} />,
       title: "Policy repository",
       desc: "Browse uploaded and AI-generated policies with clean metadata and readable structure.",
     },
     {
-      icon: <Search className="text-blue-electric" size={22} />,
+      icon: <Search className="text-blue-electric" size={24} />,
       title: "Useful filters",
       desc: "Slice by jurisdiction, state, sector, type, and year, then search within results.",
     },
     {
-      icon: <Globe className="text-blue-electric" size={22} />,
+      icon: <Globe className="text-blue-electric" size={24} />,
       title: "Evidence-guided drafting",
       desc: "Optionally ground drafts and improvements using web insights for best-practice structure.",
     },
     {
-      icon: <CheckCircle2 className="text-blue-electric" size={22} />,
+      icon: <CheckCircle2 className="text-blue-electric" size={24} />,
       title: "Clean outputs",
       desc: "Structured critique, simulations, and drafts that are easy to review and share.",
     },
@@ -389,7 +379,7 @@ function HowItWorks() {
   ];
 
   return (
-    <section id="how" className="bg-blue-soft/60 border-y">
+<section id="how" className="bg-[var(--blue-soft)] border-y">
       <div className="mx-auto max-w-6xl px-4 py-14">
         <SectionHeading
           kicker="How it works"
@@ -492,7 +482,7 @@ function FAQ() {
   ];
 
   return (
-    <section id="faq" className="bg-blue-soft/60 border-y">
+<section id="faq" className="bg-[var(--blue-soft)] border-y">
       <div className="mx-auto max-w-6xl px-4 py-14">
         <SectionHeading
           kicker="FAQ"
@@ -526,17 +516,16 @@ function FAQ() {
 
 function Footer() {
   return (
-    <footer className="bg-blue-deep text-white">
+    // ✅ Ensure footer bg shows: put background on the outer element + remove any conflicting parent bg
+<footer className="bg-[var(--blue-deep)] text-white">
       <div className="mx-auto max-w-6xl px-4 py-10">
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-8">
-          <div className="flex items-center gap-3">
-            <DynovareLogo />
-            {/* <div>
+          <div className="flex items-center gap-3 text-white">
+              {/* <DynovareLogo/> */}
+            <div>
               <p className="font-extrabold tracking-tight">Dynovare</p>
-              <p className="text-xs text-white/70">
-                AI-powered energy policy intelligence
-              </p>
-            </div> */}
+              <p className="text-xs text-white/70">AI-powered energy policy intelligence</p>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-10 gap-y-2 text-sm">
@@ -569,7 +558,7 @@ function Footer() {
             <Button
               asChild
               variant="outline"
-              className="border-white/25 text-white hover:bg-white/10"
+              className="border-white/25 text-blue-deep hover:bg-white/10"
             >
               <Link href="/login">Log in</Link>
             </Button>
@@ -586,6 +575,7 @@ function Footer() {
 
 export default function Home() {
   return (
+    // ✅ keep root bg neutral so footer color is visible
     <main className="min-h-screen bg-white">
       <Nav />
       <Hero />
