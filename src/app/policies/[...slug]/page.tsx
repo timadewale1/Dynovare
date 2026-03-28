@@ -8,16 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useRouter, useParams } from "next/navigation";
 import { db } from "@/lib/firebase";
-import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  limit,
-  orderBy,
-  query,
-  where,
-} from "firebase/firestore";
+import { collection, getDocs, limit, orderBy, query } from "firebase/firestore";
 import type { Policy } from "@/lib/policyTypes";
 import {
   Sparkles,
@@ -27,14 +18,23 @@ import {
   Download,
   ChevronDown,
   ChevronUp,
+  Lock,
+  Save,
+  Wand2,
+  Loader2,
 } from "lucide-react";
+import toast from "react-hot-toast";
 import { getStorage, ref as storageRef, getDownloadURL } from "firebase/storage";
+import { useUser } from "@/components/providers/UserProvider";
+import { resolveWorkspacePolicyBySlugOrId } from "@/lib/workspacePolicies";
+import { updateWorkspacePolicyDraft } from "@/lib/workspacePolicyMutations";
+import { normalizePolicySections, type PolicySection } from "@/lib/policyEditor";
+import { policyDomainLabel, policyEnergySourceLabel } from "@/lib/policyTaxonomy";
 
 function formatWhen(ts: any) {
   try {
     const d = ts?.toDate?.() ? ts.toDate() : null;
-    if (!d) return "";
-    return d.toLocaleString();
+    return d ? d.toLocaleString() : "";
   } catch {
     return "";
   }
@@ -43,485 +43,481 @@ function formatWhen(ts: any) {
 export default function PolicyDetailPage() {
   const router = useRouter();
   const params = useParams();
-
+  const { user } = useUser();
   const slugParts = (params?.slug as string[]) ?? [];
-  const key = slugParts.join("/");
   const slugOrId = slugParts[slugParts.length - 1] || "";
 
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [refiningId, setRefiningId] = useState<string | null>(null);
   const [policy, setPolicy] = useState<Policy | null>(null);
-
+  const [title, setTitle] = useState("");
+  const [summary, setSummary] = useState("");
+  const [sections, setSections] = useState<PolicySection[]>([]);
+  const [aiInstruction, setAiInstruction] = useState<Record<string, string>>({});
   const [critiques, setCritiques] = useState<any[]>([]);
   const [simulations, setSimulations] = useState<any[]>([]);
-
   const [openCritique, setOpenCritique] = useState<string | null>(null);
   const [openSimulation, setOpenSimulation] = useState<string | null>(null);
-
-  const [downloading, setDownloading] = useState(false);
+  const [downloadingOriginal, setDownloadingOriginal] = useState(false);
+  const [exportingPdf, setExportingPdf] = useState(false);
 
   useEffect(() => {
     const load = async () => {
+      if (!user || !slugOrId) return;
       setLoading(true);
+      const record = await resolveWorkspacePolicyBySlugOrId(user.uid, slugOrId);
 
-      // 1) Try find by slug
-      const bySlugSnap = await getDocs(
-        query(collection(db, "policies"), where("slug", "==", slugOrId), limit(1))
-      );
-
-      let p: Policy | null = null;
-
-      if (!bySlugSnap.empty) {
-        const d = bySlugSnap.docs[0];
-        p = { id: d.id, ...(d.data() as any) };
-      } else {
-        // 2) Fallback: treat slugOrId as docId
-        const byId = await getDoc(doc(db, "policies", slugOrId));
-        if (byId.exists()) {
-          p = { id: byId.id, ...(byId.data() as any) };
-        }
-      }
-
-      if (!p) {
+      if (!record) {
         setPolicy(null);
         setLoading(false);
         return;
       }
 
-      setPolicy(p);
+      setPolicy(record);
+      setTitle(record.title ?? "");
+      setSummary(record.summary ?? "");
+      setSections(normalizePolicySections(record.editorSections, record.contentText ?? "", record.title));
 
-      // Load critique + simulation histories (accordion style)
       const critiquesSnap = await getDocs(
-        query(
-          collection(db, "policies", p.id, "critiques"),
-          orderBy("createdAt", "desc"),
-          limit(10)
-        )
+        query(collection(db, "users", user.uid, "policies", record.id, "critiques"), orderBy("createdAt", "desc"), limit(10))
       );
       const simsSnap = await getDocs(
-        query(
-          collection(db, "policies", p.id, "simulations"),
-          orderBy("createdAt", "desc"),
-          limit(10)
-        )
+        query(collection(db, "users", user.uid, "policies", record.id, "simulations"), orderBy("createdAt", "desc"), limit(10))
       );
 
-      const critItems = critiquesSnap.docs.map((d) => ({ id: d.id, ...(d.data() as any) }));
-      const simItems = simsSnap.docs.map((d) => ({ id: d.id, ...(d.data() as any) }));
-
-      setCritiques(critItems);
-      setSimulations(simItems);
-
-      // default closed
-      setOpenCritique(null);
-      setOpenSimulation(null);
-
+      setCritiques(critiquesSnap.docs.map((doc) => ({ id: doc.id, ...(doc.data() as any) })));
+      setSimulations(simsSnap.docs.map((doc) => ({ id: doc.id, ...(doc.data() as any) })));
       setLoading(false);
     };
 
-    if (slugOrId) load();
-    else setLoading(false);
-  }, [slugOrId, key]);
-
-  const typeLabel = (t?: string) => {
-    if (t === "uploaded") return <Badge>Uploaded</Badge>;
-    if (t === "ai_generated") return <Badge variant="secondary">AI Generated</Badge>;
-    if (t === "public_source") return <Badge variant="outline">Public Source</Badge>;
-    return <Badge variant="outline">Unknown</Badge>;
-  };
-
-  const handleDownload = async () => {
-    if (!policy?.storagePath) return;
-    try {
-      setDownloading(true);
-      const storage = getStorage();
-      const url = await getDownloadURL(storageRef(storage, policy.storagePath));
-      window.open(url, "_blank");
-    } finally {
-      setDownloading(false);
-    }
-  };
+    void load();
+  }, [slugOrId, user]);
 
   const jurisdictionText = useMemo(() => {
     if (!policy) return "";
     return policy.jurisdictionLevel === "federal" ? "Federal" : policy.state;
   }, [policy]);
 
+  const saveDraft = async () => {
+    if (!user || !policy) return;
+
+    try {
+      setSaving(true);
+      await updateWorkspacePolicyDraft({
+        uid: user.uid,
+        policyId: policy.id,
+        title,
+        summary,
+        sections,
+        evidence: policy.aiEvidence,
+        guidance: (policy as any).aiGuidance,
+      });
+
+      setPolicy((current) =>
+        current
+          ? {
+              ...current,
+              title,
+              summary,
+              editorSections: sections,
+            }
+          : current
+      );
+      toast.success("Draft saved");
+    } catch (e: any) {
+      console.error(e);
+      toast.error(e?.message || "Failed to save draft");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const refineSection = async (section: PolicySection) => {
+    const instructions = String(aiInstruction[section.id] || "").trim();
+    if (!instructions) {
+      toast.error("Add a short instruction for the AI first");
+      return;
+    }
+
+    try {
+      setRefiningId(section.id);
+      const res = await fetch("/api/ai/revise-section", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          policyTitle: title || policy?.title,
+          sectionTitle: section.title,
+          sectionBody: section.body,
+          instructions,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || "Section revision failed");
+
+      setSections((current) =>
+        current.map((item) =>
+          item.id === section.id ? { ...item, title: data?.title || item.title, body: data?.body || item.body } : item
+        )
+      );
+      setAiInstruction((current) => ({ ...current, [section.id]: "" }));
+      toast.success(data?.changeSummary || "Section refined");
+    } catch (e: any) {
+      console.error(e);
+      toast.error(e?.message || "Section revision failed");
+    } finally {
+      setRefiningId(null);
+    }
+  };
+
+  const handleOriginalDownload = async () => {
+    if (!policy?.storagePath) return;
+    try {
+      setDownloadingOriginal(true);
+      const url = await getDownloadURL(storageRef(getStorage(), policy.storagePath));
+      window.open(url, "_blank");
+    } finally {
+      setDownloadingOriginal(false);
+    }
+  };
+
+  const handleStyledPdfExport = async () => {
+    if (!policy || !user) return;
+
+    try {
+      setExportingPdf(true);
+      await saveDraft();
+
+      const res = await fetch("/api/policies/export-pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ policyId: policy.id, ownerUid: user.uid }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data?.error || "PDF export failed");
+      }
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${(title || policy.title).replace(/[^a-z0-9-_]+/gi, "-").toLowerCase()}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch (e: any) {
+      console.error(e);
+      toast.error(e?.message || "PDF export failed");
+    } finally {
+      setExportingPdf(false);
+    }
+  };
+
   return (
     <ProtectedRoute>
       <DashboardLayout>
-        <div className="flex items-start justify-between gap-4 mb-6">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="outline"
-              onClick={() => router.push("/policies")}
-              className="gap-2"
-            >
-              <ArrowLeft size={16} />
-              Back
-            </Button>
-
-            <div>
-              <h1 className="text-2xl font-bold text-blue-deep">
-                {loading ? "Loading policy…" : policy?.title ?? "Policy not found"}
-              </h1>
-
-              {!loading && policy && (
-                <p className="text-sm text-[var(--text-secondary)] mt-1">
-                  {policy.country} • {jurisdictionText} • {policy.policyYear ?? "Year N/A"}
-                </p>
-              )}
-            </div>
-          </div>
-
-          {!loading && policy && (
-            <div className="flex gap-2 flex-wrap">
-{policy.storagePath && (
-                  <Button
-                    variant="outline"
-                    onClick={handleDownload}
-                    disabled={downloading}
-                    className="gap-2"
-                  >
-                    <Download size={16} />
-                    {downloading ? "Preparing…" : "Download PDF"}
+        <div className="space-y-6">
+          <section className="rounded-[2rem] bg-[linear-gradient(135deg,#08263d_0%,#0f4b70_52%,#1f7a8c_100%)] p-7 text-white shadow-[0_24px_80px_rgba(8,38,61,0.18)]">
+            <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
+              <div className="max-w-3xl">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button variant="outline" className="border-white/20 bg-transparent text-white hover:bg-white/10" onClick={() => router.push("/policies")}>
+                    <ArrowLeft size={16} />
+                    Back
                   </Button>
-                )}
-
-              <Button
-                onClick={() => router.push(`/critique?policyId=${policy.id}`)}
-                className="gap-2"
-              >
-                <Sparkles size={16} />
-                Critique
-              </Button>
-
-              <Button
-                variant="outline"
-                onClick={() => router.push(`/simulations?policyId=${policy.id}`)}
-                className="gap-2"
-              >
-                <BarChart3 size={16} />
-                Simulate
-              </Button>
-            </div>
-          )}
-        </div>
-
-        {!loading && !policy && (
-          <Card className="p-6">
-            <p className="text-sm text-[var(--text-secondary)]">
-              No policy found for:{" "}
-              <span className="font-semibold">{slugOrId}</span>
-            </p>
-          </Card>
-        )}
-
-        {policy && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* LEFT */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Summary + meta */}
-              <Card className="p-6">
-                <div className="flex items-center gap-2 flex-wrap mb-3">
-                  {typeLabel(policy.type)}
-                  <Badge variant="outline">
-                    {policy.jurisdictionLevel === "federal" ? "Federal" : "State"}
+                  <Badge variant="outline" className="border-white/20 bg-white/10 text-white">
+                    <Lock size={12} className="mr-1" /> Private studio
                   </Badge>
-
-                  {policy.jurisdictionLevel === "state" && policy.state && (
-                    <Badge variant="outline">{policy.state}</Badge>
-                  )}
-
-                  {policy.policyYear && (
-                    <Badge variant="outline">{policy.policyYear}</Badge>
-                  )}
-
-                  {/* ✅ Sector badge */}
-                  {(policy as any).sector && (
-                    <Badge variant="outline">{(policy as any).sector}</Badge>
-                  )}
                 </div>
-
-                {policy.summary ? (
-                  <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-                    {policy.summary}
+                <h1 className="mt-5 text-3xl font-black tracking-tight">
+                  {loading ? "Loading policy studio..." : policy?.title ?? "Policy not found"}
+                </h1>
+                {!loading && policy ? (
+                  <p className="mt-3 text-base text-white/78">
+                    {policy.country} · {jurisdictionText} · {policy.policyYear ?? "Year N/A"} · {policy.type === "ai_generated" ? "AI draft" : "Uploaded policy"}
                   </p>
-                ) : (
-                  <p className="text-sm text-[var(--text-secondary)]">
-                    No summary provided yet.
-                  </p>
-                )}
-
-                {/* Tags */}
-                {policy.tags?.length ? (
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {policy.tags.map((t) => (
-                      <Badge key={t} variant="secondary">
-                        {t}
-                      </Badge>
-                    ))}
-                  </div>
                 ) : null}
-              </Card>
+              </div>
 
-              {/* ✅ Critique history (Accordion) */}
-              <Card className="p-6">
-                <h2 className="text-lg font-bold text-blue-deep mb-2">
-                  Critique history
-                </h2>
-
-                {critiques.length === 0 ? (
-                  <p className="text-sm text-[var(--text-secondary)]">
-                    No critiques yet. Run the first critique from the AI Critique page.
-                  </p>
-                ) : (
-                  <div className="space-y-3 mt-4">
-                    {critiques.map((c) => {
-                      const isOpen = openCritique === c.id;
-                      return (
-                        <div key={c.id} className="border rounded-xl overflow-hidden">
-                          <button
-                            type="button"
-                            onClick={() => setOpenCritique(isOpen ? null : c.id)}
-                            className="w-full px-4 py-3 flex items-center justify-between hover:bg-blue-soft transition"
-                          >
-                            <div className="text-left">
-                              <p className="font-bold text-blue-deep">
-                                Overall: {c.overallScore ?? "—"}/100
-                              </p>
-                              <p className="text-xs text-[var(--text-secondary)] mt-1">
-                                {formatWhen(c.createdAt)}
-                                {typeof c.revisionNumber === "number"
-                                  ? ` • Revision ${c.revisionNumber}`
-                                  : ""}
-                              </p>
-                            </div>
-                            {isOpen ? (
-                              <ChevronUp className="text-blue-electric" size={18} />
-                            ) : (
-                              <ChevronDown className="text-blue-electric" size={18} />
-                            )}
-                          </button>
-
-                          {isOpen && (
-                            <div className="px-4 pb-4">
-                              {c.summary && (
-                                <p className="text-sm text-[var(--text-secondary)] mt-2">
-                                  {c.summary}
-                                </p>
-                              )}
-
-                              {Array.isArray(c.perStandard) && c.perStandard.length > 0 && (
-                                <div className="mt-4 space-y-3">
-                                  {c.perStandard.map((s: any) => (
-                                    <div key={s.standardId} className="border rounded-xl p-3">
-                                      <div className="flex items-center justify-between">
-                                        <p className="font-semibold text-blue-deep">
-                                          {s.standardLabel ?? s.standardId}
-                                        </p>
-                                        <p className="font-bold">{s.score}/100</p>
-                                      </div>
-                                      {Array.isArray(s.suggestions) && s.suggestions.length > 0 && (
-                                        <ul className="mt-2 list-disc ml-5 text-sm text-[var(--text-secondary)] space-y-1">
-                                          {s.suggestions.map((x: string, i: number) => (
-                                            <li key={i}>{x}</li>
-                                          ))}
-                                        </ul>
-                                      )}
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </Card>
-
-              {/* ✅ Simulation history (Accordion) */}
-              <Card className="p-6">
-                <h2 className="text-lg font-bold text-blue-deep mb-2">
-                  Simulation history
-                </h2>
-
-                {simulations.length === 0 ? (
-                  <p className="text-sm text-[var(--text-secondary)]">
-                    No simulations yet. Run the first simulation from the Simulations page.
-                  </p>
-                ) : (
-                  <div className="space-y-3 mt-4">
-                    {simulations.map((s) => {
-                      const isOpen = openSimulation === s.id;
-
-                      const horizon =
-                        typeof s?.inputs?.yearsHorizon === "number"
-                          ? `${s.inputs.yearsHorizon} years`
-                          : s?.inputs?.yearsHorizon
-                          ? String(s.inputs.yearsHorizon)
-                          : "—";
-
-                      return (
-                        <div key={s.id} className="border rounded-xl overflow-hidden">
-                          <button
-                            type="button"
-                            onClick={() => setOpenSimulation(isOpen ? null : s.id)}
-                            className="w-full px-4 py-3 flex items-center justify-between hover:bg-blue-soft transition"
-                          >
-                            <div className="text-left">
-                              <p className="font-bold text-blue-deep">
-                                Scenario: {s?.inputs?.scenarioName ?? "Simulation"} • {horizon}
-                              </p>
-                              <p className="text-xs text-[var(--text-secondary)] mt-1">
-                                {formatWhen(s.createdAt)}
-                              </p>
-                            </div>
-                            {isOpen ? (
-                              <ChevronUp className="text-blue-electric" size={18} />
-                            ) : (
-                              <ChevronDown className="text-blue-electric" size={18} />
-                            )}
-                          </button>
-
-                          {isOpen && (
-                            <div className="px-4 pb-4">
-                              {/* Show inputs */}
-                              {s.inputs && (
-                                <div className="mt-3">
-                                  <p className="text-xs font-semibold text-[var(--text-secondary)] mb-2">
-                                    Inputs
-                                  </p>
-                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-                                    {Object.entries(s.inputs).slice(0, 8).map(([k, v]) => (
-                                      <div key={k} className="border rounded-lg px-3 py-2">
-                                        <span className="font-semibold text-blue-deep">{k}:</span>{" "}
-                                        <span className="text-[var(--text-secondary)]">
-                                          {typeof v === "object" ? JSON.stringify(v) : String(v)}
-                                        </span>
-                                      </div>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
-
-                              {/* Show high-level outputs */}
-                              {s.results && (
-                                <div className="mt-4">
-                                  <p className="text-xs font-semibold text-[var(--text-secondary)] mb-2">
-                                    Key results
-                                  </p>
-                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-                                    {Object.entries(s.results).slice(0, 8).map(([k, v]) => (
-                                      <div key={k} className="border rounded-lg px-3 py-2">
-                                        <span className="font-semibold text-blue-deep">{k}:</span>{" "}
-                                        <span className="text-[var(--text-secondary)]">
-                                          {typeof v === "object" ? JSON.stringify(v) : String(v)}
-                                        </span>
-                                      </div>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
-
-                              {/* Optional: link to run new sim */}
-                              <div className="mt-4">
-                                <Button
-                                  variant="outline"
-                                  className="w-full"
-                                  onClick={() => router.push(`/simulations?policyId=${policy.id}`)}
-                                >
-                                  Run another simulation
-                                </Button>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </Card>
-            </div>
-
-            {/* RIGHT */}
-            <div className="space-y-6">
-              <Card className="p-6">
-                <h2 className="text-lg font-bold text-blue-deep mb-3">Source</h2>
-
-                {policy.source?.url ? (
-                  <div className="space-y-2">
-                    {policy.source.publisher && (
-                      <p className="text-sm">
-                        <span className="font-semibold">Publisher:</span>{" "}
-                        <span className="text-[var(--text-secondary)]">
-                          {policy.source.publisher}
-                        </span>
-                      </p>
-                    )}
-
-                    <Button
-                      variant="outline"
-                      className="gap-2"
-                      onClick={() => window.open(policy.source!.url!, "_blank")}
-                    >
-                      <Link2 size={16} />
-                      Open source link
-                    </Button>
-
-                    {policy.source.licenseNote && (
-                      <p className="text-xs text-[var(--text-secondary)]">
-                        {policy.source.licenseNote}
-                      </p>
-                    )}
-                  </div>
-                ) : (
-                  <p className="text-sm text-[var(--text-secondary)]">
-                    No external source link provided.
-                  </p>
-                )}
-              </Card>
-
-              <Card className="p-6">
-                <h2 className="text-lg font-bold text-blue-deep mb-3">
-                  Quick actions
-                </h2>
-
-                <div className="space-y-2">
-                    {policy.storagePath && (
-                      <Button
-                        variant="outline"
-                        className="w-full gap-2"
-                        onClick={handleDownload}
-                        disabled={downloading}
-                      >
-                        <Download size={16} />
-                        {downloading ? "Preparing download…" : "Download policy (PDF)"}
-                      </Button>
-                    )}
-
-                  <Button
-                    className="w-full gap-2"
-                    onClick={() => router.push(`/critique?policyId=${policy.id}`)}
-                  >
-                    <Sparkles size={16} />
-                    Run AI Critique
+              {!loading && policy ? (
+                <div className="grid gap-2 sm:grid-cols-2 xl:w-[420px]">
+                  <Button className="rounded-full bg-white text-blue-deep hover:bg-white/90" onClick={saveDraft} disabled={saving}>
+                    {saving ? <Loader2 className="mr-2 animate-spin" size={16} /> : <Save className="mr-2" size={16} />}
+                    Save draft
                   </Button>
-
-                  <Button
-                    variant="outline"
-                    className="w-full gap-2"
-                    onClick={() => router.push(`/simulations?policyId=${policy.id}`)}
-                  >
-                    <BarChart3 size={16} />
-                    Run Simulation
+                  <Button className="rounded-full border border-white/20 bg-transparent text-white hover:bg-white/10" onClick={handleStyledPdfExport} disabled={exportingPdf}>
+                    {exportingPdf ? <Loader2 className="mr-2 animate-spin" size={16} /> : <Download className="mr-2" size={16} />}
+                    Export styled PDF
+                  </Button>
+                  <Button className="rounded-full border border-white/20 bg-transparent text-white hover:bg-white/10" onClick={() => router.push(`/critique?policyId=${policy.id}`)}>
+                    <Sparkles className="mr-2" size={16} />
+                    Run critique
+                  </Button>
+                  <Button className="rounded-full border border-white/20 bg-transparent text-white hover:bg-white/10" onClick={() => router.push(`/simulations?policyId=${policy.id}`)}>
+                    <BarChart3 className="mr-2" size={16} />
+                    Run simulation
                   </Button>
                 </div>
-              </Card>
+              ) : null}
             </div>
-          </div>
-        )}
+          </section>
+
+          {!loading && !policy ? (
+            <Card className="rounded-[2rem] p-6">
+              <p className="text-sm text-[var(--text-secondary)]">No workspace policy found for this route.</p>
+            </Card>
+          ) : null}
+
+          {policy ? (
+            <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+              <div className="space-y-6">
+                <Card className="rounded-[2rem] border-white/70 bg-white/90 p-6 shadow-sm">
+                  <div className="grid gap-5">
+                    <div>
+                      <p className="mb-2 text-xs uppercase tracking-[0.22em] text-[var(--text-secondary)]">Document metadata</p>
+                      <input className="studio-title-input" value={title} onChange={(e) => setTitle(e.target.value)} />
+                    </div>
+                    <div>
+                      <p className="mb-2 text-sm font-semibold text-blue-deep">Summary</p>
+                      <textarea className="studio-textarea min-h-[110px]" value={summary} onChange={(e) => setSummary(e.target.value)} />
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <Badge>{policy.type}</Badge>
+                      <Badge variant="outline">{policy.jurisdictionLevel === "federal" ? "Federal" : "State"}</Badge>
+                      {policy.state ? <Badge variant="outline">{policy.state}</Badge> : null}
+                      {policy.policyYear ? <Badge variant="outline">{policy.policyYear}</Badge> : null}
+                      {(policy as any).sector ? <Badge variant="outline">{(policy as any).sector}</Badge> : null}
+                      {(policy as any).energySource ? <Badge variant="outline">{policyEnergySourceLabel((policy as any).energySource)}</Badge> : null}
+                      {(policy as any).domain ? <Badge variant="outline">{policyDomainLabel((policy as any).domain)}</Badge> : null}
+                    </div>
+                  </div>
+                </Card>
+
+                <div className="space-y-5">
+                  {sections.map((section, index) => (
+                    <Card key={section.id} className="rounded-[2rem] border-white/70 bg-white/90 p-6 shadow-sm">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="text-xs uppercase tracking-[0.2em] text-[var(--text-secondary)]">Section {index + 1}</p>
+                          <input
+                            className="mt-2 w-full bg-transparent text-2xl font-black text-blue-deep outline-none"
+                            value={section.title}
+                            onChange={(e) =>
+                              setSections((current) => current.map((item) => item.id === section.id ? { ...item, title: e.target.value } : item))
+                            }
+                          />
+                        </div>
+                        <Badge variant="outline" className="rounded-full">Editable</Badge>
+                      </div>
+
+                      <textarea
+                        className="studio-textarea mt-4 min-h-[260px]"
+                        value={section.body}
+                        onChange={(e) =>
+                          setSections((current) => current.map((item) => item.id === section.id ? { ...item, body: e.target.value } : item))
+                        }
+                      />
+
+                      <div className="mt-4 rounded-[1.5rem] border bg-slate-50/80 p-4">
+                        <div className="flex items-center gap-2">
+                          <Wand2 size={16} className="text-blue-electric" />
+                          <p className="font-semibold text-blue-deep">Ask AI to improve this section</p>
+                        </div>
+                        <textarea
+                          className="studio-textarea mt-3 min-h-[90px] bg-white"
+                          placeholder="Example: tighten the implementation plan, add monitoring responsibilities, or make the financing section more realistic."
+                          value={aiInstruction[section.id] ?? ""}
+                          onChange={(e) => setAiInstruction((current) => ({ ...current, [section.id]: e.target.value }))}
+                        />
+                        <div className="mt-3 flex justify-end">
+                          <Button className="rounded-full gap-2" onClick={() => refineSection(section)} disabled={refiningId === section.id}>
+                            {refiningId === section.id ? <Loader2 className="animate-spin" size={15} /> : <Sparkles size={15} />}
+                            {refiningId === section.id ? "Rewriting..." : "Rewrite section"}
+                          </Button>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                <Card className="rounded-[2rem] border-white/70 bg-white/90 p-6 shadow-sm">
+                  <h2 className="text-xl font-black text-blue-deep">Studio actions</h2>
+                  <p className="mt-2 text-sm text-[var(--text-secondary)]">
+                    Save before you leave, refine sections with AI, and export only when the draft reads the way you want.
+                  </p>
+                  <div className="mt-5 space-y-2">
+                    <Button className="w-full rounded-full gap-2" onClick={saveDraft} disabled={saving}>
+                      {saving ? <Loader2 className="animate-spin" size={15} /> : <Save size={15} />}
+                      Save draft
+                    </Button>
+                    <Button className="w-full rounded-full gap-2" variant="outline" onClick={handleStyledPdfExport} disabled={exportingPdf}>
+                      {exportingPdf ? <Loader2 className="animate-spin" size={15} /> : <Download size={15} />}
+                      Export styled PDF
+                    </Button>
+                    {policy.storagePath ? (
+                      <Button className="w-full rounded-full gap-2" variant="outline" onClick={handleOriginalDownload} disabled={downloadingOriginal}>
+                        <Download size={15} />
+                        {downloadingOriginal ? "Preparing original..." : "Open original file"}
+                      </Button>
+                    ) : null}
+                  </div>
+                </Card>
+
+                {policy.aiEvidence?.length ? (
+                  <Card className="rounded-[2rem] border-white/70 bg-white/90 p-6 shadow-sm">
+                    <h2 className="text-xl font-black text-blue-deep">AI evidence</h2>
+                    <div className="mt-4 space-y-3">
+                      {policy.aiEvidence.map((item) => (
+                        <button
+                          key={`${item.title}-${item.url}`}
+                          type="button"
+                          onClick={() => window.open(item.url, "_blank")}
+                          className="w-full rounded-[1.25rem] border bg-slate-50 p-4 text-left transition hover:bg-blue-soft"
+                        >
+                          <p className="font-semibold text-blue-deep">{item.title}</p>
+                          <p className="mt-1 text-xs text-[var(--text-secondary)]">{item.whyRelevant || item.url}</p>
+                        </button>
+                      ))}
+                    </div>
+                  </Card>
+                ) : null}
+
+                {(policy as any).aiGuidance ? (
+                  <Card className="rounded-[2rem] border-white/70 bg-white/90 p-6 shadow-sm">
+                    <h2 className="text-xl font-black text-blue-deep">AI drafting guidance</h2>
+                    <div className="mt-4 space-y-4">
+                      {Array.isArray((policy as any).aiGuidance?.draftingNotes) && (policy as any).aiGuidance.draftingNotes.length > 0 ? (
+                        <div className="rounded-[1.25rem] border bg-slate-50 p-4">
+                          <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-secondary)]">Drafting notes</p>
+                          <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-[var(--text-secondary)]">
+                            {(policy as any).aiGuidance.draftingNotes.map((item: string, index: number) => <li key={index}>{item}</li>)}
+                          </ul>
+                        </div>
+                      ) : null}
+                      {Array.isArray((policy as any).aiGuidance?.implementationChecklist) && (policy as any).aiGuidance.implementationChecklist.length > 0 ? (
+                        <div className="rounded-[1.25rem] border bg-slate-50 p-4">
+                          <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-secondary)]">Implementation checklist</p>
+                          <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-[var(--text-secondary)]">
+                            {(policy as any).aiGuidance.implementationChecklist.map((item: string, index: number) => <li key={index}>{item}</li>)}
+                          </ul>
+                        </div>
+                      ) : null}
+                      {Array.isArray((policy as any).aiGuidance?.revisionPrompts) && (policy as any).aiGuidance.revisionPrompts.length > 0 ? (
+                        <div className="rounded-[1.25rem] border bg-slate-50 p-4">
+                          <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-secondary)]">Revision prompts</p>
+                          <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-[var(--text-secondary)]">
+                            {(policy as any).aiGuidance.revisionPrompts.map((item: string, index: number) => <li key={index}>{item}</li>)}
+                          </ul>
+                        </div>
+                      ) : null}
+                      {Array.isArray((policy as any).aiGuidance?.riskControls) && (policy as any).aiGuidance.riskControls.length > 0 ? (
+                        <div className="rounded-[1.25rem] border bg-slate-50 p-4">
+                          <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-secondary)]">Risk controls</p>
+                          <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-[var(--text-secondary)]">
+                            {(policy as any).aiGuidance.riskControls.map((item: string, index: number) => <li key={index}>{item}</li>)}
+                          </ul>
+                        </div>
+                      ) : null}
+                    </div>
+                  </Card>
+                ) : null}
+
+                <Card className="rounded-[2rem] border-white/70 bg-white/90 p-6 shadow-sm">
+                  <h2 className="text-xl font-black text-blue-deep">Critique history</h2>
+                  <div className="mt-4 space-y-3">
+                    {critiques.length === 0 ? (
+                      <p className="text-sm text-[var(--text-secondary)]">No critiques yet.</p>
+                    ) : (
+                      critiques.map((item) => {
+                        const open = openCritique === item.id;
+                        return (
+                          <div key={item.id} className="overflow-hidden rounded-[1.25rem] border">
+                            <button type="button" className="flex w-full items-center justify-between px-4 py-3 text-left hover:bg-blue-soft" onClick={() => setOpenCritique(open ? null : item.id)}>
+                              <div>
+                                <p className="font-bold text-blue-deep">Overall {item.overallScore ?? "—"}/100</p>
+                                <p className="text-xs text-[var(--text-secondary)]">{formatWhen(item.createdAt)}</p>
+                              </div>
+                              {open ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                            </button>
+                            {open ? (
+                              <div className="space-y-3 px-4 pb-4">
+                                {item.executiveVerdict ? <p className="text-sm text-blue-deep">{item.executiveVerdict}</p> : null}
+                                {Array.isArray(item.priorityActions) && item.priorityActions.length > 0 ? (
+                                  <div>
+                                    <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-secondary)]">Priority actions</p>
+                                    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-[var(--text-secondary)]">
+                                      {item.priorityActions.map((action: string, index: number) => <li key={index}>{action}</li>)}
+                                    </ul>
+                                  </div>
+                                ) : null}
+                              </div>
+                            ) : null}
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </Card>
+
+                <Card className="rounded-[2rem] border-white/70 bg-white/90 p-6 shadow-sm">
+                  <h2 className="text-xl font-black text-blue-deep">Simulation history</h2>
+                  <div className="mt-4 space-y-3">
+                    {simulations.length === 0 ? (
+                      <p className="text-sm text-[var(--text-secondary)]">No simulations yet.</p>
+                    ) : (
+                      simulations.map((item) => {
+                        const open = openSimulation === item.id;
+                        const outputs = item.outputs ?? item.results ?? {};
+                        return (
+                          <div key={item.id} className="overflow-hidden rounded-[1.25rem] border">
+                            <button type="button" className="flex w-full items-center justify-between px-4 py-3 text-left hover:bg-blue-soft" onClick={() => setOpenSimulation(open ? null : item.id)}>
+                              <div>
+                                <p className="font-bold text-blue-deep">Scenario run</p>
+                                <p className="text-xs text-[var(--text-secondary)]">{formatWhen(item.createdAt)}</p>
+                              </div>
+                              {open ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                            </button>
+                            {open ? (
+                              <div className="grid gap-2 px-4 pb-4 sm:grid-cols-2">
+                                {Object.entries(outputs).slice(0, 6).map(([key, value]) => (
+                                  <div key={key} className="rounded-xl border bg-slate-50 px-3 py-2 text-sm">
+                                    <span className="font-semibold text-blue-deep">{key}: </span>
+                                    <span className="text-[var(--text-secondary)]">{typeof value === "object" ? JSON.stringify(value) : String(value)}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : null}
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </Card>
+
+                <Card className="rounded-[2rem] border-white/70 bg-white/90 p-6 shadow-sm">
+                  <h2 className="text-xl font-black text-blue-deep">Source</h2>
+                  {policy.source?.url ? (
+                    <div className="mt-4 space-y-3">
+                      {policy.source.publisher ? <p className="text-sm text-[var(--text-secondary)]">{policy.source.publisher}</p> : null}
+                      <Button variant="outline" className="w-full gap-2 rounded-full" onClick={() => window.open(policy.source?.url, "_blank")}>
+                        <Link2 size={15} />
+                        Open source
+                      </Button>
+                    </div>
+                  ) : (
+                    <p className="mt-3 text-sm text-[var(--text-secondary)]">No external source link provided.</p>
+                  )}
+                </Card>
+              </div>
+            </div>
+          ) : null}
+        </div>
       </DashboardLayout>
     </ProtectedRoute>
   );

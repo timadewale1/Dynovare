@@ -53,7 +53,9 @@ export async function fetchPublicPoliciesAdmin(): Promise<PublicPolicyListItem[]
     .limit(200)
     .get();
 
-  return snap.docs.map((d) => {
+  return snap.docs
+    .filter((d) => d.data()?.visibility !== "private")
+    .map((d) => {
     const p = d.data() as any;
 
     return {
@@ -78,7 +80,7 @@ export async function fetchPublicPoliciesAdmin(): Promise<PublicPolicyListItem[]
       updatedAtMs: toMillis(p.updatedAt),
       createdAtMs: toMillis(p.createdAt),
     };
-  });
+    });
 }
 
 export async function fetchPublicPolicyBySlugAdmin(slug: string) {
@@ -92,6 +94,7 @@ export async function fetchPublicPolicyBySlugAdmin(slug: string) {
 
   const doc = q.docs[0];
   const p = doc.data() as any;
+  if (p?.visibility === "private") return null;
 
   // Keep this server-side usage safe too
   return {

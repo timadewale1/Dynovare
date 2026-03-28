@@ -9,9 +9,8 @@ import { useUser } from "@/components/providers/UserProvider";
 import { db } from "@/lib/firebase";
 import { collection, getDocs, orderBy, query } from "firebase/firestore";
 import { useRouter } from "next/navigation";
-import { Sparkles, ArrowRight } from "lucide-react";
+import { Sparkles, ArrowRight, ShieldCheck } from "lucide-react";
 import Link from "next/link";
-
 
 type MyCritiqueIndex = {
   policyId: string;
@@ -56,67 +55,77 @@ export default function MyCritiquesPage() {
       setLoading(false);
     };
 
-    load();
+    void load();
   }, [user]);
 
   return (
     <ProtectedRoute>
       <DashboardLayout>
-        <div className="mb-6 flex items-start justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-blue-deep">My Critiques</h1>
-            <p className="text-sm text-[var(--text-secondary)] mt-1">
-              One entry per policy. Open a policy to view the full critique history timeline.
-            </p>
+        <section className="mb-6 overflow-hidden rounded-[2rem] bg-[linear-gradient(135deg,#081f30_0%,#103851_52%,#125669_100%)] p-7 text-white shadow-[0_24px_70px_rgba(8,31,48,0.18)]">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h1 className="text-4xl font-black tracking-tight">My critiques</h1>
+              <p className="mt-3 max-w-2xl text-sm text-white/78">
+                Review every policy you have assessed, compare score movement, and reopen the full critique timeline when you need detail.
+              </p>
+            </div>
+            <Button onClick={() => router.push("/critique")} className="rounded-full bg-white text-blue-deep hover:bg-white/90">
+              <Sparkles size={16} className="mr-2" />
+              New critique
+            </Button>
           </div>
+        </section>
 
-          <Button onClick={() => router.push("/critique")} className="gap-2">
-            <Sparkles size={16} />
-            New critique
-          </Button>
+        <div className="mb-6 grid gap-4 md:grid-cols-3">
+          <Card className="premium-card rounded-[1.5rem] p-5">
+            <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-secondary)]">Policies reviewed</p>
+            <p className="mt-2 text-3xl font-black text-blue-deep">{loading ? "..." : items.length}</p>
+          </Card>
+          <Card className="premium-card rounded-[1.5rem] p-5">
+            <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-secondary)]">Latest average</p>
+            <p className="mt-2 text-3xl font-black text-blue-deep">
+              {loading || items.length === 0
+                ? "-"
+                : Math.round((items.reduce((sum, item) => sum + Number(item.lastOverallScore ?? 0), 0) / items.length) * 10) / 10}
+            </p>
+          </Card>
+          <Card className="premium-card rounded-[1.5rem] p-5">
+            <div className="flex items-center gap-2 text-blue-deep">
+              <ShieldCheck size={16} />
+              <p className="text-xs uppercase tracking-[0.18em]">Why this matters</p>
+            </div>
+            <p className="mt-3 text-sm text-[var(--text-secondary)]">Use the critique history to see what improved, what stayed weak, and where the next revision should focus.</p>
+          </Card>
         </div>
 
-        <Card className="p-6">
+        <Card className="premium-card p-6">
           {loading ? (
-            <p className="text-sm text-[var(--text-secondary)]">Loading…</p>
+            <p className="text-sm text-[var(--text-secondary)]">Loading...</p>
           ) : items.length === 0 ? (
             <div className="text-sm text-[var(--text-secondary)]">
-              <p>You haven’t critiqued any policies yet.</p>
-              <p className="mt-2">Go to AI Critique to start.</p>
+              <p>You have not critiqued any policies yet.</p>
+              <p className="mt-2">Open AI Critique to start your first review.</p>
             </div>
           ) : (
             <div className="space-y-3">
-             {items.map((it) => (
-  <Link
-    key={it.policyId}
-    href={`/my-critiques/${it.policyId}`}
-    className="block w-full text-left border rounded-xl p-4 hover:bg-blue-soft transition cursor-pointer"
-  >
-    <div className="flex items-start justify-between gap-3">
-      <div className="min-w-0">
-        <p className="font-bold text-blue-deep truncate">{it.policyTitle}</p>
-
-        <div className="mt-2 flex flex-wrap gap-3 text-sm text-[var(--text-secondary)]">
-          <span>
-            Latest score:{" "}
-            <span className="font-semibold text-blue-deep">
-              {it.lastOverallScore ?? "N/A"}
-            </span>
-          </span>
-          <span>
-            Critiques:{" "}
-            <span className="font-semibold text-blue-deep">
-              {it.critiquesCount ?? 0}
-            </span>
-          </span>
-        </div>
-      </div>
-
-      <ArrowRight className="text-blue-electric mt-1" size={18} />
-    </div>
-  </Link>
-))}
-
+              {items.map((it) => (
+                <Link
+                  key={it.policyId}
+                  href={`/my-critiques/${it.policyId}`}
+                  className="block rounded-[1.4rem] border bg-white/80 p-4 transition hover:bg-blue-soft"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="truncate font-bold text-blue-deep">{it.policyTitle}</p>
+                      <div className="mt-2 flex flex-wrap gap-3 text-sm text-[var(--text-secondary)]">
+                        <span>Latest score: <span className="font-semibold text-blue-deep">{it.lastOverallScore ?? "-"}</span></span>
+                        <span>Critiques: <span className="font-semibold text-blue-deep">{it.critiquesCount ?? 0}</span></span>
+                      </div>
+                    </div>
+                    <ArrowRight className="mt-1 text-blue-electric" size={18} />
+                  </div>
+                </Link>
+              ))}
             </div>
           )}
         </Card>

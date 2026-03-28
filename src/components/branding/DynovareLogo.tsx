@@ -1,30 +1,16 @@
-export default function DynovareLogo({ size = 28 }: { size?: number }) {
+import Image from "next/image";
+
+export default function DynovareLogo({ size = 34 }: { size?: number }) {
+  const width = Math.round(size * 3.2);
+
   return (
-    <svg
-      width={size * 5}
+    <Image
+      src="/logo.png"
+      alt="Dynovare"
+      width={width}
       height={size}
-      viewBox="0 0 500 100"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <text
-        x="0"
-        y="70"
-        fontSize="72"
-        fontWeight="800"
-        fontFamily="Inter, system-ui, sans-serif"
-        fill="var(--blue-deep)"
-        letterSpacing="2"
-      >
-        DYNOVARE
-      </text>
-      <rect
-        x="0"
-        y="80"
-        width="140"
-        height="6"
-        fill="var(--blue-electric)"
-        rx="3"
-      />
-    </svg>
+      className="h-auto w-auto max-h-[40px] object-contain"
+      priority
+    />
   );
 }

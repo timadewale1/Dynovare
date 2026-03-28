@@ -22,9 +22,14 @@ export async function saveSimulation(params: {
 
   inputs: any;
   outputs: any;
+  evidence?: { title?: string; url?: string; whyRelevant?: string }[];
+  policyScope?: "workspace" | "public";
+  ownerUid?: string | null;
 }) {
   const simulationId = doc(collection(db, "simulations")).id;
   const now = serverTimestamp();
+  const policyScope = params.policyScope ?? "workspace";
+  const ownerUid = params.ownerUid ?? params.userId;
 
   const payload: any = {
     simulationId,
@@ -42,10 +47,14 @@ export async function saveSimulation(params: {
 
     inputs: params.inputs,
     outputs: params.outputs,
+    evidence: params.evidence ?? [],
     createdAt: now,
   };
 
-  const policySimRef = doc(db, "policies", params.policyId, "simulations", simulationId);
+  const policySimRef =
+    policyScope === "public"
+      ? doc(db, "policies", params.policyId, "simulations", simulationId)
+      : doc(db, "users", ownerUid, "policies", params.policyId, "simulations", simulationId);
   const globalSimRef = doc(db, "simulations", simulationId);
   const userIndexRef = doc(db, "users", params.userId, "simulations", params.policyId);
 

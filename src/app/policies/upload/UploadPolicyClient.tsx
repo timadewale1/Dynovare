@@ -3,73 +3,52 @@
 import * as React from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import ProtectedRoute from "@/components/guards/ProtectedRoute";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import toast from "react-hot-toast";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useUser } from "@/components/providers/UserProvider";
 import { NIGERIA_COUNTRY, NIGERIA_STATES } from "@/lib/ngStates";
 import { createUploadedPolicy } from "@/lib/policyWrites";
 import { getStorage, ref, uploadBytesResumable } from "firebase/storage";
-import { FileUp } from "lucide-react";
+import { ArrowLeft, FileUp, Lock, ShieldCheck, Sparkles } from "lucide-react";
 import { extractPolicyText } from "@/lib/extractText";
+import { POLICY_DOMAINS, POLICY_ENERGY_SOURCES, policyDomainLabel, policyEnergySourceLabel } from "@/lib/policyTaxonomy";
 
-const SECTORS = [
-  "Electricity",
-  "Renewable Energy",
-  "Oil & Gas",
-  "Clean Cooking",
-  "Transport",
-  "Industry",
-  "Buildings",
-  "Agriculture",
-  "Waste",
-  "Climate & Emissions",
-];
+const DOMAIN_TO_SECTOR: Record<string, string> = {
+  electricity: "Electricity",
+  cooking: "Clean Cooking",
+  transport: "Transport",
+  industry: "Industry",
+  agriculture: "Agriculture",
+  cross_sector: "Climate & Emissions",
+};
 
 export default function UploadPolicyClient() {
   const router = useRouter();
   const { user, profile } = useUser();
-
   const searchParams = useSearchParams();
-  const redirect = searchParams.get("redirect"); // e.g. "/critique" or "/simulations"
+  const redirect = searchParams.get("redirect");
 
   const [title, setTitle] = React.useState("");
   const [summary, setSummary] = React.useState("");
-
-  const [jurisdictionLevel, setJurisdictionLevel] = React.useState<
-    "federal" | "state"
-  >("federal");
+  const [jurisdictionLevel, setJurisdictionLevel] = React.useState<"federal" | "state">("federal");
   const [stateValue, setStateValue] = React.useState<string>("");
-
-  const [sector, setSector] = React.useState<string>("Electricity");
-
+  const [energySource, setEnergySource] = React.useState<string>("mixed");
+  const [domain, setDomain] = React.useState<string>("cross_sector");
   const [policyYear, setPolicyYear] = React.useState<string>("");
   const [tags, setTags] = React.useState<string>("");
-
   const [sourcePublisher, setSourcePublisher] = React.useState("");
   const [sourceUrl, setSourceUrl] = React.useState("");
-
   const [file, setFile] = React.useState<File | null>(null);
   const [uploading, setUploading] = React.useState(false);
   const [progress, setProgress] = React.useState<number>(0);
 
-  const tagArray = React.useMemo(() => {
-    return tags
-      .split(",")
-      .map((t) => t.trim().toLowerCase())
-      .filter(Boolean);
-  }, [tags]);
+  const tagArray = React.useMemo(
+    () => tags.split(",").map((t) => t.trim().toLowerCase()).filter(Boolean),
+    [tags]
+  );
 
   const yearNumber = React.useMemo(() => {
     const n = Number(policyYear);
@@ -83,42 +62,35 @@ export default function UploadPolicyClient() {
       return false;
     }
     if (!title.trim()) {
-      toast.error("Title is required");
-      return false;
-    }
-    if (!sector) {
-      toast.error("Please select a sector");
+      toast.error("Add a policy title");
       return false;
     }
     if (jurisdictionLevel === "state" && !stateValue) {
-      toast.error("Please select a state");
+      toast.error("Choose a state");
       return false;
     }
     if (!file) {
-      toast.error("Please upload a PDF or DOCX file");
+      toast.error("Upload a PDF or DOCX file");
       return false;
     }
 
     const okTypes = [
       "application/pdf",
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      "application/msword",
     ];
     if (!okTypes.includes(file.type)) {
-      toast.error("Only PDF or Word (DOC/DOCX) is allowed");
+      toast.error("Only PDF or DOCX files are supported");
       return false;
     }
 
     if (policyYear && !yearNumber) {
-      toast.error("Policy year must be a valid year (e.g. 2022)");
+      toast.error("Policy year must be valid");
       return false;
     }
-
     if (sourceUrl && !/^https?:\/\//i.test(sourceUrl.trim())) {
       toast.error("Source link must start with http:// or https://");
       return false;
     }
-
     return true;
   };
 
@@ -132,7 +104,6 @@ export default function UploadPolicyClient() {
       const tmpId = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
       const ext = file!.name.split(".").pop() ?? "file";
       const storagePath = `policies/uploads/${user!.uid}/${tmpId}.${ext}`;
-
       const storage = getStorage();
       const storageRef = ref(storage, storagePath);
 
@@ -140,54 +111,39 @@ export default function UploadPolicyClient() {
         const task = uploadBytesResumable(storageRef, file!);
         task.on(
           "state_changed",
-          (snap) => {
-            const pct = Math.round(
-              (snap.bytesTransferred / snap.totalBytes) * 100
-            );
-            setProgress(pct);
-          },
+          (snap) => setProgress(Math.round((snap.bytesTransferred / snap.totalBytes) * 100)),
           reject,
           () => resolve()
         );
       });
 
       const extractedText = await extractPolicyText(file!);
-
       const result = await createUploadedPolicy({
         uid: user!.uid,
         uploaderName: profile!.fullName,
         email: user!.email,
-
         title: title.trim(),
         summary: summary.trim(),
-
         country: NIGERIA_COUNTRY,
         jurisdictionLevel,
         state: jurisdictionLevel === "state" ? stateValue : undefined,
         policyYear: yearNumber ?? undefined,
-
-        sector,
-
+        sector: DOMAIN_TO_SECTOR[domain] ?? "Climate & Emissions",
+        energySource: energySource as any,
+        domain: domain as any,
         tags: tagArray,
-
         sourcePublisher: sourcePublisher.trim(),
         sourceUrl: sourceUrl.trim(),
         contentText: extractedText,
-
         storagePath,
         type: "uploaded",
       });
 
-      toast.success("Policy uploaded successfully");
-
-      if (redirect) {
-        router.push(`${redirect}?policyId=${result.policyId}`);
-      } else {
-        router.push(`/policies/${result.slug}`);
-      }
+      toast.success("Policy added to your private workspace");
+      router.push(redirect ? `${redirect}?policyId=${result.policyId}` : `/policies/${result.slug}`);
     } catch (e) {
       console.error(e);
-      toast.error("Upload failed. Check console for details.");
+      toast.error("Upload failed. Please try again.");
     } finally {
       setUploading(false);
     }
@@ -196,158 +152,253 @@ export default function UploadPolicyClient() {
   return (
     <ProtectedRoute>
       <DashboardLayout>
-        <div className="flex items-start justify-between gap-4 mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-blue-deep">Upload Policy</h1>
-            <p className="text-sm text-[var(--text-secondary)]">
-              Uploaded policies appear in the global repository and are tracked
-              under your account.
-            </p>
-          </div>
+        <div className="space-y-6">
+          <section className="overflow-hidden rounded-[2.25rem] bg-[linear-gradient(135deg,#081f30_0%,#103851_50%,#125669_100%)] p-8 text-white shadow-[0_30px_90px_rgba(8,31,48,0.16)] fade-up">
+            <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-white/90">
+                  <Lock size={12} />
+                  Private workspace upload
+                </div>
+                <h1 className="mt-5 text-3xl font-black tracking-tight md:text-4xl">
+                  Bring your policy files into a workspace built for review and revision.
+                </h1>
+                <p className="mt-4 max-w-2xl text-white/78">
+                  Upload source material, organize it by domain and energy source, then move straight into critique,
+                  simulation, or guided editing without publishing it publicly.
+                </p>
+              </div>
 
-          <Button variant="outline" onClick={() => router.push("/policies")}>
-            Back to Repository
-          </Button>
-        </div>
-
-        <Card className="p-6 space-y-6">
-          <div className="space-y-2">
-            <Label>Policy title *</Label>
-            <Input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g., Lagos State Electricity Market Law"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Summary</Label>
-            <Textarea
-              value={summary}
-              onChange={(e) => setSummary(e.target.value)}
-              placeholder="Short description of what this policy covers…"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label>Jurisdiction *</Label>
-              <Select
-                value={jurisdictionLevel}
-                onValueChange={(v) =>
-                  setJurisdictionLevel(v as "federal" | "state")
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select…" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="federal">Federal</SelectItem>
-                  <SelectItem value="state">State</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="rounded-[1.6rem] border border-white/10 bg-white/8 p-5">
+                  <ShieldCheck className="text-white/88" size={20} />
+                  <p className="mt-4 text-lg font-bold">Private by default</p>
+                  <p className="mt-1 text-sm text-white/70">Nothing here appears in the public repository automatically.</p>
+                </div>
+                <div className="rounded-[1.6rem] border border-white/10 bg-white/8 p-5">
+                  <Sparkles className="text-white/88" size={20} />
+                  <p className="mt-4 text-lg font-bold">Ready for AI</p>
+                  <p className="mt-1 text-sm text-white/70">Extracted text is prepared for critique, simulation, and drafting support.</p>
+                </div>
+              </div>
             </div>
+          </section>
 
-            <div className="space-y-2">
-              <Label>State {jurisdictionLevel === "state" ? "*" : ""}</Label>
-              <Select
-                value={stateValue}
-                onValueChange={setStateValue}
-                disabled={jurisdictionLevel !== "state"}
-              >
-                <SelectTrigger>
-                  <SelectValue
-                    placeholder={
-                      jurisdictionLevel === "state"
-                        ? "Select state"
-                        : "Federal policy"
-                    }
+          <div className="flex items-center justify-between gap-3">
+            <Button variant="outline" className="rounded-full gap-2" onClick={() => router.push("/policies")}>
+              <ArrowLeft size={15} />
+              Back to Policy Studio
+            </Button>
+            {uploading ? (
+              <p className="text-sm font-medium text-[var(--text-secondary)]">Uploading file and preparing text... {progress}%</p>
+            ) : null}
+          </div>
+
+          <section className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+            <div className="premium-card aurora-border rounded-[2rem] p-6">
+              <div className="space-y-6">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.22em] text-[var(--text-secondary)]">Document details</p>
+                  <h2 className="mt-2 text-2xl font-black text-blue-deep">Describe the policy clearly before you upload it.</h2>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="title">Policy title</Label>
+                  <input
+                    id="title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="Federal Electricity Reform Act, Lagos EV Strategy, National LPG Plan..."
+                    className="studio-input"
                   />
-                </SelectTrigger>
-                <SelectContent>
-                  {NIGERIA_STATES.map((s) => (
-                    <SelectItem key={s} value={s}>
-                      {s}
-                    </SelectItem>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="summary">Short summary</Label>
+                  <textarea
+                    id="summary"
+                    value={summary}
+                    onChange={(e) => setSummary(e.target.value)}
+                    placeholder="What problem does the policy address, and what is it trying to achieve?"
+                    className="studio-textarea min-h-[140px]"
+                  />
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-3">
+                  <div className="space-y-2">
+                    <Label>Jurisdiction</Label>
+                    <Select value={jurisdictionLevel} onValueChange={(v) => setJurisdictionLevel(v as any)}>
+                      <SelectTrigger className="studio-input h-12">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="federal">Federal</SelectItem>
+                        <SelectItem value="state">State</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>State</Label>
+                    <Select value={stateValue} onValueChange={setStateValue} disabled={jurisdictionLevel !== "state"}>
+                      <SelectTrigger className="studio-input h-12">
+                        <SelectValue placeholder={jurisdictionLevel === "state" ? "Select a state" : "Not needed"} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {NIGERIA_STATES.map((state) => (
+                          <SelectItem key={state} value={state}>
+                            {state}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="policyYear">Policy year</Label>
+                    <input
+                      id="policyYear"
+                      value={policyYear}
+                      onChange={(e) => setPolicyYear(e.target.value)}
+                      placeholder="2024"
+                      inputMode="numeric"
+                      className="studio-input"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label>Energy source</Label>
+                    <Select value={energySource} onValueChange={setEnergySource}>
+                      <SelectTrigger className="studio-input h-12">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {POLICY_ENERGY_SOURCES.map((item) => (
+                          <SelectItem key={item} value={item}>
+                            {policyEnergySourceLabel(item)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Domain</Label>
+                    <Select value={domain} onValueChange={setDomain}>
+                      <SelectTrigger className="studio-input h-12">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {POLICY_DOMAINS.map((item) => (
+                          <SelectItem key={item} value={item}>
+                            {policyDomainLabel(item)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="tags">Tags</Label>
+                  <input
+                    id="tags"
+                    value={tags}
+                    onChange={(e) => setTags(e.target.value)}
+                    placeholder="mini-grid, tariff, grid reform, cooking access"
+                    className="studio-input"
+                  />
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="publisher">Source publisher</Label>
+                    <input
+                      id="publisher"
+                      value={sourcePublisher}
+                      onChange={(e) => setSourcePublisher(e.target.value)}
+                      placeholder="Ministry of Power, REA, World Bank..."
+                      className="studio-input"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="sourceUrl">Source link</Label>
+                    <input
+                      id="sourceUrl"
+                      value={sourceUrl}
+                      onChange={(e) => setSourceUrl(e.target.value)}
+                      placeholder="https://..."
+                      className="studio-input"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="file">Upload file</Label>
+                  <input
+                    id="file"
+                    type="file"
+                    accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                    onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+                    className="studio-input flex items-center py-3 file:mr-4 file:rounded-full file:border-0 file:bg-[rgba(18,86,105,0.08)] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-[#125669] hover:file:bg-[rgba(18,86,105,0.12)]"
+                  />
+                  <p className="text-sm text-[var(--text-secondary)]">
+                    Supported formats: PDF and DOCX. The uploaded file stays private in your workspace.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              <section className="premium-card rounded-[2rem] p-6">
+                <p className="text-xs uppercase tracking-[0.22em] text-[var(--text-secondary)]">What happens next</p>
+                <div className="mt-4 space-y-4">
+                  {[
+                    "The file is stored privately under your account.",
+                    "Text is extracted so AI can critique, simulate, and help revise it.",
+                    "The upload opens directly in Policy Studio for editing and exports.",
+                  ].map((item) => (
+                    <div key={item} className="flex items-start gap-3 rounded-[1.25rem] border border-[rgba(18,86,105,0.08)] bg-white/80 p-4">
+                      <div className="mt-0.5 rounded-full bg-[rgba(18,86,105,0.08)] p-2 text-[#125669]">
+                        <ShieldCheck size={14} />
+                      </div>
+                      <p className="text-sm leading-6 text-[var(--text-secondary)]">{item}</p>
+                    </div>
                   ))}
-                </SelectContent>
-              </Select>
+                </div>
+              </section>
+
+              <section className="premium-card rounded-[2rem] p-6">
+                <p className="text-xs uppercase tracking-[0.22em] text-[var(--text-secondary)]">Current setup</p>
+                <div className="mt-4 space-y-3">
+                  <div className="rounded-[1.35rem] bg-[rgba(18,86,105,0.04)] p-4">
+                    <p className="text-sm font-semibold text-blue-deep">Country focus</p>
+                    <p className="mt-1 text-sm text-[var(--text-secondary)]">{NIGERIA_COUNTRY}</p>
+                  </div>
+                  <div className="rounded-[1.35rem] bg-[rgba(18,86,105,0.04)] p-4">
+                    <p className="text-sm font-semibold text-blue-deep">Selected domain</p>
+                    <p className="mt-1 text-sm text-[var(--text-secondary)]">{policyDomainLabel(domain)}</p>
+                  </div>
+                  <div className="rounded-[1.35rem] bg-[rgba(18,86,105,0.04)] p-4">
+                    <p className="text-sm font-semibold text-blue-deep">Energy source</p>
+                    <p className="mt-1 text-sm text-[var(--text-secondary)]">{policyEnergySourceLabel(energySource)}</p>
+                  </div>
+                </div>
+
+                <Button
+                  onClick={handleUpload}
+                  disabled={uploading}
+                  className="mt-6 h-12 w-full rounded-full bg-[#125669] text-white hover:bg-[#0f4b5d]"
+                >
+                  <FileUp size={16} />
+                  {uploading ? "Uploading policy..." : "Upload to workspace"}
+                </Button>
+              </section>
             </div>
-
-            <div className="space-y-2">
-              <Label>Policy year</Label>
-              <Input
-                value={policyYear}
-                onChange={(e) => setPolicyYear(e.target.value)}
-                placeholder="e.g., 2022"
-                inputMode="numeric"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Sector *</Label>
-            <Select value={sector} onValueChange={setSector}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select sector" />
-              </SelectTrigger>
-              <SelectContent>
-                {SECTORS.map((s) => (
-                  <SelectItem key={s} value={s}>
-                    {s}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Tags (comma-separated)</Label>
-            <Input
-              value={tags}
-              onChange={(e) => setTags(e.target.value)}
-              placeholder="e.g., mini-grid, tariff, renewable, emissions"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Source publisher (optional)</Label>
-              <Input
-                value={sourcePublisher}
-                onChange={(e) => setSourcePublisher(e.target.value)}
-                placeholder="e.g., Ministry of Power / IEA / IRENA"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Source link (optional)</Label>
-              <Input
-                value={sourceUrl}
-                onChange={(e) => setSourceUrl(e.target.value)}
-                placeholder="https://..."
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Upload file (PDF/DOCX) *</Label>
-            <Input
-              type="file"
-              accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-            />
-            {uploading && (
-              <p className="text-sm text-[var(--text-secondary)]">
-                Uploading… {progress}%
-              </p>
-            )}
-          </div>
-
-          <Button onClick={handleUpload} disabled={uploading} className="gap-2">
-            <FileUp size={16} />
-            {uploading ? "Uploading…" : "Upload policy"}
-          </Button>
-        </Card>
+          </section>
+        </div>
       </DashboardLayout>
     </ProtectedRoute>
   );

@@ -24,11 +24,7 @@ export async function GET(req: Request) {
     }
 
     // 1) Try by slug
-    const bySlug = await adminDb
-      .collection("policies")
-      .where("slug", "==", slugOrId)
-      .limit(1)
-      .get();
+    const bySlug = await adminDb.collection("policies").where("slug", "==", slugOrId).limit(1).get();
 
     let doc: FirebaseFirestore.QueryDocumentSnapshot | null = null;
 
@@ -37,12 +33,13 @@ export async function GET(req: Request) {
     } else {
       // 2) Fallback by docId
       const byId = await adminDb.collection("policies").doc(slugOrId).get();
-      if (byId.exists) doc = byId as any;
+      if (byId.exists && byId.data()?.visibility !== "private") doc = byId as any;
     }
 
     if (!doc) return NextResponse.json({ policy: null });
 
     const p = doc.data() as any;
+    if (p?.visibility === "private") return NextResponse.json({ policy: null });
 
     const policy = {
       id: doc.id,
@@ -50,12 +47,16 @@ export async function GET(req: Request) {
       slug: p?.slug ?? null,
       summary: p?.summary ?? null,
       contentText: p?.contentText ?? null,
+      editorSections: Array.isArray(p?.editorSections) ? p.editorSections : [],
+      aiEvidence: Array.isArray(p?.aiEvidence) ? p.aiEvidence : [],
       country: p?.country ?? "Nigeria",
       jurisdictionLevel: p?.jurisdictionLevel ?? null,
       state: p?.state ?? null,
       policyYear: p?.policyYear ?? null,
       type: p?.type ?? null,
       sector: p?.sector ?? null,
+      energySource: p?.energySource ?? null,
+      domain: p?.domain ?? null,
       tags: Array.isArray(p?.tags) ? p.tags : [],
       publicPdfUrl: p?.publicPdfUrl ?? null,
       storagePath: p?.storagePath ?? null,

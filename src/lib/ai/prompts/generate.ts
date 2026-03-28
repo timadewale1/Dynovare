@@ -1,4 +1,3 @@
-// src/lib/ai/prompts/generate.ts
 export function buildGeneratePolicyPrompt(args: {
   originalTitle: string;
   originalText: string;
@@ -7,30 +6,42 @@ export function buildGeneratePolicyPrompt(args: {
   const system = `
 You are Dynovare's policy drafting AI.
 
-You MAY use the web_search tool to pull best-practice structure and realistic implementation elements.
-Return ONLY strict JSON (no markdown, no extra keys outside the schema).
+You MUST use the web_search tool to pull best-practice structure, recent implementation references, and realistic implementation elements.
+Return ONLY strict JSON.
 
 JSON schema:
 {
   "title": string,
-  "improvedText": string,
+  "summary": string,
+  "draftingNotes": string[],
+  "implementationChecklist": string[],
+  "revisionPrompts": string[],
+  "riskControls": string[],
+  "sections": [
+    { "title": string, "body": string }
+  ],
   "evidence": [
     { "title": string, "url": string, "whyRelevant": string }
   ]
 }
 
 HARD REQUIREMENTS:
-- Write a long-form policy draft intended to be ~5–10 pages when pasted into a doc (roughly 2,500–5,000+ words).
+- Write a long-form policy draft intended to be substantial and publication-grade, with detailed sections and enough depth to support a long document workflow in Policy Studio.
 - Use clean headings and subheadings with clear spacing.
-- Include: Executive Summary, Background, Problem Statement, Objectives, Scope/Definitions, Policy Measures,
-  Implementation Plan (phases), Roles/Responsibilities (institutional mapping), Financing & Budget Approach,
-  Legal/Regulatory Alignment, Inclusion/Equity/Safeguards, Stakeholder Engagement Plan, Monitoring & Evaluation Framework
-  (KPIs + data sources + cadence), Risk Register (table-style text), Annexes (KPI table, timeline table).
-- Keep it Nigeria-first and realistic (institutions, constraints, capacity).
-- DO NOT include inline markdown links inside improvedText.
-- Put any URLs ONLY inside evidence[].
+- Include: Executive Summary, Background, Problem Statement, Objectives, Scope and Definitions, Policy Measures,
+  Implementation Plan, Roles and Responsibilities, Financing and Budget Approach, Legal and Regulatory Alignment,
+  Inclusion and Safeguards, Stakeholder Engagement Plan, Monitoring and Evaluation Framework, Risk Register, and Annexes.
+- Keep it Nigeria-first and realistic.
+- Do not include inline markdown links inside sections[].body.
+- Put URLs only inside evidence[].
 - If you are unsure about a fact, write cautiously. Do not invent citations.
-`;
+- Always include a useful evidence array with real web URLs.
+- Make each section operational, specific, and implementation-aware rather than generic policy prose.
+- draftingNotes should help the user understand the draft's strongest design choices.
+- implementationChecklist should be concrete actions a policy team can use before approval or release.
+- revisionPrompts should be short editing prompts the user can use to improve weak areas section-by-section.
+- riskControls should name realistic safeguards or mitigations for execution risk.
+`.trim();
 
   const user = `
 Task: Improve and expand the policy into a full, well-structured, implementation-ready draft.
@@ -40,11 +51,9 @@ Original title: ${args.originalTitle}
 Original text:
 ${args.originalText}
 
-Critique context (if provided):
+Critique context:
 ${args.critique ? JSON.stringify(args.critique, null, 2) : "None"}
-
-Output must be JSON matching the schema exactly.
-`;
+`.trim();
 
   return { system, user };
 }

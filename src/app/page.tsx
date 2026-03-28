@@ -1,589 +1,291 @@
-// src/app/page.tsx
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ArrowRight,
-  ShieldCheck,
-  LineChart,
-  FileText,
+  BarChart3,
+  Compass,
+  Database,
+  FilePenLine,
+  Globe2,
+  MapPinned,
   Scale,
-  Search,
-  Globe,
-  CheckCircle2,
-  ChevronRight,
-  Menu,
-  X,
+  ShieldCheck,
   Sparkles,
 } from "lucide-react";
-
-import DynovareLogo from "@/components/branding/DynovareLogo";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import NigeriaPolicyMap from "@/components/public/NigeriaPolicyMap";
+import PublicNavbar from "@/components/public/PublicNavbar";
+import PublicFooter from "@/components/public/PublicFooter";
+import { useUser } from "@/components/providers/UserProvider";
 
-function Nav() {
-  const [open, setOpen] = useState(false);
+type PublicInsights = {
+  totals: {
+    policies: number;
+    critiques: number;
+    averageScore: number | null;
+  };
+  leaderboard: { rank: number; title: string; slug: string | null; score: number; state: string | null }[];
+  stateLeaderboard: { state: string; score: number | null; policies: number }[];
+  stateScores: { state: string; score: number | null; policies: number }[];
+};
 
-  useEffect(() => {
-    if (!open) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prev;
-    };
-  }, [open]);
-
-  const navItems = useMemo(
-    () => [
-      { label: "Features", href: "#features" },
-      { label: "How it works", href: "#how" },
-      { label: "Use cases", href: "#usecases" },
-      { label: "FAQ", href: "#faq" },
-    ],
-    []
-  );
-
+function SectionHeader({ kicker, title, subtitle }: { kicker: string; title: string; subtitle: string }) {
   return (
-    // ✅ Make sticky work reliably: sticky + top-0 + z + no parent overflow clipping.
-    <header className="sticky top-0 z-[60] border-b bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/70">
-      <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between gap-3">
-        <Link href="/" className="flex items-center gap-3">
-            <DynovareLogo/>
-          {/* <div className="leading-tight">
-            <p className="font-extrabold text-blue-deep tracking-tight">Dynovare</p>
-            <p className="text-xs text-[var(--text-secondary)] -mt-0.5">
-              Policy Intelligence
-            </p>
-          </div> */}
-        </Link>
-
-        <nav className="hidden md:flex items-center gap-2">
-          {navItems.map((it) => (
-            <a
-              key={it.href}
-              href={it.href}
-              className="px-3 py-2 rounded-xl text-sm font-semibold text-[var(--text-secondary)] hover:text-blue-deep hover:bg-blue-soft transition"
-            >
-              {it.label}
-            </a>
-          ))}
-        </nav>
-
-        <div className="flex items-center gap-2">
-          <Button asChild variant="ghost" className="hidden sm:inline-flex">
-            <Link href="/login">Log in</Link>
-          </Button>
-          <Button asChild className="gap-2 hidden sm:inline-flex">
-            <Link href="/register">
-              Create account <ArrowRight size={16} />
-            </Link>
-          </Button>
-
-          <Button
-            variant="outline"
-            size="icon"
-            className="sm:hidden"
-            onClick={() => setOpen((v) => !v)}
-            aria-label="Toggle menu"
-          >
-            {open ? <X size={18} /> : <Menu size={18} />}
-          </Button>
-        </div>
-      </div>
-
-      {open && (
-        <div className="sm:hidden border-t bg-white">
-          <div className="mx-auto max-w-6xl px-4 py-4">
-            <div className="grid gap-2">
-              {navItems.map((it) => (
-                <a
-                  key={it.href}
-                  href={it.href}
-                  onClick={() => setOpen(false)}
-                  className="px-4 py-3 rounded-xl text-sm font-semibold text-blue-deep bg-blue-soft/60 hover:bg-blue-soft transition"
-                >
-                  {it.label}
-                </a>
-              ))}
-            </div>
-
-            <div className="grid grid-cols-2 gap-2 mt-4">
-              <Button asChild variant="outline" className="w-full">
-                <Link href="/login" onClick={() => setOpen(false)}>
-                  Log in
-                </Link>
-              </Button>
-              <Button asChild className="w-full gap-2">
-                <Link href="/register" onClick={() => setOpen(false)}>
-                  Create account <ArrowRight size={16} />
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-    </header>
-  );
-}
-
-function SectionHeading(props: { kicker: string; title: string; subtitle?: string }) {
-  return (
-    <div className="text-center max-w-2xl mx-auto">
-      <p className="text-sm text-[var(--text-secondary)]">{props.kicker}</p>
-      <h2 className="mt-1 text-2xl md:text-3xl font-extrabold text-blue-deep">
-        {props.title}
-      </h2>
-      {props.subtitle ? (
-        <p className="mt-3 text-sm md:text-base text-[var(--text-secondary)]">
-          {props.subtitle}
-        </p>
-      ) : null}
+    <div className="max-w-3xl">
+      <p className="text-xs uppercase tracking-[0.22em] text-[var(--text-secondary)]">{kicker}</p>
+      <h2 className="mt-3 text-2xl font-black tracking-tight text-blue-deep md:text-4xl">{title}</h2>
+      <p className="mt-3 text-base text-[var(--text-secondary)] md:text-lg">{subtitle}</p>
     </div>
   );
 }
 
-function Hero() {
-  return (
-<section className="relative overflow-hidden bg-[var(--blue-soft)]">
-      <div className="absolute -top-28 -right-24 h-80 w-80 rounded-full bg-blue-electric/10 blur-3xl" />
-      <div className="absolute -bottom-28 -left-24 h-80 w-80 rounded-full bg-blue-electric/10 blur-3xl" />
+export default function Home() {
+  const { user } = useUser();
+  const [insights, setInsights] = useState<PublicInsights | null>(null);
 
-      <div className="relative mx-auto max-w-6xl px-4 py-12 md:py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
-          <div>
-            <div className="flex flex-wrap items-center gap-2 mb-4">
-              <Badge variant="outline" className="border-blue-electric/30 bg-white">
-                Nigeria-first
-              </Badge>
-              <Badge variant="outline" className="border-blue-electric/30 bg-white">
-                Policy repository
-              </Badge>
-              <Badge variant="outline" className="border-blue-electric/30 bg-white">
-                Critique, simulate, generate
-              </Badge>
-            </div>
+  useEffect(() => {
+    let active = true;
 
-            <h1 className="text-4xl md:text-5xl font-extrabold text-blue-deep tracking-tight leading-[1.05]">
-              AI-powered energy policy intelligence{" "}
-              <span className="text-blue-electric">for better decisions</span>
-            </h1>
+    const load = async () => {
+      try {
+        const res = await fetch("/api/public/insights");
+        const data = await res.json();
+        if (active && res.ok) setInsights(data);
+      } catch {
+        // soft fail
+      }
+    };
 
-            <p className="mt-4 text-base md:text-lg text-[var(--text-secondary)] max-w-xl">
-              Dynovare helps you evaluate policy quality, test scenarios, and generate stronger
-              drafts with clear scoring, trends, and structured outputs.
-            </p>
+    void load();
+    return () => {
+      active = false;
+    };
+  }, []);
 
-            <div className="mt-7 flex flex-col sm:flex-row gap-3">
-              <Button asChild className="gap-2 h-11">
-                <Link href="/register">
-                  Create account <ArrowRight size={16} />
-                </Link>
-              </Button>
-
-              <Button asChild variant="outline" className="gap-2 h-11">
-                <Link href="/login">
-                  Log in <ChevronRight size={16} />
-                </Link>
-              </Button>
-
-              <Button asChild variant="ghost" className="gap-2 h-11">
-                <Link href="/public/policies">
-                  Browse repository <Search size={16} />
-                </Link>
-              </Button>
-            </div>
-
-            <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-[var(--text-secondary)]">
-              <div className="flex items-center gap-2">
-                <ShieldCheck size={18} className="text-blue-electric" />
-                Standardized scoring
-              </div>
-              <div className="flex items-center gap-2">
-                <FileText size={18} className="text-blue-electric" />
-                Clean policy outputs
-              </div>
-              <div className="flex items-center gap-2">
-                <LineChart size={18} className="text-blue-electric" />
-                Rankings and trends
-              </div>
-            </div>
-          </div>
-
-          <Card className="p-6 md:p-7 rounded-2xl shadow-sm">
-            <div className="flex items-center justify-between mb-5">
-              <div>
-                <p className="text-sm text-[var(--text-secondary)]">Snapshot</p>
-                <p className="text-lg font-bold text-blue-deep">
-                  What Dynovare delivers
-                </p>
-              </div>
-              <Badge variant="outline">In platform</Badge>
-            </div>
-
-            <div className="space-y-4">
-              <div className="border rounded-xl p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="font-bold text-blue-deep">AI Critique</p>
-                    <p className="text-sm text-[var(--text-secondary)] mt-1">
-                      Score policies against selected standards with strengths, risks, and fixes.
-                    </p>
-                  </div>
-                  <Badge variant="outline" className="h-fit">
-                    0–100
-                  </Badge>
-                </div>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {["SDG alignment", "Inclusivity", "Feasibility", "Metrics"].map((t) => (
-                    <Badge key={t} variant="outline" className="bg-white">
-                      {t}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-
-              <div className="border rounded-xl p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="font-bold text-blue-deep">Simulations</p>
-                    <p className="text-sm text-[var(--text-secondary)] mt-1">
-                      Explore plausible impacts across access, reliability, emissions, cost, and risk.
-                    </p>
-                  </div>
-                  <Badge variant="outline" className="h-fit">
-                    Scenario
-                  </Badge>
-                </div>
-              </div>
-
-              <div className="border rounded-xl p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="font-bold text-blue-deep">AI Generation</p>
-                    <p className="text-sm text-[var(--text-secondary)] mt-1">
-                      Generate a structured draft, save it to the repository, and auto-score it.
-                    </p>
-                  </div>
-                  <Badge variant="outline" className="h-fit">
-                    Draft
-                  </Badge>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-6">
-              <Button asChild className="gap-2 w-full h-11">
-                <Link href="/register">
-                  Create account <ArrowRight size={16} />
-                </Link>
-              </Button>
-            </div>
-          </Card>
-        </div>
-
-        <div className="mt-10">
-          <Card className="p-3 md:p-4 rounded-2xl shadow-sm">
-            <div className="relative w-full overflow-hidden rounded-xl border bg-white">
-              <Image
-                src="/cover.png"
-                alt="Dynovare product preview"
-                width={1600}
-                height={900}
-                priority
-                className="w-full h-auto"
-              />
-            </div>
-          </Card>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Features() {
-  const items = [
-    {
-      icon: <Scale className="text-blue-electric" size={24} />,
-      title: "Standards-based scoring",
-      desc: "Score policies across chosen criteria with per-standard recommendations and an overall score.",
-    },
-    {
-      icon: <LineChart className="text-blue-electric" size={24} />,
-      title: "Rankings and trends",
-      desc: "Track performance over time with averages, trend deltas, and quick comparisons.",
-    },
-    {
-      icon: <FileText className="text-blue-electric" size={24} />,
-      title: "Policy repository",
-      desc: "Browse uploaded and AI-generated policies with clean metadata and readable structure.",
-    },
-    {
-      icon: <Search className="text-blue-electric" size={24} />,
-      title: "Useful filters",
-      desc: "Slice by jurisdiction, state, sector, type, and year, then search within results.",
-    },
-    {
-      icon: <Globe className="text-blue-electric" size={24} />,
-      title: "Evidence-guided drafting",
-      desc: "Optionally ground drafts and improvements using web insights for best-practice structure.",
-    },
-    {
-      icon: <CheckCircle2 className="text-blue-electric" size={24} />,
-      title: "Clean outputs",
-      desc: "Structured critique, simulations, and drafts that are easy to review and share.",
-    },
-  ];
+  const stateScores = insights?.stateScores ?? [];
+  const policyLeaderboard = insights?.leaderboard ?? [];
+  const stateLeaderboard = (insights?.stateLeaderboard ?? []).slice(0, 3);
 
   return (
-    <section id="features" className="bg-white">
-      <div className="mx-auto max-w-6xl px-4 py-14">
-        <SectionHeading
-          kicker="Features"
-          title="Everything you need to evaluate and improve policy quality"
-          subtitle="A practical toolkit for drafting, scoring, comparing, and communicating policy performance."
-        />
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,#d9edf2_0%,#f6fbfd_38%,#ffffff_100%)]">
+      <PublicNavbar />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-10">
-          {items.map((it) => (
-            <Card key={it.title} className="p-6 rounded-2xl">
-              <div className="h-11 w-11 rounded-xl bg-blue-soft grid place-items-center border mb-4">
-                {it.icon}
+      <main>
+        <section className="relative overflow-hidden">
+          <div className="absolute left-[-8rem] top-16 h-72 w-72 rounded-full bg-[#8bd7c7]/22 blur-3xl" />
+          <div className="absolute right-[-6rem] top-14 h-80 w-80 rounded-full bg-[#8fc7ff]/24 blur-3xl" />
+
+          <div className="relative mx-auto grid max-w-7xl gap-10 px-4 py-14 lg:grid-cols-[1.08fr_0.92fr] lg:items-start">
+            <div className="fade-up">
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="outline" className="rounded-full bg-white/80">Grant-ready policy intelligence</Badge>
+                <Badge variant="outline" className="rounded-full bg-white/80">Nigeria-first energy transition workflows</Badge>
               </div>
-              <p className="font-bold text-blue-deep">{it.title}</p>
-              <p className="text-sm text-[var(--text-secondary)] mt-2">{it.desc}</p>
-            </Card>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
 
-function HowItWorks() {
-  const steps = [
-    {
-      title: "Select a policy",
-      desc: "Choose a policy from the repository or upload your own document.",
-    },
-    {
-      title: "Run critique and simulations",
-      desc: "Score quality against standards, then test scenario assumptions to understand impacts and risks.",
-    },
-    {
-      title: "Improve or generate drafts",
-      desc: "Generate a stronger version or draft from scratch, then score and compare results.",
-    },
-  ];
+              <h1 className="mt-6 max-w-5xl text-4xl font-black leading-[0.94] tracking-tight text-blue-deep md:text-6xl">
+                Build sharper energy policy with evidence, critique, simulation, and export-ready design.
+              </h1>
 
-  return (
-<section id="how" className="bg-[var(--blue-soft)] border-y">
-      <div className="mx-auto max-w-6xl px-4 py-14">
-        <SectionHeading
-          kicker="How it works"
-          title="Simple workflow with strong outputs"
-          subtitle="A streamlined process that keeps everything structured and easy to review."
-        />
+              <p className="mt-6 max-w-2xl text-lg text-[var(--text-secondary)]">
+                Explore public policy signals across Nigeria, compare state performance, draft stronger interventions, test assumptions,
+                and export polished policy documents your team can actually use.
+              </p>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-10">
-          {steps.map((s, idx) => (
-            <Card key={s.title} className="p-6 rounded-2xl">
-              <div className="flex items-center justify-between mb-3">
-                <Badge variant="outline">Step {idx + 1}</Badge>
-                <CheckCircle2 className="text-blue-electric" size={20} />
-              </div>
-              <p className="font-bold text-blue-deep">{s.title}</p>
-              <p className="text-sm text-[var(--text-secondary)] mt-2">{s.desc}</p>
-            </Card>
-          ))}
-        </div>
-
-        <div className="mt-10 flex flex-col sm:flex-row justify-center gap-3">
-          <Button asChild className="gap-2 h-11">
-            <Link href="/register">
-              Create account <ArrowRight size={16} />
-            </Link>
-          </Button>
-          <Button asChild variant="outline" className="gap-2 h-11">
-            <Link href="/public/policies">Browse repository</Link>
-          </Button>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function UseCases() {
-  const cases = [
-    {
-      title: "Government teams and agencies",
-      desc: "Standardize reviews, compare drafts, and support decisions with consistent scoring and structured outputs.",
-    },
-    {
-      title: "Development partners and NGOs",
-      desc: "Assess policy readiness, identify risks early, and generate stronger versions that are easier to implement.",
-    },
-    {
-      title: "Researchers and academics",
-      desc: "Compare policy performance across states or sectors and produce clear evidence-based insights.",
-    },
-  ];
-
-  return (
-    <section id="usecases" className="bg-white">
-      <div className="mx-auto max-w-6xl px-4 py-14">
-        <SectionHeading
-          kicker="Use cases"
-          title="Built for real policy work"
-          subtitle="Designed to support policy evaluation, learning, and improvement in practical settings."
-        />
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-10">
-          {cases.map((c) => (
-            <Card key={c.title} className="p-6 rounded-2xl">
-              <p className="font-bold text-blue-deep">{c.title}</p>
-              <p className="text-sm text-[var(--text-secondary)] mt-2">{c.desc}</p>
-
-              <div className="mt-4">
-                <Button asChild variant="ghost" className="gap-2 px-0">
-                  <Link href="/register">
-                    Get started <ArrowRight size={16} />
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <Button asChild size="lg" className="rounded-full bg-[#125669] shadow-[0_18px_40px_rgba(18,86,105,0.22)] hover:bg-[#0f4b5d]">
+                  <Link href={user ? "/repository" : "/public/policies"}>
+                    Explore repository <ArrowRight size={16} className="ml-2" />
                   </Link>
                 </Button>
+                <Button asChild size="lg" variant="outline" className="rounded-full bg-white/80">
+                  <Link href="/register">Open private workspace</Link>
+                </Button>
               </div>
-            </Card>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
 
-function FAQ() {
-  const faqs = [
-    {
-      q: "What does Dynovare actually do?",
-      a: "Dynovare helps you assess policy quality, test scenarios, and generate stronger drafts with structured outputs and clear scoring.",
-    },
-    {
-      q: "Who is Dynovare for?",
-      a: "It is designed for policy analysts, government teams, development partners, researchers, and organizations working on energy and climate policy.",
-    },
-    {
-      q: "Can Dynovare compare policies across states or sectors?",
-      a: "Yes. Rankings and comparisons help you evaluate performance across jurisdictions, sectors, and time periods.",
-    },
-    {
-      q: "Does Dynovare replace expert judgement?",
-      a: "No. It speeds up analysis and improves consistency, but expert review remains essential for validation and final decisions.",
-    },
-  ];
+              <div className="mt-8 grid gap-4 sm:grid-cols-3">
+                <Card className="premium-card rounded-[1.75rem] p-5">
+                  <p className="text-sm text-[var(--text-secondary)]">Public policies</p>
+                  <p className="mt-2 text-3xl font-black text-blue-deep">{insights?.totals.policies ?? 0}</p>
+                  <p className="text-sm text-[var(--text-secondary)]">Browse the live repository faster</p>
+                </Card>
+                <Card className="premium-card rounded-[1.75rem] p-5">
+                  <p className="text-sm text-[var(--text-secondary)]">Average score</p>
+                  <p className="mt-2 text-3xl font-black text-blue-deep">{insights?.totals.averageScore ? `${insights.totals.averageScore}/100` : "-"}</p>
+                  <p className="text-sm text-[var(--text-secondary)]">See how strong the leading policies are</p>
+                </Card>
+                <Card className="premium-card rounded-[1.75rem] p-5">
+                  <p className="text-sm text-[var(--text-secondary)]">Public critiques</p>
+                  <p className="mt-2 text-3xl font-black text-blue-deep">{insights?.totals.critiques ?? 0}</p>
+                  <p className="text-sm text-[var(--text-secondary)]">Review signals behind the rankings</p>
+                </Card>
+              </div>
+            </div>
 
-  return (
-<section id="faq" className="bg-[var(--blue-soft)] border-y">
-      <div className="mx-auto max-w-6xl px-4 py-14">
-        <SectionHeading
-          kicker="FAQ"
-          title="Quick answers for first-time visitors"
-          subtitle="A short overview of how Dynovare fits into real policy workflows."
-        />
+            <div className="grid gap-4">
+              <Card className="pulse-glow rounded-[2rem] bg-[linear-gradient(135deg,#091a28_0%,#0d4760_46%,#178e83_100%)] p-6 text-white shadow-xl">
+                <p className="text-xs uppercase tracking-[0.22em] text-white/70">Your workflow</p>
+                <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                  {[
+                    ["Discover", "Browse policy records, compare states, and understand what is already working."],
+                    ["Draft", "Generate or upload documents into an editable in-app policy studio."],
+                    ["Stress-test", "Run critique and simulation before your team commits to a path."],
+                    ["Export", "Download a polished PDF only when the document is ready to share."],
+                  ].map(([title, text]) => (
+                    <div key={title} className="rounded-[1.4rem] bg-white/8 p-4">
+                      <p className="font-bold">{title}</p>
+                      <p className="mt-2 text-sm text-white/76">{text}</p>
+                    </div>
+                  ))}
+                </div>
+              </Card>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-10">
-          {faqs.map((f) => (
-            <Card key={f.q} className="p-6 rounded-2xl">
-              <p className="font-bold text-blue-deep">{f.q}</p>
-              <p className="text-sm text-[var(--text-secondary)] mt-2">{f.a}</p>
-            </Card>
-          ))}
-        </div>
-
-        <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
-          <Button asChild variant="outline" className="h-11">
-            <Link href="/login">Log in</Link>
-          </Button>
-          <Button asChild className="gap-2 h-11">
-            <Link href="/register">
-              Create account <ArrowRight size={16} />
-            </Link>
-          </Button>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Footer() {
-  return (
-    // ✅ Ensure footer bg shows: put background on the outer element + remove any conflicting parent bg
-<footer className="bg-[var(--blue-deep)] text-white">
-      <div className="mx-auto max-w-6xl px-4 py-10">
-        <div className="flex flex-col md:flex-row md:items-start justify-between gap-8">
-          <div className="flex items-center gap-3 text-white">
-              {/* <DynovareLogo/> */}
-            <div>
-              <p className="font-extrabold tracking-tight">Dynovare</p>
-              <p className="text-xs text-white/70">AI-powered energy policy intelligence</p>
+              <Card className="premium-card aurora-border rounded-[2rem] p-6">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.22em] text-[var(--text-secondary)]">What you can do here</p>
+                    <h2 className="mt-2 text-xl font-black text-blue-deep">Everything you need to move a policy draft forward.</h2>
+                  </div>
+                  <Sparkles className="text-[#125669]" />
+                </div>
+                <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                  {[
+                    ["Policy repository", "See what already exists before you write, revise, or benchmark your draft."],
+                    ["Policy studio", "Edit section by section, not inside a locked static file."],
+                    ["Critique engine", "Get verdicts, priority actions, risks, and strengths in one pass."],
+                    ["Simulation flow", "Test access, cost, reliability, and delivery risk under different assumptions."],
+                  ].map(([title, text]) => (
+                    <div key={title} className="rounded-[1.4rem] border bg-slate-50 p-4">
+                      <p className="font-bold text-blue-deep">{title}</p>
+                      <p className="mt-2 text-sm text-[var(--text-secondary)]">{text}</p>
+                    </div>
+                  ))}
+                </div>
+              </Card>
             </div>
           </div>
+        </section>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-10 gap-y-2 text-sm">
-            <a href="#features" className="text-white/80 hover:text-white transition">
-              Features
-            </a>
-            <a href="#how" className="text-white/80 hover:text-white transition">
-              How it works
-            </a>
-            <a href="#usecases" className="text-white/80 hover:text-white transition">
-              Use cases
-            </a>
-            <Link href="/policies" className="text-white/80 hover:text-white transition">
-              Repository
-            </Link>
-            <Link href="/critique" className="text-white/80 hover:text-white transition">
-              Critique
-            </Link>
-            <Link href="/simulations" className="text-white/80 hover:text-white transition">
-              Simulations
-            </Link>
+        <section className="mx-auto max-w-7xl px-4 py-12">
+          <SectionHeader
+            kicker="Product pillars"
+            title="Move from public signal to submission-ready policy work in one place."
+            subtitle="Start with evidence, sharpen the draft, pressure-test the idea, and export a document your team can stand behind."
+          />
+
+          <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {[
+              { icon: <Database className="text-[#125669]" size={22} />, title: "Public repository", text: "Search energy policy records across federal and state contexts." },
+              { icon: <Scale className="text-[#125669]" size={22} />, title: "Rankings intelligence", text: "Spot strong policies, score movement, and review-backed performance." },
+              { icon: <FilePenLine className="text-[#125669]" size={22} />, title: "Editable policy studio", text: "Draft, refine, and export from a workspace built for policy writing." },
+              { icon: <ShieldCheck className="text-[#125669]" size={22} />, title: "Private workspace", text: "Keep uploads, AI drafts, critiques, and simulations under your account." },
+            ].map((item) => (
+              <Card key={item.title} className="premium-card rounded-[2rem] p-6 transition hover:-translate-y-1">
+                <div className="inline-flex rounded-2xl bg-[rgba(18,86,105,0.09)] p-3">{item.icon}</div>
+                <h3 className="mt-4 text-2xl font-black text-blue-deep">{item.title}</h3>
+                <p className="mt-3 text-sm text-[var(--text-secondary)]">{item.text}</p>
+              </Card>
+            ))}
           </div>
+        </section>
 
-          <div className="flex flex-col gap-2">
-            <Button asChild className="gap-2 bg-white text-blue-deep hover:bg-white/90">
-              <Link href="/register">
-                Create account <ArrowRight size={16} />
-              </Link>
-            </Button>
-            <Button
-              asChild
-              variant="outline"
-              className="border-white/25 text-blue-deep hover:bg-white/10"
-            >
-              <Link href="/login">Log in</Link>
-            </Button>
+        <section className="mx-auto max-w-7xl px-4 py-12">
+          <div className="grid gap-5 lg:grid-cols-[1fr_1fr]">
+            <Card className="premium-card rounded-[2rem] p-6">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.22em] text-[var(--text-secondary)]">Top public policies</p>
+                  <h2 className="mt-2 text-xl font-black text-blue-deep">Live leaderboard</h2>
+                </div>
+                <Scale className="text-[#125669]" />
+              </div>
+              <div className="mt-5 space-y-3">
+                {policyLeaderboard.length === 0 ? (
+                  <p className="text-sm text-[var(--text-secondary)]">No public ranking data yet.</p>
+                ) : (
+                  policyLeaderboard.map((item) => (
+                    <div key={`${item.rank}-${item.title}`} className="rounded-[1.4rem] border bg-white/70 px-4 py-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-secondary)]">#{item.rank}</p>
+                          <p className="truncate font-bold text-blue-deep">{item.title}</p>
+                          <p className="text-sm text-[var(--text-secondary)]">{item.state ?? "Federal"}</p>
+                        </div>
+                        <p className="text-2xl font-black text-blue-deep">{item.score.toFixed(1)}</p>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </Card>
 
-            <p className="text-xs text-white/60 mt-2">
-              © {new Date().getFullYear()} Dynovare. All rights reserved.
-            </p>
+            <Card className="premium-card rounded-[2rem] p-6">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.22em] text-[var(--text-secondary)]">Top states</p>
+                  <h2 className="mt-2 text-xl font-black text-blue-deep">State performance snapshot</h2>
+                </div>
+                <MapPinned className="text-[#125669]" />
+              </div>
+              <div className="mt-5 space-y-3">
+                {stateLeaderboard.length === 0 ? (
+                  <p className="text-sm text-[var(--text-secondary)]">No state-level scores yet.</p>
+                ) : (
+                  stateLeaderboard.map((item, index) => (
+                    <button
+                      key={item.state}
+                      type="button"
+                      onClick={() => window.location.assign(`${user ? "/repository" : "/public/policies"}?jurisdictionLevel=state&state=${encodeURIComponent(item.state)}`)}
+                      className="flex w-full items-center justify-between rounded-[1.4rem] border bg-white/70 px-4 py-3 text-left transition hover:bg-[rgba(18,86,105,0.05)]"
+                    >
+                      <div>
+                        <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-secondary)]">#{index + 1}</p>
+                        <p className="font-bold text-blue-deep">{item.state}</p>
+                        <p className="text-sm text-[var(--text-secondary)]">{item.policies} public policies</p>
+                      </div>
+                      <p className="text-2xl font-black text-blue-deep">{item.score?.toFixed(1) ?? "-"}</p>
+                    </button>
+                  ))
+                )}
+              </div>
+            </Card>
           </div>
-        </div>
-      </div>
-    </footer>
-  );
-}
+        </section>
 
-export default function Home() {
-  return (
-    // ✅ keep root bg neutral so footer color is visible
-    <main className="min-h-screen bg-white">
-      <Nav />
-      <Hero />
-      <Features />
-      <HowItWorks />
-      <UseCases />
-      <FAQ />
-      <Footer />
-    </main>
+        <section className="mx-auto max-w-7xl px-4 py-12">
+          <NigeriaPolicyMap
+            scores={stateScores}
+            onSelectState={(state) => window.location.assign(`${user ? "/repository" : "/public/policies"}?jurisdictionLevel=state&state=${encodeURIComponent(state)}`)}
+          />
+        </section>
+
+        <section id="modeling" className="mx-auto max-w-7xl px-4 py-12">
+          <SectionHeader
+            kicker="Workflow"
+            title="From first insight to final PDF"
+            subtitle="Build with evidence first, refine with AI where it helps, and keep control of the document all the way through."
+          />
+
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            {[
+              { icon: <Compass className="text-[#125669]" size={22} />, title: "Discover", text: "Use the repository, rankings, and map to understand the landscape before writing." },
+              { icon: <BarChart3 className="text-[#125669]" size={22} />, title: "Stress-test", text: "Run critique and simulation to test structure, implementation, and likely outcomes." },
+              { icon: <Globe2 className="text-[#125669]" size={22} />, title: "Deliver", text: "Refine the draft in Policy Studio and export a polished PDF when you are ready to share it." },
+            ].map((item) => (
+              <Card key={item.title} className="premium-card rounded-[2rem] p-6">
+                <div className="inline-flex rounded-2xl bg-[rgba(18,86,105,0.09)] p-3">{item.icon}</div>
+                <h3 className="mt-4 text-2xl font-black text-blue-deep">{item.title}</h3>
+                <p className="mt-3 text-sm text-[var(--text-secondary)]">{item.text}</p>
+              </Card>
+            ))}
+          </div>
+        </section>
+      </main>
+
+      <PublicFooter />
+    </div>
   );
 }

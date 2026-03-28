@@ -1,5 +1,6 @@
 import { db } from "@/lib/firebase";
-import { collection, doc, serverTimestamp, setDoc } from "firebase/firestore";
+import { collection, doc, getDocs, limit, query, serverTimestamp, setDoc, where } from "firebase/firestore";
+import { buildSectionsFromText, summarizePolicyText } from "@/lib/policyEditor";
 import { slugify } from "@/lib/slugify";
 import type { PolicyType } from "@/lib/policyTypes";
 
@@ -7,67 +8,51 @@ type UploadPolicyInput = {
   uid: string;
   uploaderName: string;
   email?: string | null;
-
   title: string;
   summary?: string;
-
-  country: string; // "Nigeria"
+  country: string;
   jurisdictionLevel: "federal" | "state";
-  state?: string; // required if state
+  state?: string;
   policyYear?: number;
-
-  // ✅ NEW
   sector?: string;
-
+  energySource?: "renewable" | "non_renewable" | "mixed";
+  domain?: "electricity" | "cooking" | "transport" | "industry" | "agriculture" | "cross_sector";
   contentText?: string;
-
   tags?: string[];
-
-  // optional source info (even for uploads)
   sourcePublisher?: string;
   sourceUrl?: string;
-
-  // storage path (pdf/docx)
   storagePath: string;
-
-  // policy type for upload flow is "uploaded"
   type: PolicyType;
 };
 
 export async function createUploadedPolicy(input: UploadPolicyInput) {
-  const policyId = doc(collection(db, "policies")).id; // ✅ correct way
-  const slugBase = slugify(input.title);
-
-  // Make slug stable-ish and unique enough (title + short id)
-  const slug = `${slugBase}-${policyId.slice(0, 6)}`;
-
-  const globalRef = doc(db, "policies", policyId);
+  const policyId = doc(collection(db, "users", input.uid, "policies")).id;
+  const slug = `${slugify(input.title)}-${policyId.slice(0, 6)}`;
   const userRef = doc(db, "users", input.uid, "policies", policyId);
-
   const now = serverTimestamp();
 
-  const globalDoc: any = {
+  const userDoc: any = {
+    id: policyId,
     title: input.title,
     slug,
-    summary: input.summary ?? "",
+    summary: input.summary ?? summarizePolicyText(input.contentText ?? "", input.title),
     country: input.country,
     jurisdictionLevel: input.jurisdictionLevel,
     state: input.jurisdictionLevel === "state" ? input.state ?? "" : "Federal",
     policyYear: input.policyYear ?? null,
-
-    // ✅ NEW
     sector: input.sector ?? null,
-
-    type: input.type, // "uploaded"
+    energySource: input.energySource ?? null,
+    domain: input.domain ?? null,
+    type: input.type,
     tags: input.tags ?? [],
     storagePath: input.storagePath,
-    visibility: "public",
+    visibility: "private",
     contentText: input.contentText ?? "",
-
+    editorSections: buildSectionsFromText(input.contentText ?? "", input.title),
+    draftStatus: "ready",
     createdByUid: input.uid,
     createdByName: input.uploaderName,
     createdByEmail: input.email ?? null,
-
     source:
       input.sourceUrl || input.sourcePublisher
         ? {
@@ -75,30 +60,87 @@ export async function createUploadedPolicy(input: UploadPolicyInput) {
             url: input.sourceUrl ?? "",
           }
         : null,
-
     createdAt: now,
     updatedAt: now,
   };
 
-  // Minimal user tracking doc (reference + quick metadata)
-  const userDoc: any = {
-    policyId,
-    slug,
-    title: input.title,
-    country: input.country,
-    jurisdictionLevel: input.jurisdictionLevel,
-    state: input.jurisdictionLevel === "state" ? input.state ?? "" : "Federal",
-    policyYear: input.policyYear ?? null,
-
-    // ✅ NEW
-    sector: input.sector ?? null,
-
-    type: input.type,
-    createdAt: now,
-  };
-
-  // Write both
-  await Promise.all([setDoc(globalRef, globalDoc), setDoc(userRef, userDoc)]);
-
+  await setDoc(userRef, userDoc);
   return { policyId, slug };
+}
+
+export async function importPublicPolicyToWorkspace(params: {
+  uid: string;
+  userName?: string | null;
+  userEmail?: string | null;
+  publicPolicyId: string;
+}) {
+  const existingSnap = await getDocs(
+    query(
+      collection(db, "users", params.uid, "policies"),
+      where("createdFromPolicyId", "==", params.publicPolicyId),
+      limit(1)
+    )
+  );
+
+  if (!existingSnap.empty) {
+    const existing = existingSnap.docs[0].data() as any;
+    return {
+      policyId: existingSnap.docs[0].id,
+      slug: existing.slug ?? existingSnap.docs[0].id,
+      reused: true,
+    };
+  }
+
+  const res = await fetch(`/api/public/policy?slugOrId=${encodeURIComponent(params.publicPolicyId)}`);
+  const data = await res.json();
+  const policy = data?.policy;
+  if (!res.ok || !policy) {
+    throw new Error(data?.error || "Public policy could not be loaded");
+  }
+
+  const policyId = doc(collection(db, "users", params.uid, "policies")).id;
+  const slug = `${slugify(policy.title ?? "public-policy")}-${policyId.slice(0, 6)}`;
+  const userRef = doc(db, "users", params.uid, "policies", policyId);
+  const now = serverTimestamp();
+
+  const contentText = String(policy.contentText ?? "").trim();
+  const sections =
+    Array.isArray(policy.editorSections) && policy.editorSections.length > 0
+      ? policy.editorSections
+      : buildSectionsFromText(contentText, policy.title ?? "Imported policy");
+
+  await setDoc(userRef, {
+    id: policyId,
+    title: policy.title ?? "Imported public policy",
+    slug,
+    summary: policy.summary ?? summarizePolicyText(contentText, policy.title ?? "Imported public policy"),
+    contentText,
+    editorSections: sections,
+    aiEvidence: Array.isArray(policy.aiEvidence) ? policy.aiEvidence : [],
+    country: policy.country ?? "Nigeria",
+    jurisdictionLevel: policy.jurisdictionLevel ?? "federal",
+    state: policy.jurisdictionLevel === "state" ? policy.state ?? "" : "Federal",
+    policyYear: policy.policyYear ?? null,
+    tags: Array.isArray(policy.tags) ? policy.tags : [],
+    type: "uploaded",
+    sector: policy.sector ?? null,
+    energySource: policy.energySource ?? null,
+    domain: policy.domain ?? null,
+    visibility: "private",
+    draftStatus: "ready",
+    createdByUid: params.uid,
+    createdByName: params.userName ?? null,
+    createdByEmail: params.userEmail ?? null,
+    createdFromPolicyId: params.publicPolicyId,
+    importedFromPublic: true,
+    source: policy.source ?? {
+      publisher: "Dynovare Public Repository",
+      url: policy.publicPdfUrl ?? null,
+      licenseNote: "Imported from the public repository into a private workspace copy.",
+    },
+    createdAt: now,
+    updatedAt: now,
+  });
+
+  return { policyId, slug, reused: false };
 }

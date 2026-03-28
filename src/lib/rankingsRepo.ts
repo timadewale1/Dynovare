@@ -33,6 +33,7 @@ export async function fetchRankings(params: {
 
   // Nigeria-first: you can lock to Nigeria if you want:
   // filters.push(where("country", "==", "Nigeria"));
+  filters.push(where("visibility", "==", "public"));
 
   if (params.jurisdictionLevel && params.jurisdictionLevel !== "all") {
     filters.push(where("jurisdictionLevel", "==", params.jurisdictionLevel));

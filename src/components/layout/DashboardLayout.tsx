@@ -12,18 +12,12 @@ export default function DashboardLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="bg-blue-soft overflow-x-hidden">
-      {/* Sidebar (fixed) */}
+    <div className="overflow-x-hidden bg-transparent">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-
-      {/* Main wrapper: add left padding on desktop to account for fixed sidebar */}
-      <div className="md:pl-64">
-        {/* Topbar (fixed) */}
+      <div className="md:pl-72">
         <Topbar onMenuClick={() => setSidebarOpen(true)} />
-
-        {/* Scrollable content area */}
-        <main className="pt-16 min-h-screen overflow-x-hidden">
-          <div className="p-6 max-w-full">{children}</div>
+        <main className="min-h-screen overflow-x-hidden pt-16">
+          <div className="max-w-full p-4 md:p-6 lg:p-8">{children}</div>
         </main>
       </div>
     </div>

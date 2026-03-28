@@ -18,38 +18,47 @@ export type ActivityItem = {
 };
 
 export async function getDashboardStats(uid: string) {
-  // ✅ My uploads count (user index)
   const myUploadsCol = collection(db, "users", uid, "policies");
-  const myUploadsCountSnap = await getCountFromServer(myUploadsCol);
-
-  // ✅ My critiques count (user index)
   const myCritiquesCol = collection(db, "users", uid, "critiques");
-  const myCritiquesCountSnap = await getCountFromServer(myCritiquesCol);
-
-  // ✅ My simulations count (user index)
   const mySimulationsCol = collection(db, "users", uid, "simulations");
-  const mySimulationsCountSnap = await getCountFromServer(mySimulationsCol);
 
-  // ✅ Global policies count
-  const globalPoliciesCol = collection(db, "policies");
-  const globalPoliciesCountSnap = await getCountFromServer(globalPoliciesCol);
+  const [myUploadsCountSnap, myCritiquesCountSnap, mySimulationsCountSnap] = await Promise.all([
+    getCountFromServer(myUploadsCol),
+    getCountFromServer(myCritiquesCol),
+    getCountFromServer(mySimulationsCol),
+  ]);
 
-  // ✅ Recent uploads (last 5)
   const recentUploadsQ = query(myUploadsCol, orderBy("createdAt", "desc"), limit(5));
-  const recentUploadsSnap = await getDocs(recentUploadsQ);
-  const recentUploads = recentUploadsSnap.docs.map((d) => ({
-    id: d.id,
-    ...(d.data() as any),
-  }));
-
-  // ✅ Recent critiques (global critiques collection)
+  const workspacePoliciesQ = query(myUploadsCol, orderBy("updatedAt", "desc"), limit(100));
   const recentCritiquesQ = query(
     collection(db, "critiques"),
     where("userId", "==", uid),
     orderBy("createdAt", "desc"),
     limit(5)
   );
-  const recentCritiquesSnap = await getDocs(recentCritiquesQ);
+  const recentSimsQ = query(
+    collection(db, "simulations"),
+    where("userId", "==", uid),
+    orderBy("createdAt", "desc"),
+    limit(5)
+  );
+
+  const [recentUploadsSnap, workspacePoliciesSnap, recentCritiquesSnap, recentSimsSnap] = await Promise.all([
+    getDocs(recentUploadsQ),
+    getDocs(workspacePoliciesQ),
+    getDocs(recentCritiquesQ),
+    getDocs(recentSimsQ),
+  ]);
+
+  const recentUploads = recentUploadsSnap.docs.map((d) => ({
+    id: d.id,
+    ...(d.data() as any),
+  }));
+  const workspacePolicies = workspacePoliciesSnap.docs.map((d) => ({
+    id: d.id,
+    ...(d.data() as any),
+  }));
+
   const recentCritiques: ActivityItem[] = recentCritiquesSnap.docs.map((d) => {
     const data = d.data() as any;
     return {
@@ -61,14 +70,6 @@ export async function getDashboardStats(uid: string) {
     };
   });
 
-  // ✅ Recent simulations (global simulations collection)
-  const recentSimsQ = query(
-    collection(db, "simulations"),
-    where("userId", "==", uid),
-    orderBy("createdAt", "desc"),
-    limit(5)
-  );
-  const recentSimsSnap = await getDocs(recentSimsQ);
   const recentSimulations: ActivityItem[] = recentSimsSnap.docs.map((d) => {
     const data = d.data() as any;
     return {
@@ -80,7 +81,6 @@ export async function getDashboardStats(uid: string) {
     };
   });
 
-  // ✅ Recent uploads as activities too (from user index)
   const uploadActivities: ActivityItem[] = recentUploads.map((p: any) => ({
     type: "upload",
     title: "Uploaded",
@@ -89,22 +89,36 @@ export async function getDashboardStats(uid: string) {
     createdAt: p.createdAt ?? null,
   }));
 
-  // ✅ Merge activities and sort by createdAt desc
   const recentActivities = [...uploadActivities, ...recentCritiques, ...recentSimulations]
     .sort((a, b) => {
       const at = a.createdAt?.toMillis?.() ?? 0;
       const bt = b.createdAt?.toMillis?.() ?? 0;
       return bt - at;
     })
-    .slice(0, 4);
+    .slice(0, 3);
+
+  const critiqueScores = recentCritiquesSnap.docs
+    .map((d) => Number((d.data() as any).overallScore))
+    .filter((score) => Number.isFinite(score));
+
+  const workspaceAverageScore =
+    critiqueScores.length > 0
+      ? Math.round((critiqueScores.reduce((sum, score) => sum + score, 0) / critiqueScores.length) * 10) / 10
+      : null;
+
+  const stateSignalsCount = new Set(
+    workspacePolicies
+      .map((policy: any) => (policy.jurisdictionLevel === "state" ? policy.state : null))
+      .filter(Boolean)
+  ).size;
 
   return {
     myUploadsCount: myUploadsCountSnap.data().count ?? 0,
     myCritiquesCount: myCritiquesCountSnap.data().count ?? 0,
     mySimulationsCount: mySimulationsCountSnap.data().count ?? 0,
-    globalPoliciesCount: globalPoliciesCountSnap.data().count ?? 0,
-
-    recentUploads, // kept in case you still want it somewhere later
+    globalPoliciesCount: 0,
+    workspaceAverageScore,
+    stateSignalsCount,
     recentActivities,
   };
 }

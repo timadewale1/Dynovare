@@ -1,96 +1,94 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import DynovareLogo from "@/components/branding/DynovareLogo";
+import PwaInstallButton from "@/components/branding/PwaInstallButton";
 import { Menu, X } from "lucide-react";
+import { useUser } from "@/components/providers/UserProvider";
 
 const NAV_LINKS = [
-  { href: "/public/policies", label: "Policies" },
-  { href: "/#features", label: "Features" },
-  { href: "/#how-it-works", label: "How it works" },
-  { href: "/#faqs", label: "FAQs" },
+  { href: "/", label: "Home" },
+  { href: "/public/policies", label: "Policy Repository" },
+  { href: "/rankings", label: "Rankings" },
+  { href: "/#modeling", label: "Scenario Modeling" },
+  { href: "/about", label: "About" },
+  { href: "/faq", label: "FAQ" },
+  { href: "/contact", label: "Contact" },
 ];
 
 export default function PublicNavbar() {
-  const pathname = usePathname();
+  const { user } = useUser();
   const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
+  const repoHref = user ? "/repository" : "/public/policies";
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur">
-      <div className="mx-auto max-w-6xl px-4">
+    <header className="sticky top-0 z-50 w-full border-b border-white/50 bg-[rgba(248,251,254,0.84)] backdrop-blur-2xl">
+      <div className="mx-auto max-w-7xl px-4">
         <div className="flex h-16 items-center justify-between gap-3">
-          <Link href="/" className="flex items-center gap-2">
-            <DynovareLogo />
+          <Link href="/" className="flex items-center gap-3">
+            <DynovareLogo size={30} />
           </Link>
 
-          {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-2">
-            {NAV_LINKS.map((l) => (
+          <nav className="hidden items-center gap-2 md:flex">
+            {NAV_LINKS.map((link) => (
               <Link
-                key={l.href}
-                href={l.href}
-                className="px-3 py-2 rounded-xl text-sm font-semibold text-blue-deep hover:bg-blue-soft transition"
+                key={`${link.label}-${link.href}`}
+                href={link.href === "/public/policies" ? repoHref : link.href}
+                className="rounded-full px-3 py-2 text-sm font-semibold text-blue-deep transition hover:bg-[rgba(18,86,105,0.08)] hover:text-[#125669]"
               >
-                {l.label}
+                {link.label}
               </Link>
             ))}
           </nav>
 
-          {/* Desktop actions */}
-          <div className="hidden md:flex items-center gap-2">
+          <div className="hidden items-center gap-2 md:flex">
+            <PwaInstallButton className="rounded-full" />
             <Link href="/login">
-              <Button variant="outline">Login</Button>
+              <Button variant="outline" className="rounded-full">Login</Button>
             </Link>
             <Link href="/register">
-              <Button>Create account</Button>
+              <Button className="rounded-full bg-[#125669] shadow-[0_16px_32px_rgba(18,86,105,0.24)] hover:bg-[#0f4b5d]">Create account</Button>
             </Link>
           </div>
 
-          {/* Mobile hamburger */}
           <button
             type="button"
-            className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-xl border hover:bg-blue-soft transition"
-            onClick={() => setOpen((v) => !v)}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/50 transition hover:bg-[rgba(18,86,105,0.08)] md:hidden"
+            onClick={() => setOpen((value) => !value)}
             aria-label="Open menu"
           >
             {open ? <X size={18} /> : <Menu size={18} />}
           </button>
         </div>
 
-        {/* Mobile menu */}
-        {open && (
-          <div className="md:hidden pb-4">
+        {open ? (
+          <div className="pb-4 md:hidden">
             <div className="grid gap-2">
-              {NAV_LINKS.map((l) => (
+              {NAV_LINKS.map((link) => (
                 <Link
-                  key={l.href}
-                  href={l.href}
-                  className="px-3 py-3 rounded-xl text-sm font-semibold text-blue-deep hover:bg-blue-soft transition"
+                  key={`${link.label}-${link.href}`}
+                  href={link.href === "/public/policies" ? repoHref : link.href}
+                  onClick={() => setOpen(false)}
+                  className="rounded-2xl px-3 py-3 text-sm font-semibold text-blue-deep transition hover:bg-[rgba(18,86,105,0.08)]"
                 >
-                  {l.label}
+                  {link.label}
                 </Link>
               ))}
 
               <div className="grid grid-cols-2 gap-2 pt-2">
+                <PwaInstallButton className="col-span-2 w-full rounded-full" />
                 <Link href="/login">
-                  <Button variant="outline" className="w-full">
-                    Login
-                  </Button>
+                  <Button variant="outline" className="w-full rounded-full">Login</Button>
                 </Link>
                 <Link href="/register">
-                  <Button className="w-full">Create account</Button>
+                  <Button className="w-full rounded-full bg-[#125669] hover:bg-[#0f4b5d]">Create account</Button>
                 </Link>
               </div>
             </div>
           </div>
-        )}
+        ) : null}
       </div>
     </header>
   );

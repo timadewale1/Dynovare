@@ -1,4 +1,3 @@
-// src/lib/ai/prompts/critique.ts
 import type { CritiqueStandardId } from "@/lib/critiqueStandards";
 
 export function buildCritiquePrompt(args: {
@@ -9,20 +8,44 @@ export function buildCritiquePrompt(args: {
   const system = `
 You are Dynovare's policy analyst AI.
 
-You MAY use the web_search tool to check best-practice guidance relevant to the standards (e.g., SDG alignment, M&E design, implementation feasibility).
-Return ONLY strict JSON. No markdown. No code fences.
+You MUST use the web_search tool to check best-practice guidance relevant to the standards and include source-backed evidence when useful.
+Return ONLY strict JSON.
 
 JSON schema:
 {
-  "overallScore": number (0-100),
-  "summary": string (2-4 sentences),
-  "strengths": string[] (3-6),
-  "risks": string[] (3-6),
+  "overallScore": number,
+  "summary": string,
+  "executiveVerdict": string,
+  "confidenceLevel": "low" | "moderate" | "high",
+  "maturityProfile": {
+    "policyClarity": "low" | "moderate" | "strong",
+    "deliveryDesign": "low" | "moderate" | "strong",
+    "financeDesign": "low" | "moderate" | "strong",
+    "accountability": "low" | "moderate" | "strong"
+  },
+  "decisionRecommendation": {
+    "status": "advance" | "advance_with_edits" | "revise_before_advancing" | "rethink_core_design",
+    "rationale": string
+  },
+  "priorityActions": string[],
+  "evidenceGaps": string[],
+  "stakeholderImpacts": [
+    { "group": string, "impact": string, "concern": string }
+  ],
+  "implementationOutlook": {
+    "readiness": "low" | "moderate" | "strong",
+    "institutionalCapacity": string,
+    "fundingConfidence": string,
+    "monitoringConfidence": string
+  },
+  "strengths": string[],
+  "risks": string[],
   "perStandard": [
     {
       "standardId": string,
-      "score": number (0-100),
-      "suggestions": string[] (3-6)
+      "score": number,
+      "verdict": string,
+      "suggestions": string[]
     }
   ],
   "evidence": [
@@ -31,21 +54,24 @@ JSON schema:
 }
 
 Rules:
-- Be grounded; if policy lacks detail, say so clearly.
-- Do NOT invent citations. Evidence must be real URLs from web_search or [].
-- Suggestions must be actionable and specific (not vague).
+- Be grounded. If policy lacks detail, say so clearly.
+- Do not invent citations. Evidence must be real URLs from web_search or [].
+- Suggestions must be actionable and specific.
+- executiveVerdict should read like a decision memo, not marketing copy.
+- confidenceLevel should reflect how much the text itself supports a reliable judgment.
+- evidenceGaps should identify what is missing from the policy text, not what is missing from the web.
+- stakeholderImpacts should cover likely winners, implementers, and vulnerable groups.
+- decisionRecommendation should be decisive and useful to a policy team.
 `.trim();
 
   const user = `
 Policy title: ${args.policyTitle}
 
 Standards:
-${args.standards.map((s) => `- ${s.id}: ${s.label} — ${s.description}`).join("\n")}
+${args.standards.map((s) => `- ${s.id}: ${s.label} - ${s.description}`).join("\n")}
 
 Policy text:
 ${args.policyText}
-
-Return JSON only.
 `.trim();
 
   return { system, user };

@@ -10,6 +10,7 @@ import { Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 import { controlledGoogleSignIn } from "@/lib/authHelpers";
 import { shouldGoToOnboarding } from "@/lib/redirectAfterAuth";
+import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -47,7 +48,7 @@ export default function LoginPage() {
       await routeAfterAuth(user.uid);
     } catch (error: any) {
       if (error.code === "PASSWORD_REQUIRED_FOR_LINKING") {
-        toast.error("Please enter your email & password to link Google");
+        toast.error("Please enter your email and password to link Google");
       } else {
         toast.error("Google sign-in failed");
       }
@@ -55,14 +56,15 @@ export default function LoginPage() {
   };
 
   return (
-    <AuthCard>
-      <h1 className="text-2xl font-bold text-blue-deep mb-4">Sign in</h1>
-
+    <AuthCard
+      title="Sign in"
+      subtitle="Open your workspace to draft, critique, simulate, and export policy work."
+    >
       <div className="space-y-4">
         <input
           type="email"
           placeholder="Email address"
-          className="w-full border rounded-md px-3 py-2"
+          className="studio-input"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
@@ -71,14 +73,14 @@ export default function LoginPage() {
           <input
             type={showPassword ? "text" : "password"}
             placeholder="Password"
-            className="w-full border rounded-md px-3 py-2 pr-10"
+            className="studio-input pr-11"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-2.5 text-gray-500"
+            className="absolute right-4 top-3.5 text-gray-500"
           >
             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
@@ -86,31 +88,28 @@ export default function LoginPage() {
 
         <button
           onClick={handleLogin}
-          className="w-full border btn-primary py-2 rounded-md font-semibold"
+          className="w-full rounded-full bg-[#125669] px-4 py-3 font-semibold text-white shadow-[0_16px_32px_rgba(18,86,105,0.2)] transition hover:bg-[#0f4b5d]"
         >
           Sign in
         </button>
 
         <button
           onClick={handleGoogleLogin}
-          className="w-full border btn-secondary py-2 rounded-md flex items-center justify-center gap-2"
+          className="flex w-full items-center justify-center gap-2 rounded-full border bg-white px-4 py-3 font-semibold transition hover:bg-slate-50"
         >
           <Image src="/google.svg" alt="Google" width={18} height={18} />
           Sign in with Google
         </button>
 
-        <a
-          href="/forgot-password"
-          className="block text-sm text-blue-electric text-center"
-        >
+        <Link href="/forgot-password" className="block text-center text-sm text-blue-electric">
           Forgot password?
-        </a>
+        </Link>
 
-        <p className="text-sm text-center">
-          Don’t have an account?{" "}
-          <a href="/register" className="text-blue-electric font-semibold">
-            Sign up
-          </a>
+        <p className="text-center text-sm text-[var(--text-secondary)]">
+          Don't have an account?{" "}
+          <Link href="/register" className="font-semibold text-blue-electric">
+            Create one
+          </Link>
         </p>
       </div>
     </AuthCard>

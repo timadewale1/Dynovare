@@ -29,16 +29,14 @@ export async function GET(req: Request) {
     const state = safeString(searchParams.get("state") ?? "all");
     const type = safeString(searchParams.get("type") ?? "all");
     const sector = safeString(searchParams.get("sector") ?? "all");
+    const energySource = safeString(searchParams.get("energySource") ?? "all");
+    const domain = safeString(searchParams.get("domain") ?? "all");
     const policyYearRaw = safeString(searchParams.get("policyYear") ?? "all");
     const search = safeString(searchParams.get("search") ?? "").trim().toLowerCase();
 
     // NOTE: Keep this simple + safe.
     // We'll fetch a limited list and filter in memory to avoid complex composite indexes.
-    const snap = await adminDb
-      .collection("policies")
-      .orderBy("updatedAt", "desc")
-      .limit(200)
-      .get();
+    const snap = await adminDb.collection("policies").orderBy("updatedAt", "desc").limit(200).get();
 
     const items = snap.docs.map((d) => {
       const p = d.data() as any;
@@ -53,6 +51,9 @@ export async function GET(req: Request) {
         policyYear: typeof p?.policyYear === "number" ? p.policyYear : null,
         type: p?.type ?? "uploaded",
         sector: p?.sector ?? null,
+        energySource: p?.energySource ?? null,
+        domain: p?.domain ?? null,
+        visibility: p?.visibility ?? "public",
         tags: Array.isArray(p?.tags) ? p.tags : [],
         publicPdfUrl: p?.publicPdfUrl ?? null, // if you store one
         storagePath: p?.storagePath ?? null,   // used to download if present
@@ -66,6 +67,7 @@ export async function GET(req: Request) {
       policyYearRaw !== "all" && policyYearRaw ? Number(policyYearRaw) : "all";
 
     const filtered = items.filter((p) => {
+      if ((p as any).visibility === "private") return false;
       if (jurisdictionLevel !== "all" && p.jurisdictionLevel !== jurisdictionLevel) return false;
 
       if (jurisdictionLevel === "state" && state !== "all") {
@@ -74,6 +76,8 @@ export async function GET(req: Request) {
 
       if (type !== "all" && p.type !== type) return false;
       if (sector !== "all" && (p.sector ?? "") !== sector) return false;
+      if (energySource !== "all" && (p.energySource ?? "") !== energySource) return false;
+      if (domain !== "all" && (p.domain ?? "") !== domain) return false;
 
       if (policyYear !== "all") {
         if (p.policyYear !== policyYear) return false;

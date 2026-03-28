@@ -1,0 +1,38 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    match /policies/public_source/{publisher}/{fileName} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /policies/uploads/{uid}/{fileName} {
+      allow read, write: if isOwner(uid);
+    }
+
+    match /policies/revisions/{uid}/{policyId}/{fileName} {
+      allow read, write: if isOwner(uid);
+    }
+
+    match /policies/ai_generated/{uid}/{fileName} {
+      allow read, write: if isOwner(uid);
+    }
+
+    match /policies/exports/{uid}/{fileName} {
+      allow read, write: if isOwner(uid);
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

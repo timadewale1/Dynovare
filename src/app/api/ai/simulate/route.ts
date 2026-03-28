@@ -1,8 +1,8 @@
 import "server-only";
 import { NextResponse } from "next/server";
-import { adminDb } from "@/lib/firebaseAdmin";
 import { llmJSON } from "@/lib/ai/llmClient";
 import { buildSimulationPrompt } from "@/lib/ai/prompts/simulate";
+import { resolvePolicyForAction } from "@/lib/policyStoreAdmin";
 
 export const runtime = "nodejs";
 
@@ -10,6 +10,7 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     const policyId = String(body?.policyId || "");
+    const ownerUid = String(body?.ownerUid || "").trim() || null;
     const inputs = body?.inputs ?? null;
 
     if (!policyId || !inputs) {
@@ -19,11 +20,11 @@ export async function POST(req: Request) {
       );
     }
 
-    const snap = await adminDb.collection("policies").doc(policyId).get();
-    if (!snap.exists)
+    const resolved = await resolvePolicyForAction({ ownerUid, policyId });
+    if (!resolved)
       return NextResponse.json({ error: "Policy not found" }, { status: 404 });
 
-    const policy = snap.data() as any;
+    const policy = resolved.policy;
     const policyText = String(policy?.contentText || "").trim();
 
     if (policyText.length < 120) {
@@ -44,6 +45,7 @@ export async function POST(req: Request) {
       user,
       temperature: 0.25,
       webSearch: true,
+      maxOutputTokens: 7000,
     });
 
     return NextResponse.json(out);

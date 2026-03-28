@@ -23,30 +23,27 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <AuthCard>
-      <h1 className="text-2xl font-bold text-blue-deep mb-4">
-        Reset password
-      </h1>
+    <AuthCard
+      title="Reset password"
+      subtitle="Enter your email address and we will send you a reset link."
+    >
+      <div className="space-y-4">
+        <input
+          type="email"
+          placeholder="Email address"
+          className="studio-input"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
 
-      <p className="text-sm text-[var(--text-secondary)] mb-6">
-        Enter your email address and we’ll send you a reset link.
-      </p>
-
-      <input
-        type="email"
-        placeholder="Email address"
-        className="w-full border rounded-md px-3 py-2 mb-4"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-
-      <button
-        onClick={handleReset}
-        disabled={loading}
-        className="w-full border font-semibold btn-primary py-2 rounded-md"
-      >
-        Send reset link
-      </button>
+        <button
+          onClick={handleReset}
+          disabled={loading}
+          className="w-full rounded-full bg-[#125669] px-4 py-3 font-semibold text-white shadow-[0_16px_32px_rgba(18,86,105,0.2)] transition hover:bg-[#0f4b5d] disabled:opacity-70"
+        >
+          {loading ? "Sending..." : "Send reset link"}
+        </button>
+      </div>
     </AuthCard>
   );
 }

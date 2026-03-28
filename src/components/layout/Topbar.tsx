@@ -3,6 +3,7 @@
 import { Menu } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useUser } from "@/components/providers/UserProvider";
+import PwaInstallButton from "@/components/branding/PwaInstallButton";
 
 export default function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
   const { profile } = useUser();
@@ -13,10 +14,10 @@ export default function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
     <header
       className="
         fixed top-0 z-30 h-16
-        w-full md:w-[calc(100%-16rem)] md:left-64 left-0
-        border-b border-[var(--border-color)]
+        left-0 w-full md:left-72 md:w-[calc(100%-18rem)]
+        border-b border-white/40
         flex items-center justify-between
-        px-6 bg-white
+        px-6 bg-white/72 backdrop-blur-xl
         overflow-x-hidden
       "
     >
@@ -24,22 +25,26 @@ export default function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
         {onMenuClick && (
           <button
             onClick={onMenuClick}
-            className="md:hidden p-2 rounded-lg hover:bg-blue-soft"
+            className="rounded-lg p-2 hover:bg-blue-soft md:hidden"
           >
             <Menu size={20} />
           </button>
         )}
 
-        <span className="text-lg font-bold text-blue-deep truncate">
-          Policy Intelligence Platform
-        </span>
+        <div>
+          <span className="truncate text-base font-bold text-blue-deep">Policy Studio</span>
+          <p className="text-xs text-[var(--text-secondary)]">Draft, critique, simulate, export</p>
+        </div>
       </div>
 
-      <Avatar>
-        <AvatarFallback className="bg-blue-electric text-white font-bold">
-          {initial}
-        </AvatarFallback>
-      </Avatar>
+      <div className="flex items-center gap-2">
+        <PwaInstallButton className="hidden rounded-full md:inline-flex" />
+        <Avatar>
+          <AvatarFallback className="bg-blue-electric text-white font-bold">
+            {initial}
+          </AvatarFallback>
+        </Avatar>
+      </div>
     </header>
   );
 }

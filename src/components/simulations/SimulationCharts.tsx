@@ -10,18 +10,22 @@ import {
   PieChart,
   Pie,
   Cell,
-  AreaChart,
-  Area,
+  LineChart,
+  Line,
   CartesianGrid,
   Legend,
 } from "recharts";
 
-function buildTrendData(horizonYears: number, accessImpactPct: number) {
-  // Simple linear ramp to final impact (MVP)
-  const arr: { year: string; access: number }[] = [];
-  for (let y = 0; y <= horizonYears; y++) {
-    const v = (accessImpactPct * y) / Math.max(1, horizonYears);
-    arr.push({ year: `Year ${y}`, access: Number(v.toFixed(1)) });
+function buildFallbackTrendData(horizonYears: number, accessImpactPct: number, reliabilityImpactPct: number, emissionsChangePct: number) {
+  const arr: { year: string; access: number; reliability: number; emissions: number }[] = [];
+  for (let y = 1; y <= horizonYears; y++) {
+    const progress = y / Math.max(1, horizonYears);
+    arr.push({
+      year: `Y${y}`,
+      access: Number((accessImpactPct * progress).toFixed(1)),
+      reliability: Number((reliabilityImpactPct * progress).toFixed(1)),
+      emissions: Number((emissionsChangePct * progress).toFixed(1)),
+    });
   }
   return arr;
 }
@@ -31,31 +35,49 @@ export default function SimulationCharts(props: {
   accessImpactPct: number;
   reliabilityImpactPct: number;
   emissionsChangePct: number;
-  riskLevel: "Low" | "Medium" | "High";
+  riskLevel: "Low" | "Medium" | "High" | "low" | "medium" | "high";
+  yearByYear?: Array<{
+    year: number;
+    accessImpactPct: number;
+    reliabilityImpactPct: number;
+    emissionsChangePct: number;
+    investmentNeedUSD?: number;
+  }>;
 }) {
   const bars = [
     { name: "Access", value: props.accessImpactPct },
     { name: "Reliability", value: props.reliabilityImpactPct },
-    // Emissions could be negative; chart should show direction
     { name: "Emissions", value: props.emissionsChangePct },
   ];
 
-  const trend = buildTrendData(props.horizonYears, props.accessImpactPct);
+  const trend =
+    Array.isArray(props.yearByYear) && props.yearByYear.length > 0
+      ? props.yearByYear.map((row) => ({
+          year: `Y${row.year}`,
+          access: row.accessImpactPct,
+          reliability: row.reliabilityImpactPct,
+          emissions: row.emissionsChangePct,
+          investment: Number(row.investmentNeedUSD ?? 0),
+        }))
+      : buildFallbackTrendData(
+          props.horizonYears,
+          props.accessImpactPct,
+          props.reliabilityImpactPct,
+          props.emissionsChangePct
+        );
 
+  const riskValue = String(props.riskLevel).toLowerCase();
   const riskData = [
-    { name: "Low", value: props.riskLevel === "Low" ? 1 : 0 },
-    { name: "Medium", value: props.riskLevel === "Medium" ? 1 : 0 },
-    { name: "High", value: props.riskLevel === "High" ? 1 : 0 },
+    { name: "Low", value: riskValue === "low" ? 1 : 0 },
+    { name: "Medium", value: riskValue === "medium" ? 1 : 0 },
+    { name: "High", value: riskValue === "high" ? 1 : 0 },
   ];
 
-  // Recharts requires colors, but you asked for blue theme.
-  // We'll keep it minimal and brand-consistent (soft blue palette).
-  const pieColors = ["#1E88E5", "#90CAF9", "#0D47A1"];
+  const pieColors = ["#56c7a3", "#f0cf84", "#c9836f"];
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      {/* Bar chart */}
-      <div className="border rounded-xl p-4">
+    <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+      <div className="rounded-[1.3rem] border p-4">
         <p className="font-bold text-blue-deep mb-3">Impact overview</p>
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
@@ -65,17 +87,14 @@ export default function SimulationCharts(props: {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Bar dataKey="value" />
+              <Bar dataKey="value" fill="#125669" radius={[8, 8, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
-        <p className="text-xs text-[var(--text-secondary)] mt-2">
-          Values are percentage impact estimates (MVP model).
-        </p>
+        <p className="mt-2 text-xs text-[var(--text-secondary)]">Summary values from the current simulation run.</p>
       </div>
 
-      {/* Risk pie */}
-      <div className="border rounded-xl p-4">
+      <div className="rounded-[1.3rem] border p-4">
         <p className="font-bold text-blue-deep mb-3">Risk level</p>
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
@@ -90,27 +109,27 @@ export default function SimulationCharts(props: {
             </PieChart>
           </ResponsiveContainer>
         </div>
-        <p className="text-xs text-[var(--text-secondary)] mt-2">
-          Highlight shows the current risk band.
-        </p>
+        <p className="mt-2 text-xs text-[var(--text-secondary)]">The highlighted band reflects the current scenario risk profile.</p>
       </div>
 
-      {/* Trend area */}
-      <div className="border rounded-xl p-4">
-        <p className="font-bold text-blue-deep mb-3">Projected access trend</p>
+      <div className="rounded-[1.3rem] border p-4 xl:col-span-1">
+        <p className="font-bold text-blue-deep mb-3">Year-by-year trend</p>
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={trend}>
+            <LineChart data={trend}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="year" hide />
+              <XAxis dataKey="year" />
               <YAxis />
               <Tooltip />
-              <Area dataKey="access" />
-            </AreaChart>
+              <Legend />
+              <Line type="monotone" dataKey="access" stroke="#125669" strokeWidth={3} dot={false} />
+              <Line type="monotone" dataKey="reliability" stroke="#1c7ed6" strokeWidth={3} dot={false} />
+              <Line type="monotone" dataKey="emissions" stroke="#c9836f" strokeWidth={3} dot={false} />
+            </LineChart>
           </ResponsiveContainer>
         </div>
-        <p className="text-xs text-[var(--text-secondary)] mt-2">
-          Linear ramp to end-of-horizon estimate (will become model-based later).
+        <p className="mt-2 text-xs text-[var(--text-secondary)]">
+          Uses the actual year-by-year simulation output when it is available.
         </p>
       </div>
     </div>

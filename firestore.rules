@@ -1,0 +1,75 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function isPublicPolicy(policyId) {
+      return get(/databases/$(database)/documents/policies/$(policyId)).data.visibility != "private";
+    }
+
+    match /users/{uid} {
+      allow read, write: if isOwner(uid);
+
+      match /policies/{policyId} {
+        allow read, write: if isOwner(uid);
+
+        match /critiques/{critiqueId} {
+          allow read, write: if isOwner(uid);
+        }
+
+        match /simulations/{simulationId} {
+          allow read, write: if isOwner(uid);
+        }
+      }
+
+      match /critiques/{policyId} {
+        allow read, write: if isOwner(uid);
+      }
+
+      match /simulations/{policyId} {
+        allow read, write: if isOwner(uid);
+      }
+    }
+
+    match /policies/{policyId} {
+      allow read: if resource.data.visibility != "private";
+      allow write: if false;
+
+      match /critiques/{critiqueId} {
+        allow read: if isPublicPolicy(policyId);
+        allow create: if signedIn() && request.resource.data.userId == request.auth.uid;
+        allow update, delete: if false;
+      }
+
+      match /simulations/{simulationId} {
+        allow read: if isPublicPolicy(policyId);
+        allow create: if signedIn() && request.resource.data.userId == request.auth.uid;
+        allow update, delete: if false;
+      }
+    }
+
+    match /policyStats/{policyId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /critiques/{critiqueId} {
+      allow create: if signedIn() && request.resource.data.userId == request.auth.uid;
+      allow read: if signedIn() && resource.data.userId == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    match /simulations/{simulationId} {
+      allow create: if signedIn() && request.resource.data.userId == request.auth.uid;
+      allow read: if signedIn() && resource.data.userId == request.auth.uid;
+      allow update, delete: if false;
+    }
+  }
+}

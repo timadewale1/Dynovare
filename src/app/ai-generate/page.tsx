@@ -7,33 +7,18 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import toast from "react-hot-toast";
-import { Sparkles, CheckCircle2, Plus, X } from "lucide-react";
+import { ArrowRight, Sparkles, Wand2, Plus, X, FilePenLine, Bot, PenSquare } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/components/providers/UserProvider";
-
-import { CRITIQUE_STANDARDS, type CritiqueStandardId } from "@/lib/critiqueStandards";
-import { saveCritique } from "@/lib/critiqueWrites";
 import { createAIGeneratedPolicy } from "@/lib/policyAIWrites";
+import { POLICY_DOMAINS, POLICY_ENERGY_SOURCES, policyDomainLabel, policyEnergySourceLabel } from "@/lib/policyTaxonomy";
 
 const NIGERIA_STATES = [
-  "Abia","Adamawa","Akwa Ibom","Anambra","Bauchi","Bayelsa","Benue","Borno",
-  "Cross River","Delta","Ebonyi","Edo","Ekiti","Enugu","FCT","Gombe","Imo",
-  "Jigawa","Kaduna","Kano","Katsina","Kebbi","Kogi","Kwara","Lagos","Nasarawa",
-  "Niger","Ogun","Ondo","Osun","Oyo","Plateau","Rivers","Sokoto","Taraba",
-  "Yobe","Zamfara",
-];
-
-const SECTORS = [
-  "Electricity",
-  "Renewable Energy",
-  "Oil & Gas",
-  "Clean Cooking",
-  "Transport",
-  "Industry",
-  "Buildings",
-  "Agriculture",
-  "Waste",
-  "Climate & Emissions",
+  "Abia", "Adamawa", "Akwa Ibom", "Anambra", "Bauchi", "Bayelsa", "Benue", "Borno",
+  "Cross River", "Delta", "Ebonyi", "Edo", "Ekiti", "Enugu", "FCT", "Gombe", "Imo",
+  "Jigawa", "Kaduna", "Kano", "Katsina", "Kebbi", "Kogi", "Kwara", "Lagos", "Nasarawa",
+  "Niger", "Ogun", "Ondo", "Osun", "Oyo", "Plateau", "Rivers", "Sokoto", "Taraba",
+  "Yobe", "Zamfara",
 ];
 
 type GeneratePromptPayload = {
@@ -43,7 +28,10 @@ type GeneratePromptPayload = {
   state: string | null;
   policyYear: number | null;
   sector: string;
+  energySource: "renewable" | "non_renewable" | "mixed";
+  domain: "electricity" | "cooking" | "transport" | "industry" | "agriculture" | "cross_sector";
   tags: string[];
+  targetPages: number;
   goals: string;
   context: string;
   constraints: string;
@@ -59,52 +47,30 @@ export default function AIGeneratePage() {
   const [jurisdictionLevel, setJurisdictionLevel] = useState<"federal" | "state">("federal");
   const [stateName, setStateName] = useState("");
   const [policyYear, setPolicyYear] = useState<number | "">(2026);
-
+  const [energySource, setEnergySource] = useState<"renewable" | "non_renewable" | "mixed">("mixed");
+  const [domain, setDomain] = useState<"electricity" | "cooking" | "transport" | "industry" | "agriculture" | "cross_sector">("cross_sector");
+  const [targetPages, setTargetPages] = useState<number>(12);
   const [goals, setGoals] = useState("");
   const [context, setContext] = useState("");
   const [constraints, setConstraints] = useState("");
-
-  const [sector, setSector] = useState<string>("Electricity");
-  const [references, setReferences] = useState<string>("");
-
+  const [references, setReferences] = useState("");
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState<string[]>([]);
-
-  const [selectedStandards, setSelectedStandards] = useState<CritiqueStandardId[]>([
-    "sdg_alignment",
-    "inclusivity_equity",
-    "implementation_feasibility",
-    "monitoring_metrics",
-  ]);
-
   const [generating, setGenerating] = useState(false);
 
-  const toggleStandard = (id: CritiqueStandardId) => {
-    setSelectedStandards((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
-  };
-
   const addTag = () => {
-    const t = tagInput.trim();
-    if (!t) return;
-    const clean = t.toLowerCase();
-    if (tags.includes(clean)) {
-      setTagInput("");
-      return;
-    }
-    setTags((prev) => [...prev, clean]);
+    const value = tagInput.trim().toLowerCase();
+    if (!value) return;
+    if (!tags.includes(value)) setTags((current) => [...current, value]);
     setTagInput("");
   };
 
-  const removeTag = (t: string) => setTags((prev) => prev.filter((x) => x !== t));
-
   const canGenerate = useMemo(() => {
     if (!user) return false;
-    if (!title.trim()) return false;
-    if (!goals.trim()) return false;
+    if (!title.trim() || !goals.trim()) return false;
     if (jurisdictionLevel === "state" && !stateName) return false;
-    if (selectedStandards.length === 0) return false;
     return true;
-  }, [user, title, goals, jurisdictionLevel, stateName, selectedStandards.length]);
+  }, [user, title, goals, jurisdictionLevel, stateName]);
 
   const handleGenerate = async () => {
     if (!user) {
@@ -114,7 +80,7 @@ export default function AIGeneratePage() {
     }
 
     if (!canGenerate) {
-      toast.error("Please complete required fields");
+      toast.error("Please complete the required fields");
       return;
     }
 
@@ -124,8 +90,11 @@ export default function AIGeneratePage() {
       jurisdictionLevel,
       state: jurisdictionLevel === "state" ? stateName : null,
       policyYear: typeof policyYear === "number" ? policyYear : null,
-      sector,
+      sector: policyDomainLabel(domain),
+      energySource,
+      domain,
       tags,
+      targetPages,
       goals: goals.trim(),
       context: context.trim(),
       constraints: constraints.trim(),
@@ -134,8 +103,6 @@ export default function AIGeneratePage() {
 
     try {
       setGenerating(true);
-
-      // ✅ 1) Generate-from-prompt route (NOT generate-policy)
       const genRes = await fetch("/api/ai/generate-from-prompt", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -145,13 +112,6 @@ export default function AIGeneratePage() {
       const genData = await genRes.json();
       if (!genRes.ok) throw new Error(genData?.error || "Policy generation failed");
 
-      const generatedText = String(genData?.generatedText || "").trim();
-      if (generatedText.length < 2500) {
-        toast.error("Generated policy is still too short. Add more detail and try again.");
-        return;
-      }
-
-      // ✅ 2) Save AI-generated policy
       const created = await createAIGeneratedPolicy({
         uid: user.uid,
         userName: profile?.fullName,
@@ -164,52 +124,19 @@ export default function AIGeneratePage() {
           policyYear: promptPayload.policyYear ?? null,
           tags: promptPayload.tags,
           sector: promptPayload.sector,
+          energySource: promptPayload.energySource,
+          domain: promptPayload.domain,
           type: "ai_generated",
-        } as any,
-        improvedText: generatedText,
+        },
+        summary: genData?.summary,
+        sections: genData?.sections,
+        evidence: genData?.evidence,
+        guidance: genData?.guidance,
+        improvedText: genData?.generatedText,
         mode: "from_scratch",
-      } as any);
-
-      // ✅ 3) Critique via server route
-      const critRes = await fetch("/api/ai/critique", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          policyId: created.id,
-          selectedStandards,
-        }),
       });
 
-      const out = await critRes.json();
-      if (!critRes.ok) throw new Error(out?.error || "Critique failed");
-
-      // ✅ 4) Save critique
-      await saveCritique({
-        policyId: created.id,
-        policyTitle: created.title ?? promptPayload.title,
-        policySlug: created.slug,
-        policyType: "ai_generated",
-        jurisdictionLevel: promptPayload.jurisdictionLevel,
-        state: promptPayload.state ?? undefined,
-        policyYear: promptPayload.policyYear ?? undefined,
-
-        userId: user.uid,
-        userName: profile?.fullName,
-        userEmail: user.email ?? null,
-
-        revisionNumber: 0,
-
-        selectedStandards,
-        overallScore: out.overallScore,
-        perStandard: out.perStandard,
-        summary: out.summary,
-        strengths: out.strengths,
-        risks: out.risks,
-
-        previousOverallScore: null,
-      });
-
-      toast.success(`Policy generated & scored ${out.overallScore}/100`);
+      toast.success("Draft created. Opening Policy Studio...");
       router.push(`/policies/${created.slug}`);
     } catch (e: any) {
       console.error(e);
@@ -222,240 +149,236 @@ export default function AIGeneratePage() {
   return (
     <ProtectedRoute>
       <DashboardLayout>
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-blue-deep">AI Policy Generation</h1>
-          <p className="text-sm text-[var(--text-secondary)] mt-1">
-            Generate a complete policy draft, then Dynovare auto-scores it against selected standards.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <Card className="p-6 lg:col-span-2">
-            <h2 className="text-lg font-bold text-blue-deep mb-4">Policy details</h2>
-
-            <div className="space-y-4">
+        <div className="space-y-6">
+          <section className="overflow-hidden rounded-[2rem] bg-[linear-gradient(135deg,#08263d_0%,#0f4b70_52%,#1f7a8c_100%)] p-8 text-white shadow-[0_24px_80px_rgba(8,38,61,0.22)]">
+            <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
               <div>
-                <p className="text-sm font-semibold mb-2">Policy title *</p>
-                <input
-                  className="w-full border rounded-xl px-3 py-2"
-                  placeholder="e.g. Nigeria Renewable Electricity Access Acceleration Policy"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                />
+                <Badge variant="outline" className="border-white/20 bg-white/10 text-white">Policy Studio</Badge>
+                <h1 className="mt-5 max-w-3xl text-3xl font-black tracking-tight md:text-4xl">
+                  Generate a solid first draft, then keep shaping every section until it is ready.
+                </h1>
+                <p className="mt-4 max-w-2xl text-base text-white/80">
+                  Start with a structured brief. You will get an editable in-app draft, section-level AI help, critique, simulation,
+                  and a polished PDF export when you decide it is time.
+                </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <p className="text-sm font-semibold mb-2">Country</p>
-                  <input className="w-full border rounded-xl px-3 py-2 bg-gray-50" value={country} disabled />
-                </div>
-
-                <div>
-                  <p className="text-sm font-semibold mb-2">Jurisdiction *</p>
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setJurisdictionLevel("federal")}
-                      className={`flex-1 border rounded-xl px-3 py-2 font-semibold transition ${
-                        jurisdictionLevel === "federal" ? "border-blue-electric bg-blue-soft" : "hover:border-blue-electric"
-                      }`}
-                    >
-                      Federal
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setJurisdictionLevel("state")}
-                      className={`flex-1 border rounded-xl px-3 py-2 font-semibold transition ${
-                        jurisdictionLevel === "state" ? "border-blue-electric bg-blue-soft" : "hover:border-blue-electric"
-                      }`}
-                    >
-                      State
-                    </button>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {[
+                  ["Editable by default", "Open the draft in Policy Studio and revise every section."],
+                  ["Targeted AI help", "Ask AI to improve only the part that needs attention."],
+                  ["Private workflow", "Your drafts stay in your workspace until you choose otherwise."],
+                  ["Styled export", "Download a polished PDF only after the content is ready."],
+                ].map(([title, text]) => (
+                  <div key={title} className="rounded-[1.5rem] border border-white/15 bg-white/8 p-4 backdrop-blur">
+                    <p className="font-bold">{title}</p>
+                    <p className="mt-2 text-sm text-white/72">{text}</p>
                   </div>
-                </div>
-
-                <div>
-                  <p className="text-sm font-semibold mb-2">Policy year</p>
-                  <input
-                    type="number"
-                    className="w-full border rounded-xl px-3 py-2"
-                    value={policyYear}
-                    onChange={(e) => setPolicyYear(e.target.value ? Number(e.target.value) : "")}
-                  />
-                </div>
-              </div>
-
-              {jurisdictionLevel === "state" && (
-                <div>
-                  <p className="text-sm font-semibold mb-2">Select state *</p>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-56 overflow-y-auto">
-                    {NIGERIA_STATES.map((s) => (
-                      <button
-                        key={s}
-                        type="button"
-                        onClick={() => setStateName(s)}
-                        className={`border rounded-lg px-3 py-2 text-sm font-medium transition ${
-                          stateName === s ? "border-blue-electric bg-blue-soft" : "hover:border-blue-electric"
-                        }`}
-                      >
-                        {s}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div>
-                <p className="text-sm font-semibold mb-2">Tags</p>
-                <div className="flex gap-2">
-                  <input
-                    className="flex-1 border rounded-xl px-3 py-2"
-                    placeholder="e.g. renewable, emissions, grid, subsidy"
-                    value={tagInput}
-                    onChange={(e) => setTagInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        addTag();
-                      }
-                    }}
-                  />
-                  <Button type="button" variant="outline" onClick={addTag} className="gap-2">
-                    <Plus size={16} /> Add
-                  </Button>
-                </div>
-
-                {tags.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-3">
-                    {tags.map((t) => (
-                      <Badge key={t} variant="outline" className="flex items-center gap-2">
-                        {t}
-                        <button type="button" onClick={() => removeTag(t)} className="text-[var(--text-secondary)]">
-                          <X size={14} />
-                        </button>
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div>
-                <p className="text-sm font-semibold mb-2">Sector *</p>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  {SECTORS.map((s) => (
-                    <button
-                      key={s}
-                      type="button"
-                      onClick={() => setSector(s)}
-                      className={`border rounded-xl px-3 py-2 font-semibold transition ${
-                        sector === s ? "border-blue-electric bg-blue-soft" : "hover:border-blue-electric"
-                      }`}
-                    >
-                      {s}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <p className="text-sm font-semibold mb-2">Policy goals *</p>
-                <textarea
-                  className="w-full border rounded-xl px-3 py-2 min-h-[120px]"
-                  placeholder="List the goals, targets, and outcomes you want…"
-                  value={goals}
-                  onChange={(e) => setGoals(e.target.value)}
-                />
-              </div>
-
-              <div>
-                <p className="text-sm font-semibold mb-2">Context / problem statement (optional)</p>
-                <textarea
-                  className="w-full border rounded-xl px-3 py-2 min-h-[100px]"
-                  placeholder="Briefly describe the background and problem this policy solves…"
-                  value={context}
-                  onChange={(e) => setContext(e.target.value)}
-                />
-              </div>
-
-              <div>
-                <p className="text-sm font-semibold mb-2">Constraints (optional)</p>
-                <textarea
-                  className="w-full border rounded-xl px-3 py-2 min-h-[90px]"
-                  placeholder="Budget, timeline, governance capacity, political constraints…"
-                  value={constraints}
-                  onChange={(e) => setConstraints(e.target.value)}
-                />
-              </div>
-
-              <div>
-                <p className="text-sm font-semibold mb-2">Reference links (optional)</p>
-                <textarea
-                  className="w-full border rounded-xl px-3 py-2 min-h-[80px]"
-                  placeholder="Paste any useful URLs (one per line)…"
-                  value={references}
-                  onChange={(e) => setReferences(e.target.value)}
-                />
+                ))}
               </div>
             </div>
-          </Card>
+          </section>
 
-          <div className="space-y-6">
-            <Card className="p-6">
-              <div className="flex items-center gap-2 mb-3">
-                <Sparkles className="text-blue-electric" size={18} />
-                <h2 className="text-lg font-bold text-blue-deep">Criteria for scoring *</h2>
+          <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+            <Card className="premium-card rounded-[2rem] p-6">
+              <div className="mb-6">
+                <p className="text-xs uppercase tracking-[0.22em] text-[var(--text-secondary)]">Draft brief</p>
+                <h2 className="mt-2 text-xl font-black text-blue-deep">Tell the AI what this policy needs to achieve</h2>
               </div>
 
-              <p className="text-sm text-[var(--text-secondary)] mb-4">
-                Choose what Dynovare will score this generated policy against.
-              </p>
+              <div className="grid gap-5">
+                <div>
+                  <p className="mb-2 text-sm font-semibold">Policy title *</p>
+                  <input className="studio-input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Nigeria Distributed Solar Markets Acceleration Policy" />
+                </div>
 
-              <div className="space-y-2">
-                {CRITIQUE_STANDARDS.map((s) => {
-                  const on = selectedStandards.includes(s.id);
-                  return (
-                    <button
-                      key={s.id}
-                      type="button"
-                      onClick={() => toggleStandard(s.id)}
-                      className={`w-full border rounded-xl p-3 text-left transition ${
-                        on ? "border-blue-electric bg-blue-soft" : "hover:border-blue-electric"
-                      }`}
+                <div className="grid gap-4 md:grid-cols-5">
+                  <div>
+                    <p className="mb-2 text-sm font-semibold">Country</p>
+                    <input className="studio-input bg-slate-50" value={country} disabled />
+                  </div>
+                  <div>
+                    <p className="mb-2 text-sm font-semibold">Jurisdiction *</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {(["federal", "state"] as const).map((item) => (
+                        <button
+                          key={item}
+                          type="button"
+                          onClick={() => setJurisdictionLevel(item)}
+                          className={`studio-chip ${jurisdictionLevel === item ? "studio-chip-active" : ""}`}
+                        >
+                          {item === "federal" ? "Federal" : "State"}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <p className="mb-2 text-sm font-semibold">Year</p>
+                    <input
+                      type="number"
+                      className="studio-input"
+                      value={policyYear}
+                      onChange={(e) => setPolicyYear(e.target.value ? Number(e.target.value) : "")}
+                    />
+                  </div>
+                  <div>
+                    <p className="mb-2 text-sm font-semibold">State</p>
+                    <select
+                      className="studio-input"
+                      disabled={jurisdictionLevel !== "state"}
+                      value={stateName}
+                      onChange={(e) => setStateName(e.target.value)}
                     >
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <p className="font-bold text-blue-deep">{s.label}</p>
-                          <p className="text-xs text-[var(--text-secondary)] mt-1">{s.description}</p>
-                        </div>
-                        {on ? <CheckCircle2 className="text-blue-electric" size={18} /> : null}
-                      </div>
-                    </button>
-                  );
-                })}
+                      <option value="">{jurisdictionLevel === "state" ? "Select state" : "Federal policy"}</option>
+                      {NIGERIA_STATES.map((state) => <option key={state} value={state}>{state}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <p className="mb-2 text-sm font-semibold">Target pages</p>
+                    <input
+                      type="number"
+                      min={5}
+                      max={30}
+                      className="studio-input"
+                      value={targetPages}
+                      onChange={(e) => setTargetPages(Math.max(5, Math.min(30, Number(e.target.value || 12))))}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div>
+                    <p className="mb-2 text-sm font-semibold">Energy source</p>
+                    <div className="flex flex-wrap gap-2">
+                      {POLICY_ENERGY_SOURCES.map((item) => (
+                        <button key={item} type="button" onClick={() => setEnergySource(item)} className={`studio-chip ${energySource === item ? "studio-chip-active" : ""}`}>{policyEnergySourceLabel(item)}</button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <p className="mb-2 text-sm font-semibold">Domain</p>
+                    <div className="flex flex-wrap gap-2">
+                      {POLICY_DOMAINS.map((item) => (
+                        <button key={item} type="button" onClick={() => setDomain(item)} className={`studio-chip ${domain === item ? "studio-chip-active" : ""}`}>{policyDomainLabel(item)}</button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <p className="mb-2 text-sm font-semibold">Goals and targets *</p>
+                  <textarea className="studio-textarea min-h-[140px]" value={goals} onChange={(e) => setGoals(e.target.value)} placeholder="Describe the access, reliability, affordability, market, or climate goals this policy must deliver." />
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div>
+                    <p className="mb-2 text-sm font-semibold">Context and problem</p>
+                    <textarea className="studio-textarea min-h-[120px]" value={context} onChange={(e) => setContext(e.target.value)} placeholder="What problem are you solving, for whom, and why now?" />
+                  </div>
+                  <div>
+                    <p className="mb-2 text-sm font-semibold">Constraints</p>
+                    <textarea className="studio-textarea min-h-[120px]" value={constraints} onChange={(e) => setConstraints(e.target.value)} placeholder="Budget, delivery, legal, political, or timing constraints." />
+                  </div>
+                </div>
+
+                <div>
+                  <p className="mb-2 text-sm font-semibold">Reference links or notes</p>
+                  <textarea className="studio-textarea min-h-[100px]" value={references} onChange={(e) => setReferences(e.target.value)} placeholder="Paste URLs or source notes you want the draft to reflect." />
+                </div>
+
+                <div>
+                  <p className="mb-2 text-sm font-semibold">Tags</p>
+                  <div className="flex gap-2">
+                    <input
+                      className="studio-input"
+                      value={tagInput}
+                      onChange={(e) => setTagInput(e.target.value)}
+                      placeholder="e.g. mini-grid, subsidy reform, access"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          addTag();
+                        }
+                      }}
+                    />
+                    <Button type="button" variant="outline" onClick={addTag} className="gap-2 rounded-full">
+                      <Plus size={15} />
+                      Add
+                    </Button>
+                  </div>
+                  {tags.length > 0 ? (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {tags.map((tag) => (
+                        <Badge key={tag} variant="outline" className="rounded-full px-3 py-1">
+                          {tag}
+                          <button type="button" className="ml-2" onClick={() => setTags((current) => current.filter((item) => item !== tag))}>
+                            <X size={14} />
+                          </button>
+                        </Badge>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
               </div>
-
-              <p className="text-xs text-[var(--text-secondary)] mt-3">
-                Selected: <span className="font-semibold text-blue-deep">{selectedStandards.length}</span>
-              </p>
             </Card>
 
-            <Card className="p-6">
-              <h2 className="text-lg font-bold text-blue-deep mb-2">Generate</h2>
-              <p className="text-sm text-[var(--text-secondary)] mb-4">
-                Dynovare will generate a long-form policy draft (5–10 pages), save it, create a PDF, and auto-score it.
-              </p>
-
-              <Button className="w-full gap-2" onClick={handleGenerate} disabled={!canGenerate || generating}>
-                <Sparkles size={16} />
-                {generating ? "Generating…" : "Generate policy"}
-              </Button>
-
-              {!canGenerate && (
-                <p className="text-xs text-[var(--text-secondary)] mt-3">
-                  Required: Title, Goals, Jurisdiction (and State if needed), and at least 1 criterion.
+            <div className="space-y-6">
+              <Card className="premium-card rounded-[2rem] p-6">
+                <div className="inline-flex rounded-2xl bg-blue-soft p-3 text-blue-electric">
+                  <Wand2 size={22} />
+                </div>
+                <h2 className="mt-4 text-xl font-black text-blue-deep">Generate into Policy Studio</h2>
+                <p className="mt-3 text-sm text-[var(--text-secondary)]">
+                  Create a fuller draft sized to your target length, then open it in the editor to revise, run critique, test scenarios, request targeted AI rewrites,
+                  and export a polished PDF.
                 </p>
-              )}
-            </Card>
+
+                <Button className="mt-5 w-full gap-2 rounded-full bg-[#125669] hover:bg-[#0f4b5d]" onClick={handleGenerate} disabled={!canGenerate || generating}>
+                  <Sparkles size={16} />
+                  {generating ? "Generating draft..." : "Generate draft"}
+                </Button>
+
+                {!canGenerate ? (
+                  <p className="mt-3 text-xs text-[var(--text-secondary)]">
+                    Required: title, goals, and state if you choose a state-level policy.
+                  </p>
+                ) : null}
+              </Card>
+
+              <Card className="rounded-[2rem] bg-[linear-gradient(180deg,#0b2336_0%,#135a6e_100%)] p-6 text-white shadow-sm">
+                <div className="grid gap-4">
+                  {[
+                    {
+                      icon: <Bot size={18} />,
+                      title: "Structured first draft",
+                      text: "Get sections, summary, and evidence notes instead of a plain static document.",
+                    },
+                    {
+                      icon: <PenSquare size={18} />,
+                      title: "Section-level revision",
+                      text: "Fix only the section that needs attention instead of regenerating everything.",
+                    },
+                    {
+                      icon: <FilePenLine size={18} />,
+                      title: "Publication-ready export",
+                      text: "Download a styled PDF after your team reviews the content in the editor.",
+                    },
+                  ].map((item) => (
+                    <div key={item.title} className="rounded-[1.4rem] border border-white/10 bg-white/8 p-4">
+                      <div className="flex items-center gap-2 font-semibold">
+                        {item.icon}
+                        <span>{item.title}</span>
+                      </div>
+                      <p className="mt-2 text-sm text-white/76">{item.text}</p>
+                    </div>
+                  ))}
+                </div>
+                <Button variant="outline" className="mt-5 w-full gap-2 border-white/20 bg-transparent text-white hover:bg-white/10" onClick={() => router.push("/policies")}>
+                  Open workspace
+                  <ArrowRight size={15} />
+                </Button>
+              </Card>
+            </div>
           </div>
         </div>
       </DashboardLayout>

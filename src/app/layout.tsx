@@ -1,23 +1,46 @@
 // src/app/layout.tsx
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Manrope, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import { UserProvider } from "@/components/providers/UserProvider";
+import PwaBootstrap from "@/components/app/PwaBootstrap";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const manrope = Manrope({
+  variable: "--font-manrope",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space-grotesk",
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
   title: "Dynovare",
-  description: "Policy Intelligence Platform",
+  description: "AI policy intelligence for drafting, critique, simulation, and public energy policy analysis.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://dynovare.web.app"),
+  applicationName: "Dynovare",
+  manifest: "/manifest.webmanifest",
+  openGraph: {
+    title: "Dynovare",
+    description: "AI policy intelligence for drafting, critique, simulation, and public energy policy analysis.",
+    url: process.env.NEXT_PUBLIC_SITE_URL || "https://dynovare.web.app",
+    siteName: "Dynovare",
+    images: [{ url: "/logo.png", width: 1200, height: 630, alt: "Dynovare" }],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Dynovare",
+    description: "AI policy intelligence for drafting, critique, simulation, and public energy policy analysis.",
+    images: ["/logo.png"],
+  },
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+    shortcut: "/logo.png",
+  },
 };
 
 export default function RootLayout({
@@ -29,13 +52,14 @@ export default function RootLayout({
     <html lang="en" className="h-full">
       <body
         className={[
-          geistSans.variable,
-          geistMono.variable,
+          manrope.variable,
+          spaceGrotesk.variable,
           "h-full min-h-screen bg-white text-[var(--text-primary)]",
           "overflow-x-hidden",
         ].join(" ")}
       >
         <UserProvider>
+          <PwaBootstrap />
           <div className="min-h-screen">{children}</div>
           <Toaster position="top-right" />
         </UserProvider>
