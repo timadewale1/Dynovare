@@ -12,12 +12,12 @@ export default function DashboardLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="overflow-x-hidden bg-transparent">
+    <div className="w-full max-w-full overflow-x-clip bg-transparent">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <div className="md:pl-72">
+      <div className="w-full max-w-full md:pl-72">
         <Topbar onMenuClick={() => setSidebarOpen(true)} />
-        <main className="min-h-screen overflow-x-hidden pt-16">
-          <div className="max-w-full p-4 md:p-6 lg:p-8">{children}</div>
+        <main className="min-h-screen max-w-full overflow-x-clip pt-16">
+          <div className="w-full max-w-full overflow-x-clip p-4 md:p-6 lg:p-8">{children}</div>
         </main>
       </div>
     </div>

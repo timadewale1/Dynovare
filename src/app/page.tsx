@@ -71,13 +71,13 @@ export default function Home() {
   const stateLeaderboard = (insights?.stateLeaderboard ?? []).slice(0, 3);
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,#d9edf2_0%,#f6fbfd_38%,#ffffff_100%)]">
+    <div className="min-h-screen w-full max-w-full overflow-x-clip bg-[radial-gradient(circle_at_top,#d9edf2_0%,#f6fbfd_38%,#ffffff_100%)]">
       <PublicNavbar />
 
       <main>
         <section className="relative overflow-hidden">
-          <div className="absolute left-[-8rem] top-16 h-72 w-72 rounded-full bg-[#8bd7c7]/22 blur-3xl" />
-          <div className="absolute right-[-6rem] top-14 h-80 w-80 rounded-full bg-[#8fc7ff]/24 blur-3xl" />
+          <div className="pointer-events-none absolute left-0 top-16 h-72 w-72 -translate-x-1/2 rounded-full bg-[#8bd7c7]/22 blur-3xl" />
+          <div className="pointer-events-none absolute right-0 top-14 h-80 w-80 translate-x-1/3 rounded-full bg-[#8fc7ff]/24 blur-3xl" />
 
           <div className="relative mx-auto grid max-w-7xl gap-10 px-4 py-14 lg:grid-cols-[1.08fr_0.92fr] lg:items-start">
             <div className="fade-up">

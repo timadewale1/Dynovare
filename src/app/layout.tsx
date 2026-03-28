@@ -60,7 +60,7 @@ export default function RootLayout({
       >
         <UserProvider>
           <PwaBootstrap />
-          <div className="min-h-screen">{children}</div>
+          <div className="min-h-screen max-w-full overflow-x-clip">{children}</div>
           <Toaster position="top-right" />
         </UserProvider>
       </body>

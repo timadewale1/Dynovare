@@ -24,8 +24,8 @@ export default function PublicNavbar() {
   const repoHref = user ? "/repository" : "/public/policies";
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-white/50 bg-[rgba(248,251,254,0.84)] backdrop-blur-2xl">
-      <div className="mx-auto max-w-7xl px-4">
+    <header className="sticky top-0 z-50 w-full max-w-full overflow-x-clip border-b border-white/50 bg-[rgba(248,251,254,0.84)] backdrop-blur-2xl">
+      <div className="mx-auto max-w-7xl overflow-x-clip px-4">
         <div className="flex h-16 items-center justify-between gap-3">
           <Link href="/" className="flex items-center gap-3">
             <DynovareLogo size={30} />

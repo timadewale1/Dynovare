@@ -1,4 +1,4 @@
- "use client";
+"use client";
 
 import Link from "next/link";
 import DynovareLogo from "@/components/branding/DynovareLogo";
@@ -10,8 +10,8 @@ export default function PublicFooter() {
   const repoHref = user ? "/repository" : "/public/policies";
 
   return (
-    <footer className="mt-20 border-t border-[#d8e6ec] bg-[linear-gradient(180deg,#0b2336_0%,#103851_40%,#125669_100%)] text-white">
-      <div className="mx-auto max-w-7xl px-4 py-16">
+    <footer className="mt-20 w-full max-w-full overflow-x-clip border-t border-[#d8e6ec] bg-[linear-gradient(180deg,#0b2336_0%,#103851_40%,#125669_100%)] text-white">
+      <div className="mx-auto max-w-7xl overflow-x-clip px-4 py-16">
         <div className="grid gap-10 md:grid-cols-[1.3fr_0.9fr_0.9fr_1fr]">
           <div>
             <DynovareLogo />
@@ -59,7 +59,7 @@ export default function PublicFooter() {
         </div>
 
         <div className="mt-10 flex flex-col gap-2 border-t border-white/12 pt-6 text-sm text-white/70 md:flex-row md:items-center md:justify-between">
-          <p>© {new Date().getFullYear()} Dynovare. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Dynovare. All rights reserved.</p>
           <p>Turn public signals into stronger policy action.</p>
         </div>
       </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import ProtectedRoute from "@/components/guards/ProtectedRoute";
 import { Card } from "@/components/ui/card";
@@ -33,7 +33,7 @@ type PublicPolicy = {
   publicPdfUrl?: string | null;
 };
 
-export default function RepositoryPage() {
+function RepositoryPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, profile } = useUser();
@@ -285,5 +285,13 @@ export default function RepositoryPage() {
         </div>
       </DashboardLayout>
     </ProtectedRoute>
+  );
+}
+
+export default function RepositoryPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-transparent" />}>
+      <RepositoryPageContent />
+    </Suspense>
   );
 }

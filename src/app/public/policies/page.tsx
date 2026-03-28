@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import PublicNavbar from "@/components/public/PublicNavbar";
 import PublicFooter from "@/components/public/PublicFooter";
 import { Card } from "@/components/ui/card";
@@ -35,7 +35,7 @@ type PublicPolicy = {
   publicPdfUrl?: string | null;
 };
 
-export default function PublicPoliciesPage() {
+function PublicPoliciesPageContent() {
   const router = useRouter();
   const { user, profile } = useUser();
   const searchParams = useSearchParams();
@@ -315,5 +315,13 @@ export default function PublicPoliciesPage() {
 
       <PublicFooter />
     </div>
+  );
+}
+
+export default function PublicPoliciesPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[linear-gradient(180deg,#f5fbff_0%,#ffffff_24%)]" />}>
+      <PublicPoliciesPageContent />
+    </Suspense>
   );
 }

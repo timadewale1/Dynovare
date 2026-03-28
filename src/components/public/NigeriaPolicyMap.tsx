@@ -112,7 +112,7 @@ export default function NigeriaPolicyMap({
   );
 
   return (
-    <div className={`${mapOnly ? "" : `grid gap-5 rounded-[2rem] border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(246,250,252,0.96)_100%)] p-4 md:p-6 shadow-[0_24px_80px_rgba(11,60,93,0.08)] ${compact ? "grid-cols-1" : "xl:grid-cols-[1fr_0.8fr]"}`}`}>
+    <div className={`w-full max-w-full overflow-hidden ${mapOnly ? "" : `grid gap-5 rounded-[2rem] border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(246,250,252,0.96)_100%)] p-4 md:p-6 shadow-[0_24px_80px_rgba(11,60,93,0.08)] ${compact ? "grid-cols-1" : "xl:grid-cols-[1fr_0.8fr]"}`}`}>
       <div>
         {!mapOnly ? (
           <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
@@ -208,8 +208,8 @@ export default function NigeriaPolicyMap({
                 </div>
               </div>
             ))}
-            {hoveredState ? (
-              <div className="pointer-events-none absolute right-[3%] top-[4%] w-[220px] rounded-[1.25rem] border border-white/70 bg-white/92 p-4 text-left shadow-[0_18px_50px_rgba(11,60,93,0.14)] backdrop-blur">
+            {hoveredState && !compact ? (
+              <div className="pointer-events-none absolute right-[3%] top-[4%] hidden w-[220px] rounded-[1.25rem] border border-white/70 bg-white/92 p-4 text-left shadow-[0_18px_50px_rgba(11,60,93,0.14)] backdrop-blur md:block">
                 {(() => {
                   const entry = LABEL_POINTS.find((item) => item.state === hoveredState);
                   const item = scoreMap.get(hoveredState) ?? { state: hoveredState, score: null, policies: 0 };

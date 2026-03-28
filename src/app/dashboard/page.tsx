@@ -101,8 +101,8 @@ export default function DashboardPage() {
   return (
     <ProtectedRoute>
       <DashboardLayout>
-        <div className="space-y-6">
-          <section className="overflow-hidden rounded-[2.25rem] bg-[linear-gradient(135deg,#081f30_0%,#103851_52%,#125669_100%)] p-8 text-white shadow-[0_30px_90px_rgba(8,31,48,0.16)]">
+        <div className="w-full max-w-full space-y-6 overflow-x-clip">
+          <section className="overflow-hidden rounded-[2.25rem] bg-[linear-gradient(135deg,#081f30_0%,#103851_52%,#125669_100%)] p-6 md:p-8 text-white shadow-[0_30px_90px_rgba(8,31,48,0.16)]">
             <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
               <div>
                 <Badge variant="outline" className="border-white/20 bg-white/10 text-white">Workspace home</Badge>
@@ -159,7 +159,7 @@ export default function DashboardPage() {
           </section>
 
           <div className="grid gap-6 lg:grid-cols-[1.02fr_0.98fr]">
-            <Card className="premium-card rounded-[2rem] p-6">
+            <Card className="premium-card max-w-full overflow-hidden rounded-[2rem] p-6">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
                   <p className="text-xs uppercase tracking-[0.22em] text-[var(--text-secondary)]">National signals</p>
@@ -177,7 +177,7 @@ export default function DashboardPage() {
             </Card>
 
             <div className="space-y-6">
-              <Card className="premium-card rounded-[2rem] p-6">
+              <Card className="premium-card max-w-full overflow-hidden rounded-[2rem] p-6">
                 <div className="flex items-center gap-3">
                   <div className="rounded-2xl bg-[rgba(18,86,105,0.09)] p-3 text-[#125669]">
                     <ShieldCheck size={20} />
@@ -202,7 +202,7 @@ export default function DashboardPage() {
                 </div>
               </Card>
 
-              <Card className="premium-card rounded-[2rem] p-6">
+              <Card className="premium-card max-w-full overflow-hidden rounded-[2rem] p-6">
                 <p className="text-xs uppercase tracking-[0.22em] text-[var(--text-secondary)]">Recent work</p>
                 <h2 className="mt-2 text-xl font-black text-blue-deep">Latest workspace activity</h2>
                 {loading ? (
