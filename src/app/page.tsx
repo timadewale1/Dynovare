@@ -21,6 +21,7 @@ import NigeriaPolicyMap from "@/components/public/NigeriaPolicyMap";
 import PublicNavbar from "@/components/public/PublicNavbar";
 import PublicFooter from "@/components/public/PublicFooter";
 import { useUser } from "@/components/providers/UserProvider";
+import PwaInstallPrompt from "@/components/branding/PwaInstallPrompt";
 
 type PublicInsights = {
   totals: {
@@ -73,6 +74,7 @@ export default function Home() {
   return (
     <div className="min-h-screen w-full max-w-full overflow-x-clip bg-[radial-gradient(circle_at_top,#d9edf2_0%,#f6fbfd_38%,#ffffff_100%)]">
       <PublicNavbar />
+      <PwaInstallPrompt />
 
       <main>
         <section className="relative overflow-hidden">
