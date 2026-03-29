@@ -67,7 +67,7 @@ export default function Home() {
   }, []);
 
   const stateScores = insights?.stateScores ?? [];
-  const policyLeaderboard = insights?.leaderboard ?? [];
+  const policyLeaderboard = (insights?.leaderboard ?? []).slice(0, 3);
   const stateLeaderboard = (insights?.stateLeaderboard ?? []).slice(0, 3);
 
   return (
@@ -209,12 +209,12 @@ export default function Home() {
                   policyLeaderboard.map((item) => (
                     <div key={`${item.rank}-${item.title}`} className="rounded-[1.4rem] border bg-white/70 px-4 py-3">
                       <div className="flex items-center justify-between gap-3">
-                        <div className="min-w-0">
+                        <div className="min-w-0 flex-1">
                           <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-secondary)]">#{item.rank}</p>
                           <p className="truncate font-bold text-blue-deep">{item.title}</p>
                           <p className="text-sm text-[var(--text-secondary)]">{item.state ?? "Federal"}</p>
                         </div>
-                        <p className="text-2xl font-black text-blue-deep">{item.score.toFixed(1)}</p>
+                        <p className="shrink-0 pl-3 text-right text-[1.85rem] leading-none font-black tabular-nums text-blue-deep">{item.score.toFixed(1)}</p>
                       </div>
                     </div>
                   ))
@@ -241,12 +241,12 @@ export default function Home() {
                       onClick={() => window.location.assign(`${user ? "/repository" : "/public/policies"}?jurisdictionLevel=state&state=${encodeURIComponent(item.state)}`)}
                       className="flex w-full items-center justify-between rounded-[1.4rem] border bg-white/70 px-4 py-3 text-left transition hover:bg-[rgba(18,86,105,0.05)]"
                     >
-                      <div>
+                      <div className="min-w-0 flex-1">
                         <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-secondary)]">#{index + 1}</p>
                         <p className="font-bold text-blue-deep">{item.state}</p>
                         <p className="text-sm text-[var(--text-secondary)]">{item.policies} public policies</p>
                       </div>
-                      <p className="text-2xl font-black text-blue-deep">{item.score?.toFixed(1) ?? "-"}</p>
+                      <p className="shrink-0 pl-3 text-right text-[1.85rem] leading-none font-black tabular-nums text-blue-deep">{item.score?.toFixed(1) ?? "-"}</p>
                     </button>
                   ))
                 )}

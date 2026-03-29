@@ -29,6 +29,7 @@ import { extractPolicyText } from "@/lib/extractText";
 import { getStorage, ref as storageRef, uploadBytesResumable } from "firebase/storage";
 import { createAIGeneratedPolicy } from "@/lib/policyAIWrites";
 import { resolvePolicyForUser } from "@/lib/workspacePolicies";
+import { useRotatingStatus } from "@/lib/useRotatingStatus";
 
 export default function CritiqueClient() {
   const router = useRouter();
@@ -52,6 +53,20 @@ export default function CritiqueClient() {
   const [revProgress, setRevProgress] = useState(0);
   const [generating, setGenerating] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const critiqueStatus = useRotatingStatus(running, [
+    "Reading the policy and chosen standards...",
+    "Scoring structure, feasibility, and readiness...",
+    "Comparing strengths, risks, and evidence gaps...",
+    "Writing the critique summary and action points...",
+    "Saving the critique to your workspace...",
+  ]);
+  const improvedPolicyStatus = useRotatingStatus(generating, [
+    "Generating an improved policy draft...",
+    "Using critique findings to reshape weak sections...",
+    "Adding stronger implementation detail...",
+    "Building a cleaner revision path for Policy Studio...",
+    "Preparing the improved draft for review...",
+  ]);
 
   useEffect(() => {
     const load = async () => {
@@ -460,6 +475,9 @@ export default function CritiqueClient() {
                 {running ? "Running critique..." : "Run critique"}
               </Button>
             </div>
+            {running ? (
+              <p className="mt-3 text-sm text-[var(--text-secondary)]">{critiqueStatus}</p>
+            ) : null}
           </Card>
 
           <Card className="rounded-[2rem] bg-[linear-gradient(180deg,#0b2336_0%,#135a6e_100%)] p-6 text-white shadow-sm">
@@ -653,6 +671,9 @@ export default function CritiqueClient() {
                 <Button className="w-full rounded-full bg-[#125669] hover:bg-[#0f4b5d]" onClick={generateImproved} disabled={generating}>
                   {generating ? "Generating..." : "AI generate improved policy"}
                 </Button>
+                {generating ? (
+                  <p className="text-sm text-[var(--text-secondary)]">{improvedPolicyStatus}</p>
+                ) : null}
 
                 <input
                   ref={fileInputRef}

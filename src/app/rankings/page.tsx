@@ -260,17 +260,17 @@ function PublicRankingsView() {
 
           <Card className="rounded-[2rem] bg-[linear-gradient(135deg,#0b2336_0%,#125669_100%)] p-6 text-white shadow-sm">
             <p className="text-xs uppercase tracking-[0.22em] text-white/70">Snapshot</p>
-            <div className="mt-4 grid grid-cols-3 gap-3">
-              <div>
-                <p className="text-3xl font-black">{summary.policies}</p>
+              <div className="mt-4 grid grid-cols-3 gap-3">
+              <div className="min-w-0">
+                <p className="truncate text-[1.9rem] leading-none font-black tabular-nums">{summary.policies}</p>
                 <p className="text-xs text-white/70">Policies</p>
               </div>
-              <div>
-                <p className="text-3xl font-black">{summary.totalCritiques}</p>
+              <div className="min-w-0">
+                <p className="truncate text-[1.9rem] leading-none font-black tabular-nums">{summary.totalCritiques}</p>
                 <p className="text-xs text-white/70">Critiques</p>
               </div>
-              <div>
-                <p className="text-3xl font-black">{summary.average ? summary.average.toFixed(1) : "-"}</p>
+              <div className="min-w-0">
+                <p className="truncate text-[1.9rem] leading-none font-black tabular-nums">{summary.average ? summary.average.toFixed(1) : "-"}</p>
                 <p className="text-xs text-white/70">Avg score</p>
               </div>
             </div>
@@ -372,22 +372,22 @@ function InternalRankingsView() {
             <div className="grid gap-3 sm:grid-cols-2">
               <Card className="rounded-[1.75rem] border-white/10 bg-white/8 p-5 text-white">
                 <p className="text-xs uppercase tracking-[0.2em] text-white/68">Workspace docs</p>
-                <p className="mt-2 text-3xl font-black">{workspaceCount}</p>
+                <p className="mt-2 truncate text-[1.9rem] leading-none font-black tabular-nums">{workspaceCount}</p>
                 <p className="mt-1 text-sm text-white/68">Private policies and drafts</p>
               </Card>
               <Card className="rounded-[1.75rem] border-white/10 bg-white/8 p-5 text-white">
                 <p className="text-xs uppercase tracking-[0.2em] text-white/68">AI drafts</p>
-                <p className="mt-2 text-3xl font-black">{draftCount}</p>
+                <p className="mt-2 truncate text-[1.9rem] leading-none font-black tabular-nums">{draftCount}</p>
                 <p className="mt-1 text-sm text-white/68">Editable studio drafts</p>
               </Card>
               <Card className="rounded-[1.75rem] border-white/10 bg-white/8 p-5 text-white">
                 <p className="text-xs uppercase tracking-[0.2em] text-white/68">Public score avg</p>
-                <p className="mt-2 text-3xl font-black">{insights?.totals.averageScore ? insights.totals.averageScore.toFixed(1) : "-"}</p>
+                <p className="mt-2 truncate text-[1.9rem] leading-none font-black tabular-nums">{insights?.totals.averageScore ? insights.totals.averageScore.toFixed(1) : "-"}</p>
                 <p className="mt-1 text-sm text-white/68">Visible public policy average</p>
               </Card>
               <Card className="rounded-[1.75rem] border-white/10 bg-white/8 p-5 text-white">
                 <p className="text-xs uppercase tracking-[0.2em] text-white/68">Critique evidence</p>
-                <p className="mt-2 text-3xl font-black">{insights?.totals.critiques ?? 0}</p>
+                <p className="mt-2 truncate text-[1.9rem] leading-none font-black tabular-nums">{insights?.totals.critiques ?? 0}</p>
                 <p className="mt-1 text-sm text-white/68">Public critiques logged</p>
               </Card>
             </div>

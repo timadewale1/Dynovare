@@ -15,6 +15,7 @@ import { saveSimulation } from "@/lib/simulationWrites";
 import { useUser } from "@/components/providers/UserProvider";
 import SimulationCharts from "@/components/simulations/SimulationCharts";
 import { resolvePolicyForUser } from "@/lib/workspacePolicies";
+import { useRotatingStatus } from "@/lib/useRotatingStatus";
 
 export default function SimulationsClient() {
   const router = useRouter();
@@ -25,10 +26,10 @@ export default function SimulationsClient() {
   const [policy, setPolicy] = useState<Policy | null>(null);
   const [policyScope, setPolicyScope] = useState<"workspace" | "public">("workspace");
   const [loadingPolicy, setLoadingPolicy] = useState(false);
-  const [horizonYears, setHorizonYears] = useState(5);
+  const [horizonYearsInput, setHorizonYearsInput] = useState("5");
   const [implementationStrength, setImplementationStrength] = useState<"weak" | "moderate" | "strong">("moderate");
   const [fundingLevel, setFundingLevel] = useState<"low" | "medium" | "high">("medium");
-  const [adoptionRate, setAdoptionRate] = useState(60);
+  const [adoptionRateInput, setAdoptionRateInput] = useState("60");
   const [assumptions, setAssumptions] = useState({
     gridExpansion: true,
     miniGridGrowth: true,
@@ -37,6 +38,13 @@ export default function SimulationsClient() {
   });
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState<any | null>(null);
+  const simulationStatus = useRotatingStatus(running, [
+    "Reading the policy and scenario inputs...",
+    "Projecting access, reliability, and emissions shifts...",
+    "Estimating cost drivers and delivery risk...",
+    "Building the year-by-year outlook...",
+    "Saving the simulation to your workspace...",
+  ]);
 
   useEffect(() => {
     const load = async () => {
@@ -55,6 +63,9 @@ export default function SimulationsClient() {
     void load();
   }, [policyId, user]);
 
+  const horizonYears = Number(horizonYearsInput || 0);
+  const adoptionRate = Number(adoptionRateInput || 0);
+
   const inputs = useMemo(
     () => ({ horizonYears, implementationStrength, fundingLevel, adoptionRate, assumptions }),
     [horizonYears, implementationStrength, fundingLevel, adoptionRate, assumptions]
@@ -63,11 +74,11 @@ export default function SimulationsClient() {
   const run = async () => {
     if (!policyId || !policy || !user) return;
 
-    if (horizonYears < 1 || horizonYears > 20) {
-      toast.error("Horizon must be between 1 and 20 years");
+    if (!Number.isFinite(horizonYears) || horizonYears < 1 || horizonYears > 30) {
+      toast.error("Horizon must be between 1 and 30 years");
       return;
     }
-    if (adoptionRate < 0 || adoptionRate > 100) {
+    if (!Number.isFinite(adoptionRate) || adoptionRate < 0 || adoptionRate > 100) {
       toast.error("Adoption rate must be between 0 and 100");
       return;
     }
@@ -201,12 +212,14 @@ export default function SimulationsClient() {
                 <input
                   type="number"
                   min={1}
-                  max={20}
-                  value={horizonYears}
-                  onChange={(e) => setHorizonYears(Number(e.target.value))}
+                  max={30}
+                  step={1}
+                  inputMode="numeric"
+                  value={horizonYearsInput}
+                  onChange={(e) => setHorizonYearsInput(e.target.value)}
                   className="studio-input"
                 />
-                <p className="mt-2 text-xs text-[var(--text-secondary)]">Model between 1 and 20 years.</p>
+                <p className="mt-2 text-xs text-[var(--text-secondary)]">Model between 1 and 30 years.</p>
               </div>
 
               <div className="rounded-[1.2rem] border p-4">
@@ -215,8 +228,10 @@ export default function SimulationsClient() {
                   type="number"
                   min={0}
                   max={100}
-                  value={adoptionRate}
-                  onChange={(e) => setAdoptionRate(Number(e.target.value))}
+                  step={1}
+                  inputMode="numeric"
+                  value={adoptionRateInput}
+                  onChange={(e) => setAdoptionRateInput(e.target.value)}
                   className="studio-input"
                 />
                 <p className="mt-2 text-xs text-[var(--text-secondary)]">Choose a likely uptake level from 0 to 100%.</p>
@@ -279,6 +294,9 @@ export default function SimulationsClient() {
                 {running ? "Running simulation..." : "Run simulation"}
               </Button>
             </div>
+            {running ? (
+              <p className="mt-3 text-sm text-[var(--text-secondary)]">{simulationStatus}</p>
+            ) : null}
           </Card>
 
           <Card className="rounded-[2rem] bg-[linear-gradient(180deg,#0b2336_0%,#135a6e_100%)] p-6 text-white shadow-sm">
@@ -312,19 +330,19 @@ export default function SimulationsClient() {
             <div className="mb-4 grid gap-3 md:grid-cols-4">
               <div className="rounded-[1.2rem] border bg-slate-50 p-4">
                 <p className="text-xs uppercase tracking-[0.16em] text-[var(--text-secondary)]">Access</p>
-                <p className="mt-2 text-2xl font-black text-blue-deep">{result.accessImpactPct}%</p>
+                <p className="mt-2 truncate text-[1.65rem] leading-none font-black tabular-nums text-blue-deep">{result.accessImpactPct}%</p>
               </div>
               <div className="rounded-[1.2rem] border bg-slate-50 p-4">
                 <p className="text-xs uppercase tracking-[0.16em] text-[var(--text-secondary)]">Reliability</p>
-                <p className="mt-2 text-2xl font-black text-blue-deep">{result.reliabilityImpactPct}%</p>
+                <p className="mt-2 truncate text-[1.65rem] leading-none font-black tabular-nums text-blue-deep">{result.reliabilityImpactPct}%</p>
               </div>
               <div className="rounded-[1.2rem] border bg-slate-50 p-4">
                 <p className="text-xs uppercase tracking-[0.16em] text-[var(--text-secondary)]">Emissions</p>
-                <p className="mt-2 text-2xl font-black text-blue-deep">{result.emissionsChangePct}%</p>
+                <p className="mt-2 truncate text-[1.65rem] leading-none font-black tabular-nums text-blue-deep">{result.emissionsChangePct}%</p>
               </div>
               <div className="rounded-[1.2rem] border bg-slate-50 p-4">
                 <p className="text-xs uppercase tracking-[0.16em] text-[var(--text-secondary)]">Risk</p>
-                <p className="mt-2 text-2xl font-black capitalize text-blue-deep">{result.riskLevel}</p>
+                <p className="mt-2 truncate text-[1.65rem] leading-none font-black capitalize text-blue-deep">{result.riskLevel}</p>
               </div>
             </div>
 
@@ -339,11 +357,11 @@ export default function SimulationsClient() {
               <div className="mb-5 grid gap-3 md:grid-cols-2">
                 <div className="rounded-[1.2rem] border bg-slate-50 p-4">
                   <p className="text-xs uppercase tracking-[0.16em] text-[var(--text-secondary)]">Investment readiness</p>
-                  <p className="mt-2 text-2xl font-black capitalize text-blue-deep">{result.investmentReadiness ?? "-"}</p>
+                  <p className="mt-2 truncate text-[1.65rem] leading-none font-black capitalize text-blue-deep">{result.investmentReadiness ?? "-"}</p>
                 </div>
                 <div className="rounded-[1.2rem] border bg-slate-50 p-4">
                   <p className="text-xs uppercase tracking-[0.16em] text-[var(--text-secondary)]">Delivery readiness</p>
-                  <p className="mt-2 text-2xl font-black capitalize text-blue-deep">{result.deliveryReadiness ?? "-"}</p>
+                  <p className="mt-2 truncate text-[1.65rem] leading-none font-black capitalize text-blue-deep">{result.deliveryReadiness ?? "-"}</p>
                 </div>
               </div>
             ) : null}

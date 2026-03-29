@@ -197,7 +197,7 @@ export default function PublicPolicyDetailPage() {
               ].map((item) => (
                 <Card key={item.label} className="rounded-[1.7rem] border-white/10 bg-white/8 p-5 text-white">
                   <p className="text-xs uppercase tracking-[0.2em] text-white/66">{item.label}</p>
-                  <p className="mt-3 text-2xl font-black">{item.value}</p>
+                  <p className="mt-3 truncate text-[1.7rem] leading-none font-black tabular-nums">{item.value}</p>
                 </Card>
               ))}
             </div>

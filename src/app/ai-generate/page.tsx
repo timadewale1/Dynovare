@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { useUser } from "@/components/providers/UserProvider";
 import { createAIGeneratedPolicy } from "@/lib/policyAIWrites";
 import { POLICY_DOMAINS, POLICY_ENERGY_SOURCES, policyDomainLabel, policyEnergySourceLabel } from "@/lib/policyTaxonomy";
+import { useRotatingStatus } from "@/lib/useRotatingStatus";
 
 const NIGERIA_STATES = [
   "Abia", "Adamawa", "Akwa Ibom", "Anambra", "Bauchi", "Bayelsa", "Benue", "Borno",
@@ -31,7 +32,7 @@ type GeneratePromptPayload = {
   energySource: "renewable" | "non_renewable" | "mixed";
   domain: "electricity" | "cooking" | "transport" | "industry" | "agriculture" | "cross_sector";
   tags: string[];
-  targetPages: number;
+  targetPages: number | null;
   goals: string;
   context: string;
   constraints: string;
@@ -49,7 +50,7 @@ export default function AIGeneratePage() {
   const [policyYear, setPolicyYear] = useState<number | "">(2026);
   const [energySource, setEnergySource] = useState<"renewable" | "non_renewable" | "mixed">("mixed");
   const [domain, setDomain] = useState<"electricity" | "cooking" | "transport" | "industry" | "agriculture" | "cross_sector">("cross_sector");
-  const [targetPages, setTargetPages] = useState<number>(12);
+  const [targetPagesInput, setTargetPagesInput] = useState("");
   const [goals, setGoals] = useState("");
   const [context, setContext] = useState("");
   const [constraints, setConstraints] = useState("");
@@ -57,6 +58,14 @@ export default function AIGeneratePage() {
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [generating, setGenerating] = useState(false);
+  const generatingStatus = useRotatingStatus(generating, [
+    "Generating your policy draft...",
+    "Building the document structure...",
+    "Expanding sections toward your target length...",
+    "Adding implementation detail and safeguards...",
+    "Grounding the draft with source-backed evidence...",
+    "Preparing your Policy Studio draft...",
+  ]);
 
   const addTag = () => {
     const value = tagInput.trim().toLowerCase();
@@ -71,6 +80,8 @@ export default function AIGeneratePage() {
     if (jurisdictionLevel === "state" && !stateName) return false;
     return true;
   }, [user, title, goals, jurisdictionLevel, stateName]);
+
+  const parsedTargetPages = targetPagesInput.trim() ? Number(targetPagesInput) : null;
 
   const handleGenerate = async () => {
     if (!user) {
@@ -94,7 +105,7 @@ export default function AIGeneratePage() {
       energySource,
       domain,
       tags,
-      targetPages,
+      targetPages: parsedTargetPages && Number.isFinite(parsedTargetPages) ? parsedTargetPages : null,
       goals: goals.trim(),
       context: context.trim(),
       constraints: constraints.trim(),
@@ -237,11 +248,13 @@ export default function AIGeneratePage() {
                     <p className="mb-2 text-sm font-semibold">Target pages</p>
                     <input
                       type="number"
-                      min={5}
-                      max={30}
+                      max={100}
+                      step={1}
+                      inputMode="numeric"
                       className="studio-input"
-                      value={targetPages}
-                      onChange={(e) => setTargetPages(Math.max(5, Math.min(30, Number(e.target.value || 12))))}
+                      placeholder="e.g. 20"
+                      value={targetPagesInput}
+                      onChange={(e) => setTargetPagesInput(e.target.value)}
                     />
                   </div>
                 </div>
@@ -337,6 +350,9 @@ export default function AIGeneratePage() {
                   <Sparkles size={16} />
                   {generating ? "Generating draft..." : "Generate draft"}
                 </Button>
+                {generating ? (
+                  <p className="mt-3 text-sm text-[var(--text-secondary)]">{generatingStatus}</p>
+                ) : null}
 
                 {!canGenerate ? (
                   <p className="mt-3 text-xs text-[var(--text-secondary)]">

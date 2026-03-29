@@ -133,7 +133,7 @@ export default function DashboardPage() {
                 ].map(([title, value]) => (
                   <Card key={title} className="rounded-[1.75rem] border-white/10 bg-white/8 p-5 text-white">
                     <p className="text-xs uppercase tracking-[0.18em] text-white/68">{title}</p>
-                    <p className="mt-2 text-2xl font-black capitalize">{loading ? "..." : value}</p>
+                    <p className="mt-2 max-w-full truncate text-[1.7rem] leading-none font-black capitalize tabular-nums">{loading ? "..." : value}</p>
                   </Card>
                 ))}
               </div>
@@ -145,11 +145,11 @@ export default function DashboardPage() {
               <Link key={stat.title} href={stat.href} className="block">
                 <Card className="premium-card rounded-[2rem] p-6 transition hover:-translate-y-1 hover:shadow-[0_26px_80px_rgba(18,86,105,0.12)]">
                   <div className="flex items-start justify-between gap-3">
-                    <div>
+                    <div className="min-w-0 flex-1">
                       <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-secondary)]">{stat.title}</p>
-                      <p className="mt-3 text-3xl font-black text-blue-deep">{loading ? "..." : stat.value}</p>
+                      <p className="mt-3 truncate text-[1.9rem] leading-none font-black tabular-nums text-blue-deep">{loading ? "..." : stat.value}</p>
                     </div>
-                    <div className="rounded-2xl bg-[rgba(18,86,105,0.08)] p-3 text-[#125669]">
+                    <div className="shrink-0 rounded-2xl bg-[rgba(18,86,105,0.08)] p-3 text-[#125669]">
                       <stat.icon size={24} />
                     </div>
                   </div>

@@ -290,9 +290,9 @@ export default function NigeriaPolicyMap({
               </div>
             ))}
           </div>
-          <p className="mt-3 text-xs text-[var(--text-secondary)]">
+          {/* <p className="mt-3 text-xs text-[var(--text-secondary)]">
             Region tints add context, while score chips still show the actual policy signal for each state.
-          </p>
+          </p> */}
         </div>
       </div>
       ) : null}
