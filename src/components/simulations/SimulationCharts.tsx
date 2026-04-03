@@ -119,7 +119,7 @@ export default function SimulationCharts(props: {
               <YAxis tick={{ fontSize: 12 }} />
               <Tooltip />
               <Legend />
-              <Bar dataKey="value" fill="#125669" radius={[8, 8, 0, 0]} />
+              <Bar dataKey="value" fill="#0073d1" radius={[8, 8, 0, 0]} />
             </BarChart>
           )}
         </ChartSurface>
@@ -154,8 +154,8 @@ export default function SimulationCharts(props: {
               <YAxis tick={{ fontSize: 12 }} />
               <Tooltip />
               <Legend />
-              <Line type="monotone" dataKey="access" stroke="#125669" strokeWidth={3} dot={false} />
-              <Line type="monotone" dataKey="reliability" stroke="#1c7ed6" strokeWidth={3} dot={false} />
+              <Line type="monotone" dataKey="access" stroke="#0073d1" strokeWidth={3} dot={false} />
+              <Line type="monotone" dataKey="reliability" stroke="#0073d1" strokeWidth={3} dot={false} />
               <Line type="monotone" dataKey="emissions" stroke="#c9836f" strokeWidth={3} dot={false} />
             </LineChart>
           )}

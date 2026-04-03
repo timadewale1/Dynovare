@@ -58,10 +58,10 @@ export default function OpenGraphImage() {
                 padding: "10px 18px",
                 borderRadius: "999px",
                 background: "rgba(255,255,255,0.88)",
-                border: "1px solid rgba(11,60,93,0.08)",
+                border: "1px solid rgba(0,56,105,0.08)",
                 fontSize: "22px",
                 fontWeight: 700,
-                color: "#0b3c5d",
+                color: "#003869",
               }}
             >
               Grant-ready policy intelligence
@@ -72,10 +72,10 @@ export default function OpenGraphImage() {
                 padding: "10px 18px",
                 borderRadius: "999px",
                 background: "rgba(255,255,255,0.88)",
-                border: "1px solid rgba(11,60,93,0.08)",
+                border: "1px solid rgba(0,56,105,0.08)",
                 fontSize: "22px",
                 fontWeight: 700,
-                color: "#0b3c5d",
+                color: "#003869",
               }}
             >
               Nigeria-first energy workflows
@@ -100,7 +100,7 @@ export default function OpenGraphImage() {
               D
             </div>
             <div style={{ display: "flex", flexDirection: "column" }}>
-              <div style={{ fontSize: "40px", fontWeight: 900, color: "#0b3c5d" }}>Dynovare</div>
+              <div style={{ fontSize: "40px", fontWeight: 900, color: "#003869" }}>Dynovare</div>
               <div style={{ fontSize: "22px", color: "#61758a" }}>Policy intelligence for drafting, critique, simulation, and export</div>
             </div>
           </div>
@@ -112,7 +112,7 @@ export default function OpenGraphImage() {
               lineHeight: 1.02,
               fontWeight: 900,
               letterSpacing: "-0.04em",
-              color: "#0b3c5d",
+              color: "#003869",
               maxWidth: "760px",
             }}
           >
@@ -151,7 +151,7 @@ export default function OpenGraphImage() {
               background: "linear-gradient(135deg,#091a28 0%,#0d4760 46%,#178e83 100%)",
               color: "white",
               padding: "28px",
-              boxShadow: "0 24px 60px rgba(8,31,48,0.18)",
+              boxShadow: "0 24px 60px rgba(0,56,105,0.18)",
             }}
           >
             <div style={{ fontSize: "18px", textTransform: "uppercase", letterSpacing: "0.18em", opacity: 0.7 }}>
@@ -196,8 +196,8 @@ export default function OpenGraphImage() {
                   padding: "12px 18px",
                   borderRadius: "999px",
                   background: "rgba(255,255,255,0.9)",
-                  border: "1px solid rgba(11,60,93,0.08)",
-                  color: "#0b3c5d",
+                  border: "1px solid rgba(0,56,105,0.08)",
+                  color: "#003869",
                   fontSize: "22px",
                   fontWeight: 800,
                 }}

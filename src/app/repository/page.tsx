@@ -111,7 +111,7 @@ function RepositoryPageContent() {
     <ProtectedRoute>
       <DashboardLayout>
         <div className="space-y-6">
-          <section className="overflow-hidden rounded-[2rem] bg-[linear-gradient(135deg,#081f30_0%,#103851_52%,#125669_100%)] p-7 text-white shadow-[0_24px_70px_rgba(8,31,48,0.18)]">
+          <section className="overflow-hidden rounded-[2rem] bg-[linear-gradient(135deg,#001b33_0%,#002c52_52%,#0073d1_100%)] p-7 text-white shadow-[0_24px_70px_rgba(0,56,105,0.18)]">
             <div className="grid gap-6 lg:grid-cols-[1.08fr_0.92fr] lg:items-end">
               <div>
                 <Badge variant="outline" className="border-white/20 bg-white/10 text-white">Signed-in repository</Badge>
@@ -145,7 +145,7 @@ function RepositoryPageContent() {
                 <p className="mb-2 text-sm font-medium">Search</p>
                 <div className="flex flex-col gap-2 md:flex-row">
                   <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search title, summary, tags..." />
-                  <Button onClick={load} className="rounded-full bg-[#125669] hover:bg-[#0f4b5d]">Search</Button>
+                  <Button onClick={load} className="rounded-full bg-[#0073d1] hover:bg-[#003869]">Search</Button>
                 </div>
               </div>
 
@@ -234,7 +234,7 @@ function RepositoryPageContent() {
                     <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
-                          <div className="rounded-2xl bg-[rgba(18,86,105,0.08)] p-3 text-[#125669]">
+                          <div className="rounded-2xl bg-[rgba(0,115,209,0.08)] p-3 text-[#0073d1]">
                             <Database size={18} />
                           </div>
                           <p className="break-anywhere text-lg font-black text-blue-deep">{policy.title}</p>
@@ -254,7 +254,7 @@ function RepositoryPageContent() {
                           View record
                         </Button> */}
                         <Button
-                          className="rounded-full bg-[#125669] hover:bg-[#0f4b5d]"
+                          className="rounded-full bg-[#0073d1] hover:bg-[#003869]"
                           onClick={() => importPolicy(policy.id)}
                           disabled={importingId === policy.id}
                         >

@@ -16,7 +16,7 @@ export default function AboutPage() {
       <PublicNavbar />
 
       <main className="mx-auto max-w-7xl px-4 py-10">
-        <section className="overflow-hidden rounded-[2.25rem] bg-[linear-gradient(135deg,#081f30_0%,#103851_52%,#125669_100%)] px-6 py-10 text-white shadow-[0_30px_90px_rgba(8,31,48,0.18)] md:px-10">
+        <section className="overflow-hidden rounded-[2.25rem] bg-[linear-gradient(135deg,#001b33_0%,#002c52_52%,#0073d1_100%)] px-6 py-10 text-white shadow-[0_30px_90px_rgba(0,56,105,0.18)] md:px-10">
           <Badge variant="outline" className="border-white/20 bg-white/10 text-white">About Dynovare</Badge>
           <h1 className="mt-5 max-w-4xl text-3xl font-black tracking-tight md:text-5xl">
             Give your team a better way to research, draft, test, and deliver energy policy.
@@ -29,23 +29,23 @@ export default function AboutPage() {
         <section className="mt-10 grid gap-5 md:grid-cols-3">
           {[
             {
-              icon: <Compass className="text-[#125669]" size={22} />,
+              icon: <Compass className="text-[#0073d1]" size={22} />,
               title: "Policy intelligence",
               text: "Track policy quality, state performance, and public evidence with a Nigeria-first repository.",
             },
             {
-              icon: <Sparkles className="text-[#125669]" size={22} />,
+              icon: <Sparkles className="text-[#0073d1]" size={22} />,
               title: "Private AI workspace",
               text: "Generate drafts, rewrite sections, run simulations, and refine outputs without exposing private work.",
             },
             {
-              icon: <ShieldCheck className="text-[#125669]" size={22} />,
+              icon: <ShieldCheck className="text-[#0073d1]" size={22} />,
               title: "Private by default",
               text: "Your workspace is built around private-by-default drafting and review.",
             },
           ].map((item) => (
             <Card key={item.title} className="premium-card rounded-[2rem] p-6">
-              <div className="inline-flex rounded-2xl bg-[rgba(18,86,105,0.09)] p-3">{item.icon}</div>
+              <div className="inline-flex rounded-2xl bg-[rgba(0,115,209,0.09)] p-3">{item.icon}</div>
               <h2 className="mt-4 text-xl font-black text-blue-deep">{item.title}</h2>
               <p className="mt-3 text-sm text-[var(--text-secondary)]">{item.text}</p>
             </Card>
@@ -86,7 +86,7 @@ export default function AboutPage() {
               ))}
             </div>
             <div className="mt-6 flex flex-wrap gap-3">
-              <Button asChild className="rounded-full bg-[#125669] hover:bg-[#0f4b5d]">
+              <Button asChild className="rounded-full bg-[#0073d1] hover:bg-[#003869]">
                 <Link href="/register">
                   Create account <ArrowRight size={16} />
                 </Link>
@@ -100,7 +100,7 @@ export default function AboutPage() {
 
         <section className="mt-10 rounded-[2rem] border bg-[linear-gradient(135deg,#f4f7ec_0%,#edf8ff_100%)] p-7">
           <div className="flex items-start gap-4">
-            <div className="rounded-2xl bg-white p-3 text-[#125669] shadow-sm">
+            <div className="rounded-2xl bg-white p-3 text-[#0073d1] shadow-sm">
               <MapPinned size={22} />
             </div>
             <div>

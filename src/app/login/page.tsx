@@ -88,7 +88,7 @@ export default function LoginPage() {
 
         <button
           onClick={handleLogin}
-          className="w-full rounded-full bg-[#125669] px-4 py-3 font-semibold text-white shadow-[0_16px_32px_rgba(18,86,105,0.2)] transition hover:bg-[#0f4b5d]"
+          className="w-full rounded-full bg-[#0073d1] px-4 py-3 font-semibold text-white shadow-[0_16px_32px_rgba(0,115,209,0.2)] transition hover:bg-[#003869]"
         >
           Sign in
         </button>

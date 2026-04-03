@@ -84,7 +84,7 @@ export default function UploadedPoliciesPage() {
   return (
     <ProtectedRoute>
       <DashboardLayout>
-        <section className="mb-6 overflow-hidden rounded-[2rem] bg-[linear-gradient(135deg,#081f30_0%,#103851_52%,#125669_100%)] p-7 text-white shadow-[0_24px_70px_rgba(8,31,48,0.18)]">
+        <section className="mb-6 overflow-hidden rounded-[2rem] bg-[linear-gradient(135deg,#001b33_0%,#002c52_52%,#0073d1_100%)] p-7 text-white shadow-[0_24px_70px_rgba(0,56,105,0.18)]">
           <div className="flex items-start justify-between gap-4">
             <div>
               <h1 className="text-4xl font-black tracking-tight">My policies</h1>

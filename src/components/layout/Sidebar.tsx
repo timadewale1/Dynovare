@@ -49,7 +49,7 @@ export default function Sidebar({
       className={`
         fixed inset-y-0 left-0 z-40 w-72
         border-r border-white/45
-        bg-[linear-gradient(180deg,rgba(7,17,27,0.96)_0%,rgba(11,60,93,0.96)_48%,rgba(20,96,120,0.96)_100%)] px-5 py-6
+        bg-[linear-gradient(180deg,rgba(0,27,51,0.98)_0%,rgba(0,56,105,0.97)_48%,rgba(0,115,209,0.94)_100%)] px-5 py-6
         flex flex-col
         transform transition-transform duration-200
         ${isOpen ? "translate-x-0" : "-translate-x-full"}
@@ -65,7 +65,7 @@ export default function Sidebar({
       </button>
 
       <div className="mb-8 rounded-[1.75rem] border border-white/12 bg-white/8 px-4 py-4 backdrop-blur">
-        <DynovareLogo size={30} />
+        <DynovareLogo size={30} variant="white" />
         <p className="mt-3 text-sm text-white/68">Draft, test, revise, and export your policy work without leaving the workspace.</p>
       </div>
 
@@ -82,7 +82,7 @@ export default function Sidebar({
                 flex items-center gap-3 rounded-2xl px-4 py-3 font-semibold transition
                 ${
                   active
-                    ? "bg-white text-blue-deep shadow-[0_16px_36px_rgba(7,17,27,0.24)]"
+                    ? "bg-white text-blue-deep shadow-[0_16px_36px_rgba(0,56,105,0.24)]"
                     : "text-white/76 hover:bg-white/10 hover:text-white"
                 }
               `}

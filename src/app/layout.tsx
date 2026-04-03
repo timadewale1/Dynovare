@@ -1,18 +1,13 @@
 // src/app/layout.tsx
 import type { Metadata } from "next";
-import { Manrope, Space_Grotesk } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import { UserProvider } from "@/components/providers/UserProvider";
 import PwaBootstrap from "@/components/app/PwaBootstrap";
 
-const manrope = Manrope({
-  variable: "--font-manrope",
-  subsets: ["latin"],
-});
-
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
@@ -38,11 +33,10 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
-      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+      { url: "/logo/Dynovare_Favicon.png", sizes: "704x704", type: "image/png" },
     ],
-    apple: [{ url: "/icon-192.png", sizes: "192x192", type: "image/png" }],
-    shortcut: ["/icon-192.png"],
+    apple: [{ url: "/logo/Dynovare_Favicon.png", sizes: "704x704", type: "image/png" }],
+    shortcut: ["/logo/Dynovare_Favicon.png"],
   },
 };
 
@@ -55,8 +49,7 @@ export default function RootLayout({
     <html lang="en" className="h-full">
       <body
         className={[
-          manrope.variable,
-          spaceGrotesk.variable,
+          inter.variable,
           "h-full min-h-screen bg-white text-[var(--text-primary)]",
           "overflow-x-hidden",
         ].join(" ")}

@@ -37,7 +37,7 @@ export default function FAQPage() {
       <PublicNavbar />
 
       <main className="mx-auto max-w-5xl px-4 py-10">
-        <section className="rounded-[2.25rem] bg-[linear-gradient(135deg,#0b2336_0%,#125669_100%)] p-8 text-white shadow-[0_28px_80px_rgba(8,31,48,0.16)]">
+        <section className="rounded-[2.25rem] bg-[linear-gradient(135deg,#00223f_0%,#0073d1_100%)] p-8 text-white shadow-[0_28px_80px_rgba(0,56,105,0.16)]">
           <p className="text-xs uppercase tracking-[0.22em] text-white/70">FAQ</p>
           <h1 className="mt-3 text-3xl font-black md:text-4xl">Answers to the questions teams ask most.</h1>
           <p className="mt-4 max-w-2xl text-white/78">
@@ -56,7 +56,7 @@ export default function FAQPage() {
                   className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left"
                 >
                   <p className="text-lg font-bold text-blue-deep">{item.q}</p>
-                  {isOpen ? <ChevronUp size={18} className="text-[#125669]" /> : <ChevronDown size={18} className="text-[#125669]" />}
+                  {isOpen ? <ChevronUp size={18} className="text-[#0073d1]" /> : <ChevronDown size={18} className="text-[#0073d1]" />}
                 </button>
                 {isOpen ? (
                   <div className="border-t px-6 py-5 text-sm leading-7 text-[var(--text-secondary)]">

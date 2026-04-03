@@ -138,7 +138,7 @@ function PublicPoliciesPageContent() {
             </div>
           </Card>
 
-          <Card className="rounded-[2rem] border-white/70 bg-[#0b3c5d] p-6 text-white shadow-sm">
+          <Card className="rounded-[2rem] border-white/70 bg-[#003869] p-6 text-white shadow-sm">
             <div className="flex items-center gap-3">
               <MapPinned className="text-white" size={22} />
               <div>

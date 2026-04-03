@@ -10,11 +10,11 @@ export default function PublicFooter() {
   const repoHref = user ? "/repository" : "/public/policies";
 
   return (
-    <footer className="mt-20 w-full max-w-full overflow-x-clip border-t border-[#d8e6ec] bg-[linear-gradient(180deg,#0b2336_0%,#103851_40%,#125669_100%)] text-white">
+    <footer className="mt-20 w-full max-w-full overflow-x-clip border-t border-[#d8e6ec] bg-[linear-gradient(180deg,#00223f_0%,#002c52_40%,#0073d1_100%)] text-white">
       <div className="mx-auto max-w-7xl overflow-x-clip px-4 py-16">
         <div className="grid gap-10 md:grid-cols-[1.3fr_0.9fr_0.9fr_1fr]">
           <div>
-            <DynovareLogo />
+            <DynovareLogo variant="white" />
             <p className="mt-4 max-w-sm text-sm text-white/72">
               Find public policy signals, sharpen private drafts, and move faster from idea to decision-ready policy output.
             </p>

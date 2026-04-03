@@ -35,9 +35,9 @@ type PublicInsights = {
 };
 
 function iconForActivity(type: ActivityItem["type"]) {
-  if (type === "upload") return <Upload size={18} className="text-[#125669]" />;
-  if (type === "critique") return <Sparkles size={18} className="text-[#125669]" />;
-  return <BarChart3 size={18} className="text-[#125669]" />;
+  if (type === "upload") return <Upload size={18} className="text-[#0073d1]" />;
+  if (type === "critique") return <Sparkles size={18} className="text-[#0073d1]" />;
+  return <BarChart3 size={18} className="text-[#0073d1]" />;
 }
 
 export default function DashboardPage() {
@@ -102,7 +102,7 @@ export default function DashboardPage() {
     <ProtectedRoute>
       <DashboardLayout>
         <div className="w-full max-w-full space-y-6 overflow-x-clip">
-          <section className="overflow-hidden rounded-[2.25rem] bg-[linear-gradient(135deg,#081f30_0%,#103851_52%,#125669_100%)] p-6 md:p-8 text-white shadow-[0_30px_90px_rgba(8,31,48,0.16)]">
+          <section className="overflow-hidden rounded-[2.25rem] bg-[linear-gradient(135deg,#001b33_0%,#002c52_52%,#0073d1_100%)] p-6 md:p-8 text-white shadow-[0_30px_90px_rgba(0,56,105,0.16)]">
             <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
               <div>
                 <Badge variant="outline" className="border-white/20 bg-white/10 text-white">Workspace home</Badge>
@@ -143,13 +143,13 @@ export default function DashboardPage() {
           <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {stats.map((stat) => (
               <Link key={stat.title} href={stat.href} className="block">
-                <Card className="premium-card rounded-[2rem] p-6 transition hover:-translate-y-1 hover:shadow-[0_26px_80px_rgba(18,86,105,0.12)]">
+                <Card className="premium-card rounded-[2rem] p-6 transition hover:-translate-y-1 hover:shadow-[0_26px_80px_rgba(0,115,209,0.12)]">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
                       <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-secondary)]">{stat.title}</p>
                       <p className="mt-3 truncate text-[1.9rem] leading-none font-black tabular-nums text-blue-deep">{loading ? "..." : stat.value}</p>
                     </div>
-                    <div className="shrink-0 rounded-2xl bg-[rgba(18,86,105,0.08)] p-3 text-[#125669]">
+                    <div className="shrink-0 rounded-2xl bg-[rgba(0,115,209,0.08)] p-3 text-[#0073d1]">
                       <stat.icon size={24} />
                     </div>
                   </div>
@@ -165,7 +165,7 @@ export default function DashboardPage() {
                   <p className="text-xs uppercase tracking-[0.22em] text-[var(--text-secondary)]">National signals</p>
                   <h2 className="mt-2 text-xl font-black text-blue-deep">Track where momentum is building across Nigeria</h2>
                 </div>
-                <MapPinned className="text-[#125669]" />
+                <MapPinned className="text-[#0073d1]" />
               </div>
               <div className="mt-5">
                 <NigeriaPolicyMap
@@ -179,7 +179,7 @@ export default function DashboardPage() {
             <div className="space-y-6">
               <Card className="premium-card max-w-full overflow-hidden rounded-[2rem] p-6">
                 <div className="flex items-center gap-3">
-                  <div className="rounded-2xl bg-[rgba(18,86,105,0.09)] p-3 text-[#125669]">
+                  <div className="rounded-2xl bg-[rgba(0,115,209,0.09)] p-3 text-[#0073d1]">
                     <ShieldCheck size={20} />
                   </div>
                   <div>
@@ -215,7 +215,7 @@ export default function DashboardPage() {
                       <Link
                         key={`${activity.type}-${index}-${activity.policySlug ?? activity.policyTitle}`}
                         href={activity.policySlug ? `/policies/${activity.policySlug}` : "/policies"}
-                        className="block rounded-[1.4rem] border bg-white/80 p-4 transition hover:bg-[rgba(18,86,105,0.05)]"
+                        className="block rounded-[1.4rem] border bg-white/80 p-4 transition hover:bg-[rgba(0,115,209,0.05)]"
                       >
                         <div className="flex items-center justify-between gap-3">
                           <div className="flex items-center gap-3">
@@ -225,7 +225,7 @@ export default function DashboardPage() {
                               <p className="text-sm text-[var(--text-secondary)]">{activity.policyTitle}</p>
                             </div>
                           </div>
-                          <ArrowRight size={15} className="text-[#125669]" />
+                          <ArrowRight size={15} className="text-[#0073d1]" />
                         </div>
                       </Link>
                     ))}

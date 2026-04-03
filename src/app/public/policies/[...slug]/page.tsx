@@ -147,7 +147,7 @@ export default function PublicPolicyDetailPage() {
       <PublicNavbar />
 
       <main className="mx-auto max-w-7xl px-4 py-8">
-        <section className="overflow-hidden rounded-[2.3rem] bg-[linear-gradient(135deg,#081f30_0%,#103851_50%,#125669_100%)] p-8 text-white shadow-[0_30px_90px_rgba(8,31,48,0.16)] fade-up">
+        <section className="overflow-hidden rounded-[2.3rem] bg-[linear-gradient(135deg,#001b33_0%,#002c52_50%,#0073d1_100%)] p-8 text-white shadow-[0_30px_90px_rgba(0,56,105,0.16)] fade-up">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <Button
               variant="outline"
@@ -218,7 +218,7 @@ export default function PublicPolicyDetailPage() {
             <div className="space-y-6">
               <Card className="premium-card rounded-[2rem] p-6">
                 <div className="flex items-center gap-3">
-                  <div className="rounded-2xl bg-[rgba(18,86,105,0.08)] p-3 text-[#125669]">
+                  <div className="rounded-2xl bg-[rgba(0,115,209,0.08)] p-3 text-[#0073d1]">
                     <FileText size={20} />
                   </div>
                   <div>
@@ -246,11 +246,11 @@ export default function PublicPolicyDetailPage() {
                 ) : null}
 
                 <div className="mt-6 grid gap-4 md:grid-cols-2">
-                  <div className="rounded-[1.5rem] bg-[rgba(18,86,105,0.04)] p-4">
+                  <div className="rounded-[1.5rem] bg-[rgba(0,115,209,0.04)] p-4">
                     <p className="text-sm font-semibold text-blue-deep">Last updated</p>
                     <p className="mt-2 text-sm text-[var(--text-secondary)]">{formatWhenMs(policy.updatedAtMs) || "Not available"}</p>
                   </div>
-                  <div className="rounded-[1.5rem] bg-[rgba(18,86,105,0.04)] p-4">
+                  <div className="rounded-[1.5rem] bg-[rgba(0,115,209,0.04)] p-4">
                     <p className="text-sm font-semibold text-blue-deep">Created</p>
                     <p className="mt-2 text-sm text-[var(--text-secondary)]">{formatWhenMs(policy.createdAtMs) || "Not available"}</p>
                   </div>
@@ -259,7 +259,7 @@ export default function PublicPolicyDetailPage() {
 
               <Card className="premium-card rounded-[2rem] p-6">
                 <div className="flex items-center gap-3">
-                  <div className="rounded-2xl bg-[rgba(18,86,105,0.08)] p-3 text-[#125669]">
+                  <div className="rounded-2xl bg-[rgba(0,115,209,0.08)] p-3 text-[#0073d1]">
                     <ShieldCheck size={20} />
                   </div>
                   <div>
@@ -271,7 +271,7 @@ export default function PublicPolicyDetailPage() {
                 {sections.length > 0 ? (
                   <div className="mt-5 space-y-4">
                     {sections.slice(0, 6).map((section) => (
-                      <div key={section.id} className="rounded-[1.5rem] border border-[rgba(18,86,105,0.08)] bg-white/85 p-5">
+                      <div key={section.id} className="rounded-[1.5rem] border border-[rgba(0,115,209,0.08)] bg-white/85 p-5">
                         <p className="text-lg font-bold text-blue-deep">{section.title}</p>
                         <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-[var(--text-secondary)]">
                           {section.body}
@@ -280,7 +280,7 @@ export default function PublicPolicyDetailPage() {
                     ))}
                   </div>
                 ) : policy.contentText ? (
-                  <div className="mt-5 rounded-[1.5rem] border border-[rgba(18,86,105,0.08)] bg-white/85 p-5">
+                  <div className="mt-5 rounded-[1.5rem] border border-[rgba(0,115,209,0.08)] bg-white/85 p-5">
                     <p className="whitespace-pre-wrap text-sm leading-7 text-[var(--text-secondary)]">
                       {policy.contentText.slice(0, 4000)}
                     </p>
@@ -292,7 +292,7 @@ export default function PublicPolicyDetailPage() {
 
               <Card className="premium-card rounded-[2rem] p-6">
                 <div className="flex items-center gap-3">
-                  <div className="rounded-2xl bg-[rgba(18,86,105,0.08)] p-3 text-[#125669]">
+                  <div className="rounded-2xl bg-[rgba(0,115,209,0.08)] p-3 text-[#0073d1]">
                     <Sparkles size={20} />
                   </div>
                   <div>
@@ -308,11 +308,11 @@ export default function PublicPolicyDetailPage() {
                     {critiques.map((critique) => {
                       const isOpen = openCritique === critique.id;
                       return (
-                        <div key={critique.id} className="overflow-hidden rounded-[1.5rem] border border-[rgba(18,86,105,0.08)] bg-white/85">
+                        <div key={critique.id} className="overflow-hidden rounded-[1.5rem] border border-[rgba(0,115,209,0.08)] bg-white/85">
                           <button
                             type="button"
                             onClick={() => setOpenCritique(isOpen ? null : critique.id)}
-                            className="flex w-full items-center justify-between px-5 py-4 text-left transition hover:bg-[rgba(18,86,105,0.04)]"
+                            className="flex w-full items-center justify-between px-5 py-4 text-left transition hover:bg-[rgba(0,115,209,0.04)]"
                           >
                             <div>
                               <p className="font-bold text-blue-deep">
@@ -322,7 +322,7 @@ export default function PublicPolicyDetailPage() {
                                 {critique?.createdAt?.toDate?.()?.toLocaleString?.() || "Date unavailable"}
                               </p>
                             </div>
-                            {isOpen ? <ChevronUp className="text-[#125669]" size={18} /> : <ChevronDown className="text-[#125669]" size={18} />}
+                            {isOpen ? <ChevronUp className="text-[#0073d1]" size={18} /> : <ChevronDown className="text-[#0073d1]" size={18} />}
                           </button>
 
                           {isOpen ? (
@@ -335,7 +335,7 @@ export default function PublicPolicyDetailPage() {
                                   <p className="text-sm font-semibold text-blue-deep">Priority actions</p>
                                   <ul className="mt-2 space-y-2 text-sm text-[var(--text-secondary)]">
                                     {critique.priorityActions.map((item: string, index: number) => (
-                                      <li key={`${critique.id}-action-${index}`} className="rounded-[1rem] bg-[rgba(18,86,105,0.04)] px-4 py-3">
+                                      <li key={`${critique.id}-action-${index}`} className="rounded-[1rem] bg-[rgba(0,115,209,0.04)] px-4 py-3">
                                         {item}
                                       </li>
                                     ))}
@@ -353,7 +353,7 @@ export default function PublicPolicyDetailPage() {
 
               <Card className="premium-card rounded-[2rem] p-6">
                 <div className="flex items-center gap-3">
-                  <div className="rounded-2xl bg-[rgba(18,86,105,0.08)] p-3 text-[#125669]">
+                  <div className="rounded-2xl bg-[rgba(0,115,209,0.08)] p-3 text-[#0073d1]">
                     <Wand2 size={20} />
                   </div>
                   <div>
@@ -372,11 +372,11 @@ export default function PublicPolicyDetailPage() {
                       const outputs = simulation.outputs ?? simulation.results ?? {};
 
                       return (
-                        <div key={simulation.id} className="overflow-hidden rounded-[1.5rem] border border-[rgba(18,86,105,0.08)] bg-white/85">
+                        <div key={simulation.id} className="overflow-hidden rounded-[1.5rem] border border-[rgba(0,115,209,0.08)] bg-white/85">
                           <button
                             type="button"
                             onClick={() => setOpenSimulation(isOpen ? null : simulation.id)}
-                            className="flex w-full items-center justify-between px-5 py-4 text-left transition hover:bg-[rgba(18,86,105,0.04)]"
+                            className="flex w-full items-center justify-between px-5 py-4 text-left transition hover:bg-[rgba(0,115,209,0.04)]"
                           >
                             <div>
                               <p className="font-bold text-blue-deep">{inputs?.scenarioName ?? "Simulation scenario"}</p>
@@ -384,12 +384,12 @@ export default function PublicPolicyDetailPage() {
                                 {simulation?.createdAt?.toDate?.()?.toLocaleString?.() || "Date unavailable"}
                               </p>
                             </div>
-                            {isOpen ? <ChevronUp className="text-[#125669]" size={18} /> : <ChevronDown className="text-[#125669]" size={18} />}
+                            {isOpen ? <ChevronUp className="text-[#0073d1]" size={18} /> : <ChevronDown className="text-[#0073d1]" size={18} />}
                           </button>
 
                           {isOpen ? (
                             <div className="grid gap-4 px-5 pb-5 md:grid-cols-2">
-                              <div className="rounded-[1.25rem] bg-[rgba(18,86,105,0.04)] p-4">
+                              <div className="rounded-[1.25rem] bg-[rgba(0,115,209,0.04)] p-4">
                                 <p className="text-sm font-semibold text-blue-deep">Scenario inputs</p>
                                 <div className="mt-3 space-y-2 text-sm text-[var(--text-secondary)]">
                                   {Object.entries(inputs).slice(0, 5).map(([key, value]) => (
@@ -400,7 +400,7 @@ export default function PublicPolicyDetailPage() {
                                   ))}
                                 </div>
                               </div>
-                              <div className="rounded-[1.25rem] bg-[rgba(18,86,105,0.04)] p-4">
+                              <div className="rounded-[1.25rem] bg-[rgba(0,115,209,0.04)] p-4">
                                 <p className="text-sm font-semibold text-blue-deep">Headline outputs</p>
                                 <div className="mt-3 space-y-2 text-sm text-[var(--text-secondary)]">
                                   {Object.entries(outputs).slice(0, 5).map(([key, value]) => (
@@ -430,7 +430,7 @@ export default function PublicPolicyDetailPage() {
                 </p>
 
                 <div className="mt-5 space-y-3">
-                  <Button className="h-12 w-full rounded-full bg-[#125669] hover:bg-[#0f4b5d]" onClick={() => router.push(`/login?next=${encodeURIComponent(`/critique?policyId=${policy.id}`)}`)}>
+                  <Button className="h-12 w-full rounded-full bg-[#0073d1] hover:bg-[#003869]" onClick={() => router.push(`/login?next=${encodeURIComponent(`/critique?policyId=${policy.id}`)}`)}>
                     <Sparkles size={15} />
                     Sign in to run AI critique
                   </Button>
@@ -456,7 +456,7 @@ export default function PublicPolicyDetailPage() {
                       </span>
                     </Button>
                   ) : (
-                    <div className="rounded-[1.25rem] bg-[rgba(18,86,105,0.04)] p-4 text-sm text-[var(--text-secondary)]">
+                    <div className="rounded-[1.25rem] bg-[rgba(0,115,209,0.04)] p-4 text-sm text-[var(--text-secondary)]">
                       No public download is attached to this record.
                     </div>
                   )}
@@ -471,14 +471,14 @@ export default function PublicPolicyDetailPage() {
                   ) : null}
 
                   {policy.source?.publisher ? (
-                    <div className="rounded-[1.25rem] bg-[rgba(18,86,105,0.04)] p-4">
+                    <div className="rounded-[1.25rem] bg-[rgba(0,115,209,0.04)] p-4">
                       <p className="text-sm font-semibold text-blue-deep">Publisher</p>
                       <p className="mt-1 text-sm text-[var(--text-secondary)]">{policy.source.publisher}</p>
                     </div>
                   ) : null}
 
                   {policy.source?.licenseNote ? (
-                    <div className="rounded-[1.25rem] bg-[rgba(18,86,105,0.04)] p-4">
+                    <div className="rounded-[1.25rem] bg-[rgba(0,115,209,0.04)] p-4">
                       <p className="text-sm font-semibold text-blue-deep">Usage note</p>
                       <p className="mt-1 text-sm text-[var(--text-secondary)]">{policy.source.licenseNote}</p>
                     </div>
@@ -496,7 +496,7 @@ export default function PublicPolicyDetailPage() {
                         href={item.url}
                         target="_blank"
                         rel="noreferrer"
-                        className="block rounded-[1.25rem] border border-[rgba(18,86,105,0.08)] bg-white/85 p-4 transition hover:-translate-y-0.5 hover:border-[rgba(18,86,105,0.22)]"
+                        className="block rounded-[1.25rem] border border-[rgba(0,115,209,0.08)] bg-white/85 p-4 transition hover:-translate-y-0.5 hover:border-[rgba(0,115,209,0.22)]"
                       >
                         <p className="font-semibold text-blue-deep">{item.title}</p>
                         {item.whyRelevant ? (

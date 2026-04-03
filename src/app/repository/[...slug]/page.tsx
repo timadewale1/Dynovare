@@ -159,7 +159,7 @@ export default function RepositoryPolicyDetailPage() {
     <ProtectedRoute>
       <DashboardLayout>
         <div className="space-y-6">
-          <section className="overflow-hidden rounded-[2.3rem] bg-[linear-gradient(135deg,#081f30_0%,#103851_50%,#125669_100%)] p-8 text-white shadow-[0_30px_90px_rgba(8,31,48,0.16)] fade-up">
+          <section className="overflow-hidden rounded-[2.3rem] bg-[linear-gradient(135deg,#001b33_0%,#002c52_50%,#0073d1_100%)] p-8 text-white shadow-[0_30px_90px_rgba(0,56,105,0.16)] fade-up">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <Button variant="outline" className="rounded-full border-white/20 bg-white/10 text-white hover:bg-white/15" onClick={() => router.push("/repository")}>
                 <ArrowLeft size={15} />
@@ -205,7 +205,7 @@ export default function RepositoryPolicyDetailPage() {
               <div className="space-y-6">
                 <Card className="premium-card rounded-[2rem] p-6">
                   <div className="flex items-center gap-3">
-                    <div className="rounded-2xl bg-[rgba(18,86,105,0.08)] p-3 text-[#125669]"><FileText size={20} /></div>
+                    <div className="rounded-2xl bg-[rgba(0,115,209,0.08)] p-3 text-[#0073d1]"><FileText size={20} /></div>
                     <div>
                       <p className="text-xs uppercase tracking-[0.22em] text-[var(--text-secondary)]">Policy snapshot</p>
                       <h2 className="mt-1 text-xl font-black text-blue-deep">Review the public record quickly.</h2>
@@ -223,11 +223,11 @@ export default function RepositoryPolicyDetailPage() {
                   {policy.tags?.length ? <div className="mt-4 flex flex-wrap gap-2">{policy.tags.map((tag) => <Badge key={tag} variant="secondary">{tag}</Badge>)}</div> : null}
 
                   <div className="mt-6 grid gap-4 md:grid-cols-2">
-                    <div className="rounded-[1.5rem] bg-[rgba(18,86,105,0.04)] p-4">
+                    <div className="rounded-[1.5rem] bg-[rgba(0,115,209,0.04)] p-4">
                       <p className="text-sm font-semibold text-blue-deep">Last updated</p>
                       <p className="mt-2 text-sm text-[var(--text-secondary)]">{formatWhenMs(policy.updatedAtMs) || "Not available"}</p>
                     </div>
-                    <div className="rounded-[1.5rem] bg-[rgba(18,86,105,0.04)] p-4">
+                    <div className="rounded-[1.5rem] bg-[rgba(0,115,209,0.04)] p-4">
                       <p className="text-sm font-semibold text-blue-deep">Created</p>
                       <p className="mt-2 text-sm text-[var(--text-secondary)]">{formatWhenMs(policy.createdAtMs) || "Not available"}</p>
                     </div>
@@ -236,7 +236,7 @@ export default function RepositoryPolicyDetailPage() {
 
                 <Card className="premium-card rounded-[2rem] p-6">
                   <div className="flex items-center gap-3">
-                    <div className="rounded-2xl bg-[rgba(18,86,105,0.08)] p-3 text-[#125669]"><ShieldCheck size={20} /></div>
+                    <div className="rounded-2xl bg-[rgba(0,115,209,0.08)] p-3 text-[#0073d1]"><ShieldCheck size={20} /></div>
                     <div>
                       <p className="text-xs uppercase tracking-[0.22em] text-[var(--text-secondary)]">Policy content</p>
                       <h2 className="mt-1 text-xl font-black text-blue-deep">Read the parts that matter most.</h2>
@@ -246,14 +246,14 @@ export default function RepositoryPolicyDetailPage() {
                   {sections.length > 0 ? (
                     <div className="mt-5 space-y-4">
                       {sections.slice(0, 6).map((section) => (
-                        <div key={section.id} className="rounded-[1.5rem] border border-[rgba(18,86,105,0.08)] bg-white/85 p-5">
+                        <div key={section.id} className="rounded-[1.5rem] border border-[rgba(0,115,209,0.08)] bg-white/85 p-5">
                           <p className="text-lg font-bold text-blue-deep">{section.title}</p>
                           <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-[var(--text-secondary)]">{section.body}</p>
                         </div>
                       ))}
                     </div>
                   ) : policy.contentText ? (
-                    <div className="mt-5 rounded-[1.5rem] border border-[rgba(18,86,105,0.08)] bg-white/85 p-5">
+                    <div className="mt-5 rounded-[1.5rem] border border-[rgba(0,115,209,0.08)] bg-white/85 p-5">
                       <p className="whitespace-pre-wrap text-sm leading-7 text-[var(--text-secondary)]">{policy.contentText.slice(0, 4000)}</p>
                     </div>
                   ) : (
@@ -263,7 +263,7 @@ export default function RepositoryPolicyDetailPage() {
 
                 <Card className="premium-card rounded-[2rem] p-6">
                   <div className="flex items-center gap-3">
-                    <div className="rounded-2xl bg-[rgba(18,86,105,0.08)] p-3 text-[#125669]"><Sparkles size={20} /></div>
+                    <div className="rounded-2xl bg-[rgba(0,115,209,0.08)] p-3 text-[#0073d1]"><Sparkles size={20} /></div>
                     <div>
                       <p className="text-xs uppercase tracking-[0.22em] text-[var(--text-secondary)]">Critique history</p>
                       <h2 className="mt-1 text-xl font-black text-blue-deep">See how this policy has been assessed.</h2>
@@ -277,13 +277,13 @@ export default function RepositoryPolicyDetailPage() {
                       {critiques.map((critique) => {
                         const isOpen = openCritique === critique.id;
                         return (
-                          <div key={critique.id} className="overflow-hidden rounded-[1.5rem] border border-[rgba(18,86,105,0.08)] bg-white/85">
-                            <button type="button" onClick={() => setOpenCritique(isOpen ? null : critique.id)} className="flex w-full items-center justify-between px-5 py-4 text-left transition hover:bg-[rgba(18,86,105,0.04)]">
+                          <div key={critique.id} className="overflow-hidden rounded-[1.5rem] border border-[rgba(0,115,209,0.08)] bg-white/85">
+                            <button type="button" onClick={() => setOpenCritique(isOpen ? null : critique.id)} className="flex w-full items-center justify-between px-5 py-4 text-left transition hover:bg-[rgba(0,115,209,0.04)]">
                               <div>
                                 <p className="font-bold text-blue-deep">Overall score {typeof critique.overallScore === "number" ? `${critique.overallScore}/100` : "-"}</p>
                                 <p className="mt-1 text-xs text-[var(--text-secondary)]">{critique?.createdAt?.toDate?.()?.toLocaleString?.() || "Date unavailable"}</p>
                               </div>
-                              {isOpen ? <ChevronUp className="text-[#125669]" size={18} /> : <ChevronDown className="text-[#125669]" size={18} />}
+                              {isOpen ? <ChevronUp className="text-[#0073d1]" size={18} /> : <ChevronDown className="text-[#0073d1]" size={18} />}
                             </button>
                             {isOpen && critique.summary ? <div className="px-5 pb-5 text-sm leading-6 text-[var(--text-secondary)]">{critique.summary}</div> : null}
                           </div>
@@ -295,7 +295,7 @@ export default function RepositoryPolicyDetailPage() {
 
                 <Card className="premium-card rounded-[2rem] p-6">
                   <div className="flex items-center gap-3">
-                    <div className="rounded-2xl bg-[rgba(18,86,105,0.08)] p-3 text-[#125669]"><Wand2 size={20} /></div>
+                    <div className="rounded-2xl bg-[rgba(0,115,209,0.08)] p-3 text-[#0073d1]"><Wand2 size={20} /></div>
                     <div>
                       <p className="text-xs uppercase tracking-[0.22em] text-[var(--text-secondary)]">Simulation history</p>
                       <h2 className="mt-1 text-xl font-black text-blue-deep">Explore public scenario runs.</h2>
@@ -310,13 +310,13 @@ export default function RepositoryPolicyDetailPage() {
                         const isOpen = openSimulation === simulation.id;
                         const inputs = simulation.inputs ?? {};
                         return (
-                          <div key={simulation.id} className="overflow-hidden rounded-[1.5rem] border border-[rgba(18,86,105,0.08)] bg-white/85">
-                            <button type="button" onClick={() => setOpenSimulation(isOpen ? null : simulation.id)} className="flex w-full items-center justify-between px-5 py-4 text-left transition hover:bg-[rgba(18,86,105,0.04)]">
+                          <div key={simulation.id} className="overflow-hidden rounded-[1.5rem] border border-[rgba(0,115,209,0.08)] bg-white/85">
+                            <button type="button" onClick={() => setOpenSimulation(isOpen ? null : simulation.id)} className="flex w-full items-center justify-between px-5 py-4 text-left transition hover:bg-[rgba(0,115,209,0.04)]">
                               <div>
                                 <p className="font-bold text-blue-deep">{inputs?.scenarioName ?? "Simulation scenario"}</p>
                                 <p className="mt-1 text-xs text-[var(--text-secondary)]">{simulation?.createdAt?.toDate?.()?.toLocaleString?.() || "Date unavailable"}</p>
                               </div>
-                              {isOpen ? <ChevronUp className="text-[#125669]" size={18} /> : <ChevronDown className="text-[#125669]" size={18} />}
+                              {isOpen ? <ChevronUp className="text-[#0073d1]" size={18} /> : <ChevronDown className="text-[#0073d1]" size={18} />}
                             </button>
                           </div>
                         );
@@ -333,7 +333,7 @@ export default function RepositoryPolicyDetailPage() {
                   <p className="mt-3 text-sm leading-6 text-[var(--text-secondary)]">Bring it into Policy Studio, run critique, or test scenarios without leaving the signed-in flow.</p>
 
                   <div className="mt-5 space-y-3">
-                    <Button className="h-12 w-full rounded-full bg-[#125669] hover:bg-[#0f4b5d]" onClick={addToWorkspace} disabled={adding}>
+                    <Button className="h-12 w-full rounded-full bg-[#0073d1] hover:bg-[#003869]" onClick={addToWorkspace} disabled={adding}>
                       <Sparkles size={15} />
                       {adding ? "Adding to workspace..." : "Add to workspace"}
                     </Button>
@@ -375,7 +375,7 @@ export default function RepositoryPolicyDetailPage() {
                   {keyEvidence.length > 0 ? (
                     <div className="mt-4 space-y-3">
                       {keyEvidence.map((item) => (
-                        <a key={`${item.title}-${item.url}`} href={item.url} target="_blank" rel="noreferrer" className="block rounded-[1.25rem] border border-[rgba(18,86,105,0.08)] bg-white/85 p-4 transition hover:-translate-y-0.5 hover:border-[rgba(18,86,105,0.22)]">
+                        <a key={`${item.title}-${item.url}`} href={item.url} target="_blank" rel="noreferrer" className="block rounded-[1.25rem] border border-[rgba(0,115,209,0.08)] bg-white/85 p-4 transition hover:-translate-y-0.5 hover:border-[rgba(0,115,209,0.22)]">
                           <p className="font-semibold text-blue-deep">{item.title}</p>
                           {item.whyRelevant ? <p className="mt-2 text-sm text-[var(--text-secondary)]">{item.whyRelevant}</p> : null}
                         </a>

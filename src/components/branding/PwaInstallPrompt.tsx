@@ -50,7 +50,7 @@ export default function PwaInstallPrompt() {
 
   return (
     <div className="pointer-events-none fixed inset-x-0 bottom-4 z-[80] flex justify-center px-4">
-      <div className="pointer-events-auto w-full max-w-lg rounded-[1.75rem] border border-white/70 bg-white/94 p-5 shadow-[0_30px_80px_rgba(11,60,93,0.16)] backdrop-blur-xl fade-up">
+      <div className="pointer-events-auto w-full max-w-lg rounded-[1.75rem] border border-white/70 bg-white/94 p-5 shadow-[0_30px_80px_rgba(0,56,105,0.16)] backdrop-blur-xl fade-up">
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-xs uppercase tracking-[0.22em] text-[var(--text-secondary)]">Install Dynovare</p>
@@ -71,7 +71,7 @@ export default function PwaInstallPrompt() {
 
         <div className="mt-4 flex flex-wrap gap-3">
           <Button
-            className="rounded-full bg-[#125669] hover:bg-[#0f4b5d]"
+            className="rounded-full bg-[#0073d1] hover:bg-[#003869]"
             onClick={async () => {
               await promptEvent.prompt();
               const choice = await promptEvent.userChoice.catch(() => null);

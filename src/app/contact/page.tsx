@@ -30,7 +30,7 @@ export default function ContactPage() {
                 { icon: <PhoneCall size={18} />, title: "Response", body: "We aim to respond to partnership and product enquiries quickly." },
               ].map((item) => (
                 <div key={item.title} className="flex items-start gap-3 rounded-[1.5rem] border bg-white/70 p-4">
-                  <div className="rounded-xl bg-[rgba(18,86,105,0.09)] p-2 text-[#125669]">{item.icon}</div>
+                  <div className="rounded-xl bg-[rgba(0,115,209,0.09)] p-2 text-[#0073d1]">{item.icon}</div>
                   <div>
                     <p className="font-bold text-blue-deep">{item.title}</p>
                     <p className="text-sm text-[var(--text-secondary)]">{item.body}</p>
@@ -42,7 +42,7 @@ export default function ContactPage() {
 
           <Card className="premium-card rounded-[2rem] p-7">
             <div className="flex items-center gap-3">
-              <div className="rounded-2xl bg-[rgba(18,86,105,0.09)] p-3 text-[#125669]">
+              <div className="rounded-2xl bg-[rgba(0,115,209,0.09)] p-3 text-[#0073d1]">
                 <MessageSquareText size={22} />
               </div>
               <div>
@@ -68,7 +68,7 @@ export default function ContactPage() {
               <input className="studio-input" placeholder="Your email" type="email" />
               <input className="studio-input" placeholder="Organization or team" />
               <textarea className="studio-textarea min-h-[180px]" placeholder="Tell us what you want to discuss." />
-              <Button type="submit" className="rounded-full bg-[#125669] hover:bg-[#0f4b5d]">Send enquiry</Button>
+              <Button type="submit" className="rounded-full bg-[#0073d1] hover:bg-[#003869]">Send enquiry</Button>
             </form>
           </Card>
         </section>

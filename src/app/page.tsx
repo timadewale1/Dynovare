@@ -98,7 +98,7 @@ export default function Home() {
               </p>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Button asChild size="lg" className="rounded-full bg-[#125669] shadow-[0_18px_40px_rgba(18,86,105,0.22)] hover:bg-[#0f4b5d]">
+                <Button asChild size="lg" className="rounded-full bg-[#0073d1] shadow-[0_18px_40px_rgba(0,115,209,0.22)] hover:bg-[#003869]">
                   <Link href={user ? "/repository" : "/public/policies"}>
                     Explore repository <ArrowRight size={16} className="ml-2" />
                   </Link>
@@ -151,7 +151,7 @@ export default function Home() {
                     <p className="text-xs uppercase tracking-[0.22em] text-[var(--text-secondary)]">What you can do here</p>
                     <h2 className="mt-2 text-xl font-black text-blue-deep">Everything you need to move a policy draft forward.</h2>
                   </div>
-                  <Sparkles className="text-[#125669]" />
+                  <Sparkles className="text-[#0073d1]" />
                 </div>
                 <div className="mt-5 grid gap-4 sm:grid-cols-2">
                   {[
@@ -180,13 +180,13 @@ export default function Home() {
 
           <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {[
-              { icon: <Database className="text-[#125669]" size={22} />, title: "Public repository", text: "Search energy policy records across federal and state contexts." },
-              { icon: <Scale className="text-[#125669]" size={22} />, title: "Rankings intelligence", text: "Spot strong policies, score movement, and review-backed performance." },
-              { icon: <FilePenLine className="text-[#125669]" size={22} />, title: "Editable policy studio", text: "Draft, refine, and export from a workspace built for policy writing." },
-              { icon: <ShieldCheck className="text-[#125669]" size={22} />, title: "Private workspace", text: "Keep uploads, AI drafts, critiques, and simulations under your account." },
+              { icon: <Database className="text-[#0073d1]" size={22} />, title: "Public repository", text: "Search energy policy records across federal and state contexts." },
+              { icon: <Scale className="text-[#0073d1]" size={22} />, title: "Rankings intelligence", text: "Spot strong policies, score movement, and review-backed performance." },
+              { icon: <FilePenLine className="text-[#0073d1]" size={22} />, title: "Editable policy studio", text: "Draft, refine, and export from a workspace built for policy writing." },
+              { icon: <ShieldCheck className="text-[#0073d1]" size={22} />, title: "Private workspace", text: "Keep uploads, AI drafts, critiques, and simulations under your account." },
             ].map((item) => (
               <Card key={item.title} className="premium-card rounded-[2rem] p-6 transition hover:-translate-y-1">
-                <div className="inline-flex rounded-2xl bg-[rgba(18,86,105,0.09)] p-3">{item.icon}</div>
+                <div className="inline-flex rounded-2xl bg-[rgba(0,115,209,0.09)] p-3">{item.icon}</div>
                 <h3 className="mt-4 text-2xl font-black text-blue-deep">{item.title}</h3>
                 <p className="mt-3 text-sm text-[var(--text-secondary)]">{item.text}</p>
               </Card>
@@ -202,7 +202,7 @@ export default function Home() {
                   <p className="text-xs uppercase tracking-[0.22em] text-[var(--text-secondary)]">Top public policies</p>
                   <h2 className="mt-2 text-xl font-black text-blue-deep">Live leaderboard</h2>
                 </div>
-                <Scale className="text-[#125669]" />
+                <Scale className="text-[#0073d1]" />
               </div>
               <div className="mt-5 space-y-3">
                 {policyLeaderboard.length === 0 ? (
@@ -230,7 +230,7 @@ export default function Home() {
                   <p className="text-xs uppercase tracking-[0.22em] text-[var(--text-secondary)]">Top states</p>
                   <h2 className="mt-2 text-xl font-black text-blue-deep">State performance snapshot</h2>
                 </div>
-                <MapPinned className="text-[#125669]" />
+                <MapPinned className="text-[#0073d1]" />
               </div>
               <div className="mt-5 space-y-3">
                 {stateLeaderboard.length === 0 ? (
@@ -241,7 +241,7 @@ export default function Home() {
                       key={item.state}
                       type="button"
                       onClick={() => window.location.assign(`${user ? "/repository" : "/public/policies"}?jurisdictionLevel=state&state=${encodeURIComponent(item.state)}`)}
-                      className="flex w-full items-center justify-between rounded-[1.4rem] border bg-white/70 px-4 py-3 text-left transition hover:bg-[rgba(18,86,105,0.05)]"
+                      className="flex w-full items-center justify-between rounded-[1.4rem] border bg-white/70 px-4 py-3 text-left transition hover:bg-[rgba(0,115,209,0.05)]"
                     >
                       <div className="min-w-0 flex-1">
                         <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-secondary)]">#{index + 1}</p>
@@ -273,12 +273,12 @@ export default function Home() {
 
           <div className="mt-8 grid gap-4 md:grid-cols-3">
             {[
-              { icon: <Compass className="text-[#125669]" size={22} />, title: "Discover", text: "Use the repository, rankings, and map to understand the landscape before writing." },
-              { icon: <BarChart3 className="text-[#125669]" size={22} />, title: "Stress-test", text: "Run critique and simulation to test structure, implementation, and likely outcomes." },
-              { icon: <Globe2 className="text-[#125669]" size={22} />, title: "Deliver", text: "Refine the draft in Policy Studio and export a polished PDF when you are ready to share it." },
+              { icon: <Compass className="text-[#0073d1]" size={22} />, title: "Discover", text: "Use the repository, rankings, and map to understand the landscape before writing." },
+              { icon: <BarChart3 className="text-[#0073d1]" size={22} />, title: "Stress-test", text: "Run critique and simulation to test structure, implementation, and likely outcomes." },
+              { icon: <Globe2 className="text-[#0073d1]" size={22} />, title: "Deliver", text: "Refine the draft in Policy Studio and export a polished PDF when you are ready to share it." },
             ].map((item) => (
               <Card key={item.title} className="premium-card rounded-[2rem] p-6">
-                <div className="inline-flex rounded-2xl bg-[rgba(18,86,105,0.09)] p-3">{item.icon}</div>
+                <div className="inline-flex rounded-2xl bg-[rgba(0,115,209,0.09)] p-3">{item.icon}</div>
                 <h3 className="mt-4 text-2xl font-black text-blue-deep">{item.title}</h3>
                 <p className="mt-3 text-sm text-[var(--text-secondary)]">{item.text}</p>
               </Card>

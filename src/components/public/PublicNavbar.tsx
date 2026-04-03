@@ -36,7 +36,7 @@ export default function PublicNavbar() {
               <Link
                 key={`${link.label}-${link.href}`}
                 href={link.href === "/public/policies" ? repoHref : link.href}
-                className="rounded-full px-3 py-2 text-sm font-semibold text-blue-deep transition hover:bg-[rgba(18,86,105,0.08)] hover:text-[#125669]"
+                className="rounded-full px-3 py-2 text-sm font-semibold text-blue-deep transition hover:bg-[rgba(0,115,209,0.08)] hover:text-[#0073d1]"
               >
                 {link.label}
               </Link>
@@ -49,13 +49,13 @@ export default function PublicNavbar() {
               <Button variant="outline" className="rounded-full">Login</Button>
             </Link>
             <Link href="/register">
-              <Button className="rounded-full bg-[#125669] shadow-[0_16px_32px_rgba(18,86,105,0.24)] hover:bg-[#0f4b5d]">Create account</Button>
+              <Button className="rounded-full bg-[#0073d1] shadow-[0_16px_32px_rgba(0,115,209,0.24)] hover:bg-[#003869]">Create account</Button>
             </Link>
           </div>
 
           <button
             type="button"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/50 transition hover:bg-[rgba(18,86,105,0.08)] md:hidden"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/50 transition hover:bg-[rgba(0,115,209,0.08)] md:hidden"
             onClick={() => setOpen((value) => !value)}
             aria-label="Open menu"
           >
@@ -71,7 +71,7 @@ export default function PublicNavbar() {
                   key={`${link.label}-${link.href}`}
                   href={link.href === "/public/policies" ? repoHref : link.href}
                   onClick={() => setOpen(false)}
-                  className="rounded-2xl px-3 py-3 text-sm font-semibold text-blue-deep transition hover:bg-[rgba(18,86,105,0.08)]"
+                  className="rounded-2xl px-3 py-3 text-sm font-semibold text-blue-deep transition hover:bg-[rgba(0,115,209,0.08)]"
                 >
                   {link.label}
                 </Link>
@@ -83,7 +83,7 @@ export default function PublicNavbar() {
                   <Button variant="outline" className="w-full rounded-full">Login</Button>
                 </Link>
                 <Link href="/register">
-                  <Button className="w-full rounded-full bg-[#125669] hover:bg-[#0f4b5d]">Create account</Button>
+                  <Button className="w-full rounded-full bg-[#0073d1] hover:bg-[#003869]">Create account</Button>
                 </Link>
               </div>
             </div>

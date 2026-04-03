@@ -8,16 +8,11 @@ export default function manifest(): MetadataRoute.Manifest {
     start_url: "/",
     display: "standalone",
     background_color: "#f5fbff",
-    theme_color: "#125669",
+    theme_color: "#003869",
     icons: [
       {
-        src: "/icon-512.png",
-        sizes: "512x512",
-        type: "image/png",
-      },
-      {
-        src: "/icon-192.png",
-        sizes: "192x192",
+        src: "/logo/Dynovare_Favicon.png",
+        sizes: "704x704",
         type: "image/png",
       },
     ],

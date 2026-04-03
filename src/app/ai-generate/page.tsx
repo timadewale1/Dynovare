@@ -346,7 +346,7 @@ export default function AIGeneratePage() {
                   and export a polished PDF.
                 </p>
 
-                <Button className="mt-5 w-full gap-2 rounded-full bg-[#125669] hover:bg-[#0f4b5d]" onClick={handleGenerate} disabled={!canGenerate || generating}>
+                <Button className="mt-5 w-full gap-2 rounded-full bg-[#0073d1] hover:bg-[#003869]" onClick={handleGenerate} disabled={!canGenerate || generating}>
                   <Sparkles size={16} />
                   {generating ? "Generating draft..." : "Generate draft"}
                 </Button>
@@ -361,7 +361,7 @@ export default function AIGeneratePage() {
                 ) : null}
               </Card>
 
-              <Card className="rounded-[2rem] bg-[linear-gradient(180deg,#0b2336_0%,#135a6e_100%)] p-6 text-white shadow-sm">
+              <Card className="rounded-[2rem] bg-[linear-gradient(180deg,#00223f_0%,#135a6e_100%)] p-6 text-white shadow-sm">
                 <div className="grid gap-4">
                   {[
                     {

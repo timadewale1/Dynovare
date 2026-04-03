@@ -62,7 +62,7 @@ export default function MySimulationsDetailsClient() {
   return (
     <ProtectedRoute>
       <DashboardLayout>
-        <section className="mb-6 rounded-[2rem] bg-[linear-gradient(135deg,#081f30_0%,#103851_52%,#125669_100%)] p-7 text-white shadow-[0_24px_70px_rgba(8,31,48,0.18)]">
+        <section className="mb-6 rounded-[2rem] bg-[linear-gradient(135deg,#001b33_0%,#002c52_52%,#0073d1_100%)] p-7 text-white shadow-[0_24px_70px_rgba(0,56,105,0.18)]">
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-start gap-3">
               <Button variant="outline" onClick={() => router.push("/my-simulations")} className="gap-2 border-white/20 bg-transparent text-white hover:bg-white/10">
@@ -257,7 +257,7 @@ export default function MySimulationsDetailsClient() {
                   <p>Emissions change: <span className="font-semibold text-blue-deep">{summary.emissions ?? "-"}%</span></p>
                   <p>Total runs: <span className="font-semibold text-blue-deep">{summary.runs}</span></p>
 
-                  <Button className="mt-3 w-full rounded-full bg-[#125669] hover:bg-[#0f4b5d]" onClick={() => router.push("/policies")}>
+                  <Button className="mt-3 w-full rounded-full bg-[#0073d1] hover:bg-[#003869]" onClick={() => router.push("/policies")}>
                     Explore policies
                   </Button>
                 </div>

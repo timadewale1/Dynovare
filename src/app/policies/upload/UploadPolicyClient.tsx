@@ -153,7 +153,7 @@ export default function UploadPolicyClient() {
     <ProtectedRoute>
       <DashboardLayout>
         <div className="space-y-6">
-          <section className="overflow-hidden rounded-[2.25rem] bg-[linear-gradient(135deg,#081f30_0%,#103851_50%,#125669_100%)] p-8 text-white shadow-[0_30px_90px_rgba(8,31,48,0.16)] fade-up">
+          <section className="overflow-hidden rounded-[2.25rem] bg-[linear-gradient(135deg,#001b33_0%,#002c52_50%,#0073d1_100%)] p-8 text-white shadow-[0_30px_90px_rgba(0,56,105,0.16)] fade-up">
             <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
               <div>
                 <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-white/90">
@@ -342,7 +342,7 @@ export default function UploadPolicyClient() {
                     type="file"
                     accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                     onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-                    className="studio-input flex items-center py-3 file:mr-4 file:rounded-full file:border-0 file:bg-[rgba(18,86,105,0.08)] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-[#125669] hover:file:bg-[rgba(18,86,105,0.12)]"
+                    className="studio-input flex items-center py-3 file:mr-4 file:rounded-full file:border-0 file:bg-[rgba(0,115,209,0.08)] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-[#0073d1] hover:file:bg-[rgba(0,115,209,0.12)]"
                   />
                   <p className="text-sm text-[var(--text-secondary)]">
                     Supported formats: PDF and DOCX. The uploaded file stays private in your workspace.
@@ -360,8 +360,8 @@ export default function UploadPolicyClient() {
                     "Text is extracted so AI can critique, simulate, and help revise it.",
                     "The upload opens directly in Policy Studio for editing and exports.",
                   ].map((item) => (
-                    <div key={item} className="flex items-start gap-3 rounded-[1.25rem] border border-[rgba(18,86,105,0.08)] bg-white/80 p-4">
-                      <div className="mt-0.5 rounded-full bg-[rgba(18,86,105,0.08)] p-2 text-[#125669]">
+                    <div key={item} className="flex items-start gap-3 rounded-[1.25rem] border border-[rgba(0,115,209,0.08)] bg-white/80 p-4">
+                      <div className="mt-0.5 rounded-full bg-[rgba(0,115,209,0.08)] p-2 text-[#0073d1]">
                         <ShieldCheck size={14} />
                       </div>
                       <p className="text-sm leading-6 text-[var(--text-secondary)]">{item}</p>
@@ -373,15 +373,15 @@ export default function UploadPolicyClient() {
               <section className="premium-card rounded-[2rem] p-6">
                 <p className="text-xs uppercase tracking-[0.22em] text-[var(--text-secondary)]">Current setup</p>
                 <div className="mt-4 space-y-3">
-                  <div className="rounded-[1.35rem] bg-[rgba(18,86,105,0.04)] p-4">
+                  <div className="rounded-[1.35rem] bg-[rgba(0,115,209,0.04)] p-4">
                     <p className="text-sm font-semibold text-blue-deep">Country focus</p>
                     <p className="mt-1 text-sm text-[var(--text-secondary)]">{NIGERIA_COUNTRY}</p>
                   </div>
-                  <div className="rounded-[1.35rem] bg-[rgba(18,86,105,0.04)] p-4">
+                  <div className="rounded-[1.35rem] bg-[rgba(0,115,209,0.04)] p-4">
                     <p className="text-sm font-semibold text-blue-deep">Selected domain</p>
                     <p className="mt-1 text-sm text-[var(--text-secondary)]">{policyDomainLabel(domain)}</p>
                   </div>
-                  <div className="rounded-[1.35rem] bg-[rgba(18,86,105,0.04)] p-4">
+                  <div className="rounded-[1.35rem] bg-[rgba(0,115,209,0.04)] p-4">
                     <p className="text-sm font-semibold text-blue-deep">Energy source</p>
                     <p className="mt-1 text-sm text-[var(--text-secondary)]">{policyEnergySourceLabel(energySource)}</p>
                   </div>
@@ -390,7 +390,7 @@ export default function UploadPolicyClient() {
                 <Button
                   onClick={handleUpload}
                   disabled={uploading}
-                  className="mt-6 h-12 w-full rounded-full bg-[#125669] text-white hover:bg-[#0f4b5d]"
+                  className="mt-6 h-12 w-full rounded-full bg-[#0073d1] text-white hover:bg-[#003869]"
                 >
                   <FileUp size={16} />
                   {uploading ? "Uploading policy..." : "Upload to workspace"}

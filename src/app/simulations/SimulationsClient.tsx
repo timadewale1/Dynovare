@@ -141,7 +141,7 @@ export default function SimulationsClient() {
     return (
       <ProtectedRoute>
         <DashboardLayout>
-          <section className="mb-6 overflow-hidden rounded-[2rem] bg-[linear-gradient(135deg,#081f30_0%,#103851_52%,#125669_100%)] p-7 text-white shadow-[0_24px_70px_rgba(8,31,48,0.18)]">
+          <section className="mb-6 overflow-hidden rounded-[2rem] bg-[linear-gradient(135deg,#001b33_0%,#002c52_52%,#0073d1_100%)] p-7 text-white shadow-[0_24px_70px_rgba(0,56,105,0.18)]">
             <Badge variant="outline" className="border-white/20 bg-white/10 text-white">Scenario modeling</Badge>
               <h1 className="mt-4 text-3xl font-black tracking-tight">Test how a policy could perform before your team commits.</h1>
             <p className="mt-3 max-w-2xl text-sm text-white/78">
@@ -162,7 +162,7 @@ export default function SimulationsClient() {
               <p className="text-sm text-[var(--text-secondary)] mb-4">
                 Upload a private workspace policy, then run scenario modeling against it.
               </p>
-              <Button className="w-full gap-2 rounded-full bg-[#125669] hover:bg-[#0f4b5d]" onClick={() => router.push("/policies/upload?redirect=/simulations")}>
+              <Button className="w-full gap-2 rounded-full bg-[#0073d1] hover:bg-[#003869]" onClick={() => router.push("/policies/upload?redirect=/simulations")}>
                 <Upload size={16} />
                 Upload policy
               </Button>
@@ -179,7 +179,7 @@ export default function SimulationsClient() {
   return (
     <ProtectedRoute>
       <DashboardLayout>
-        <section className="mb-6 overflow-hidden rounded-[2rem] bg-[linear-gradient(135deg,#081f30_0%,#103851_52%,#125669_100%)] p-7 text-white shadow-[0_24px_70px_rgba(8,31,48,0.18)]">
+        <section className="mb-6 overflow-hidden rounded-[2rem] bg-[linear-gradient(135deg,#001b33_0%,#002c52_52%,#0073d1_100%)] p-7 text-white shadow-[0_24px_70px_rgba(0,56,105,0.18)]">
           <div className="flex items-start justify-between gap-4">
             <div>
               <Badge variant="outline" className="border-white/20 bg-white/10 text-white">Scenario modeling</Badge>
@@ -290,7 +290,7 @@ export default function SimulationsClient() {
 
             <div className="mt-5 flex items-center justify-between flex-wrap gap-3">
               <p className="text-sm text-[var(--text-secondary)]">The selected inputs are saved with the simulation result.</p>
-              <Button className="rounded-full bg-[#125669] hover:bg-[#0f4b5d]" onClick={run} disabled={running || !policy}>
+              <Button className="rounded-full bg-[#0073d1] hover:bg-[#003869]" onClick={run} disabled={running || !policy}>
                 {running ? "Running simulation..." : "Run simulation"}
               </Button>
             </div>
@@ -299,7 +299,7 @@ export default function SimulationsClient() {
             ) : null}
           </Card>
 
-          <Card className="rounded-[2rem] bg-[linear-gradient(180deg,#0b2336_0%,#135a6e_100%)] p-6 text-white shadow-sm">
+          <Card className="rounded-[2rem] bg-[linear-gradient(180deg,#00223f_0%,#135a6e_100%)] p-6 text-white shadow-sm">
             <div className="grid gap-4">
               {[
                 { icon: <TrendingUp size={18} />, title: "Access and reliability", text: "Estimate how the policy could shift coverage and system performance." },

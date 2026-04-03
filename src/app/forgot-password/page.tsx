@@ -39,7 +39,7 @@ export default function ForgotPasswordPage() {
         <button
           onClick={handleReset}
           disabled={loading}
-          className="w-full rounded-full bg-[#125669] px-4 py-3 font-semibold text-white shadow-[0_16px_32px_rgba(18,86,105,0.2)] transition hover:bg-[#0f4b5d] disabled:opacity-70"
+          className="w-full rounded-full bg-[#0073d1] px-4 py-3 font-semibold text-white shadow-[0_16px_32px_rgba(0,115,209,0.2)] transition hover:bg-[#003869] disabled:opacity-70"
         >
           {loading ? "Sending..." : "Send reset link"}
         </button>

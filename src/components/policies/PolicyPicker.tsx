@@ -41,7 +41,7 @@ export default function PolicyPicker({
       <div className="flex flex-col gap-5">
         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
           <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(18,86,105,0.1)] bg-[rgba(18,86,105,0.06)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-[#125669]">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(0,115,209,0.1)] bg-[rgba(0,115,209,0.06)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-[#0073d1]">
               <Sparkles size={12} />
               Choose a working policy
             </div>
@@ -53,14 +53,14 @@ export default function PolicyPicker({
             </p>
           </div>
 
-          <div className="rounded-[1.5rem] border border-[rgba(18,86,105,0.08)] bg-white/80 px-4 py-3 text-sm text-[var(--text-secondary)]">
+          <div className="rounded-[1.5rem] border border-[rgba(0,115,209,0.08)] bg-white/80 px-4 py-3 text-sm text-[var(--text-secondary)]">
             Only your workspace items appear here.
           </div>
         </div>
 
         <div className="flex flex-col gap-3 md:flex-row">
-          <label className="group flex flex-1 items-center gap-3 rounded-[1.2rem] border border-[var(--line)] bg-white px-4 py-3 shadow-sm transition hover:border-[rgba(18,86,105,0.35)]">
-            <Search className="text-[var(--text-secondary)] transition group-focus-within:text-[#125669]" size={18} />
+          <label className="group flex flex-1 items-center gap-3 rounded-[1.2rem] border border-[var(--line)] bg-white px-4 py-3 shadow-sm transition hover:border-[rgba(0,115,209,0.35)]">
+            <Search className="text-[var(--text-secondary)] transition group-focus-within:text-[#0073d1]" size={18} />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -68,7 +68,7 @@ export default function PolicyPicker({
               className="w-full bg-transparent text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-secondary)]"
             />
           </label>
-          <Button onClick={load} className="h-[52px] rounded-[1.2rem] bg-[#125669] px-6 hover:bg-[#0f4b5d]">
+          <Button onClick={load} className="h-[52px] rounded-[1.2rem] bg-[#0073d1] px-6 hover:bg-[#003869]">
             Refresh list
           </Button>
         </div>
@@ -78,7 +78,7 @@ export default function PolicyPicker({
             {Array.from({ length: 3 }).map((_, index) => (
               <div
                 key={index}
-                className="animate-pulse rounded-[1.6rem] border border-[rgba(18,86,105,0.08)] bg-white/70 p-5"
+                className="animate-pulse rounded-[1.6rem] border border-[rgba(0,115,209,0.08)] bg-white/70 p-5"
               >
                 <div className="h-4 w-40 rounded-full bg-slate-200" />
                 <div className="mt-3 h-3 w-64 rounded-full bg-slate-100" />
@@ -90,7 +90,7 @@ export default function PolicyPicker({
             ))}
           </div>
         ) : items.length === 0 ? (
-          <div className="rounded-[1.6rem] border border-dashed border-[rgba(18,86,105,0.18)] bg-[rgba(227,242,253,0.4)] px-5 py-8 text-center">
+          <div className="rounded-[1.6rem] border border-dashed border-[rgba(0,115,209,0.18)] bg-[rgba(232,244,255,0.65)] px-5 py-8 text-center">
             <p className="text-base font-semibold text-blue-deep">No matching policies yet.</p>
             <p className="mt-2 text-sm text-[var(--text-secondary)]">
               Upload a policy or generate a new draft to begin.
@@ -103,15 +103,15 @@ export default function PolicyPicker({
                 key={policy.id}
                 type="button"
                 onClick={() => onSelect(policy)}
-                className="group w-full rounded-[1.6rem] border border-[rgba(18,86,105,0.08)] bg-white/88 p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-[rgba(18,86,105,0.22)] hover:shadow-[0_20px_50px_rgba(11,60,93,0.08)]"
+                className="group w-full rounded-[1.6rem] border border-[rgba(0,115,209,0.08)] bg-white/88 p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-[rgba(0,115,209,0.22)] hover:shadow-[0_20px_50px_rgba(0,56,105,0.08)]"
               >
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="rounded-full bg-[rgba(18,86,105,0.08)] p-2 text-[#125669]">
+                      <span className="rounded-full bg-[rgba(0,115,209,0.08)] p-2 text-[#0073d1]">
                         <FileText size={16} />
                       </span>
-                      <p className="break-anywhere text-lg font-black text-blue-deep transition group-hover:text-[#125669]">
+                      <p className="break-anywhere text-lg font-black text-blue-deep transition group-hover:text-[#0073d1]">
                         {policy.title}
                       </p>
                     </div>
@@ -137,7 +137,7 @@ export default function PolicyPicker({
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 self-start rounded-full bg-[rgba(18,86,105,0.06)] px-4 py-2 text-sm font-semibold text-[#125669]">
+                  <div className="flex items-center gap-2 self-start rounded-full bg-[rgba(0,115,209,0.06)] px-4 py-2 text-sm font-semibold text-[#0073d1]">
                     Continue
                     <ArrowRight size={15} />
                   </div>

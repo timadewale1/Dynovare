@@ -112,7 +112,7 @@ export default function NigeriaPolicyMap({
   );
 
   return (
-    <div className={`w-full max-w-full overflow-hidden ${mapOnly ? "" : `grid gap-5 rounded-[2rem] border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(246,250,252,0.96)_100%)] p-4 md:p-6 shadow-[0_24px_80px_rgba(11,60,93,0.08)] ${compact ? "grid-cols-1" : "xl:grid-cols-[1fr_0.8fr]"}`}`}>
+    <div className={`w-full max-w-full overflow-hidden ${mapOnly ? "" : `grid gap-5 rounded-[2rem] border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(246,250,252,0.96)_100%)] p-4 md:p-6 shadow-[0_24px_80px_rgba(0,56,105,0.08)] ${compact ? "grid-cols-1" : "xl:grid-cols-[1fr_0.8fr]"}`}`}>
       <div>
         {!mapOnly ? (
           <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
@@ -139,7 +139,7 @@ export default function NigeriaPolicyMap({
             <img
               src="/nigeria-states-base.svg"
               alt="Nigeria states map"
-              className="absolute inset-0 h-full w-full rounded-[1.25rem] object-contain shadow-[0_16px_40px_rgba(11,60,93,0.08)]"
+              className="absolute inset-0 h-full w-full rounded-[1.25rem] object-contain shadow-[0_16px_40px_rgba(0,56,105,0.08)]"
               draggable={false}
             />
             <div className="pointer-events-none absolute inset-0">
@@ -184,11 +184,11 @@ export default function NigeriaPolicyMap({
                       entry.small ? "text-[8px] md:text-[9px]" : "text-[10px] md:text-[13px]"
                     }`}
                     style={{
-                      backgroundColor: active ? "#0b3c5d" : tone.fill,
+                      backgroundColor: active ? "#003869" : tone.fill,
                       color: active ? "#ffffff" : tone.text,
-                      border: active ? "1px solid rgba(11,60,93,0.85)" : `1px solid ${tone.accent}`,
+                      border: active ? "1px solid rgba(0,56,105,0.85)" : `1px solid ${tone.accent}`,
                       textShadow: active ? "none" : "0 1px 0 rgba(255,255,255,0.75)",
-                      boxShadow: active ? "0 14px 34px rgba(11,60,93,0.22)" : `0 8px 18px color-mix(in srgb, ${tone.accent} 18%, transparent)`,
+                      boxShadow: active ? "0 14px 34px rgba(0,56,105,0.22)" : `0 8px 18px color-mix(in srgb, ${tone.accent} 18%, transparent)`,
                     }}
                   >
                     {entry.label ?? entry.state}
@@ -203,13 +203,13 @@ export default function NigeriaPolicyMap({
                 className="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 text-center"
                 style={{ left: `${entry.capitalX}%`, top: `${entry.capitalY}%` }}
               >
-                <div className="mx-auto mb-1 flex h-2.5 w-2.5 items-center justify-center rounded-full border border-[#0b3c5d]/60 bg-white shadow-sm">
-                  <div className="h-1 w-1 rounded-full bg-[#0b3c5d]" />
+                <div className="mx-auto mb-1 flex h-2.5 w-2.5 items-center justify-center rounded-full border border-[#003869]/60 bg-white shadow-sm">
+                  <div className="h-1 w-1 rounded-full bg-[#003869]" />
                 </div>
               </div>
             ))}
             {hoveredState && !compact ? (
-              <div className="pointer-events-none absolute right-[3%] top-[4%] hidden w-[220px] rounded-[1.25rem] border border-white/70 bg-white/92 p-4 text-left shadow-[0_18px_50px_rgba(11,60,93,0.14)] backdrop-blur md:block">
+              <div className="pointer-events-none absolute right-[3%] top-[4%] hidden w-[220px] rounded-[1.25rem] border border-white/70 bg-white/92 p-4 text-left shadow-[0_18px_50px_rgba(0,56,105,0.14)] backdrop-blur md:block">
                 {(() => {
                   const entry = LABEL_POINTS.find((item) => item.state === hoveredState);
                   const item = scoreMap.get(hoveredState) ?? { state: hoveredState, score: null, policies: 0 };

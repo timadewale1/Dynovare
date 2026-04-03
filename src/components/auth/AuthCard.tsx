@@ -15,9 +15,9 @@ export default function AuthCard({
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,#d9edf2_0%,#f6fbfd_38%,#ffffff_100%)] px-4 py-10">
       <div className="mx-auto grid min-h-[calc(100vh-5rem)] max-w-6xl gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-        <div className="hidden rounded-[2.25rem] bg-[linear-gradient(135deg,#081f30_0%,#103851_52%,#125669_100%)] p-10 text-white shadow-[0_30px_90px_rgba(8,31,48,0.18)] lg:flex lg:flex-col lg:justify-between">
+        <div className="hidden rounded-[2.25rem] bg-[linear-gradient(135deg,#001b33_0%,#002c52_52%,#0073d1_100%)] p-10 text-white shadow-[0_30px_90px_rgba(0,56,105,0.18)] lg:flex lg:flex-col lg:justify-between">
           <div>
-            <DynovareLogo size={38} />
+            <DynovareLogo size={38} variant="white" />
             <p className="mt-8 text-xs uppercase tracking-[0.22em] text-white/70">Policy intelligence workspace</p>
             <h1 className="mt-4 text-4xl font-black leading-[0.98]">
               Research, draft, critique, simulate, and export from one place.
@@ -43,7 +43,7 @@ export default function AuthCard({
         </div>
 
         <div className="flex items-center justify-center">
-          <div className="premium-card w-full max-w-xl rounded-[2rem] p-8 shadow-[0_24px_70px_rgba(11,60,93,0.12)]">
+          <div className="premium-card w-full max-w-xl rounded-[2rem] p-8 shadow-[0_24px_70px_rgba(0,56,105,0.12)]">
             <div className="mb-6 lg:hidden">
               <DynovareLogo size={34} />
             </div>

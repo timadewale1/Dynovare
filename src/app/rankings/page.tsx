@@ -60,7 +60,7 @@ function RankingFilters({
   return (
     <Card className="premium-card rounded-[2rem] p-5">
       <div className="mb-4 flex items-center gap-2">
-        <Filter size={16} className="text-[#125669]" />
+        <Filter size={16} className="text-[#0073d1]" />
         <p className="font-bold text-blue-deep">Filters</p>
       </div>
 
@@ -69,7 +69,7 @@ function RankingFilters({
           <p className="mb-2 text-sm font-medium">Search</p>
           <div className="flex gap-2">
             <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search title, state, domain..." />
-            <Button onClick={load} className="rounded-full bg-[#125669] hover:bg-[#0f4b5d]">Search</Button>
+            <Button onClick={load} className="rounded-full bg-[#0073d1] hover:bg-[#003869]">Search</Button>
           </div>
         </div>
 
@@ -245,7 +245,7 @@ function PublicRankingsView() {
         <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
           <Card className="premium-card rounded-[2rem] p-6">
             <div className="flex items-center gap-3">
-              <div className="rounded-2xl bg-[rgba(18,86,105,0.09)] p-3 text-[#125669]">
+              <div className="rounded-2xl bg-[rgba(0,115,209,0.09)] p-3 text-[#0073d1]">
                 <Trophy size={24} />
               </div>
               <div>
@@ -258,7 +258,7 @@ function PublicRankingsView() {
             </div>
           </Card>
 
-          <Card className="rounded-[2rem] bg-[linear-gradient(135deg,#0b2336_0%,#125669_100%)] p-6 text-white shadow-sm">
+          <Card className="rounded-[2rem] bg-[linear-gradient(135deg,#00223f_0%,#0073d1_100%)] p-6 text-white shadow-sm">
             <p className="text-xs uppercase tracking-[0.22em] text-white/70">Snapshot</p>
               <div className="mt-4 grid grid-cols-3 gap-3">
               <div className="min-w-0">
@@ -359,7 +359,7 @@ function InternalRankingsView() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <section className="overflow-hidden rounded-[2.25rem] bg-[linear-gradient(135deg,#081f30_0%,#103851_52%,#125669_100%)] p-8 text-white shadow-[0_30px_90px_rgba(8,31,48,0.16)]">
+        <section className="overflow-hidden rounded-[2.25rem] bg-[linear-gradient(135deg,#001b33_0%,#002c52_52%,#0073d1_100%)] p-8 text-white shadow-[0_30px_90px_rgba(0,56,105,0.16)]">
           <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
             <div>
               <Badge variant="outline" className="border-white/20 bg-white/10 text-white">Workspace intelligence</Badge>
@@ -401,7 +401,7 @@ function InternalRankingsView() {
                 <p className="text-xs uppercase tracking-[0.22em] text-[var(--text-secondary)]">National map</p>
                 <h2 className="mt-2 text-xl font-black text-blue-deep">Find where performance is strongest and where gaps remain</h2>
               </div>
-              <MapPinned className="text-[#125669]" />
+              <MapPinned className="text-[#0073d1]" />
             </div>
             <div className="mt-5">
               <NigeriaPolicyMap
@@ -414,7 +414,7 @@ function InternalRankingsView() {
 
           <Card className="premium-card rounded-[2rem] p-6">
             <div className="flex items-center gap-3">
-              <div className="rounded-2xl bg-[rgba(18,86,105,0.09)] p-3 text-[#125669]">
+              <div className="rounded-2xl bg-[rgba(0,115,209,0.09)] p-3 text-[#0073d1]">
                 <ShieldCheck size={20} />
               </div>
               <div>
