@@ -128,7 +128,7 @@ export default function Home() {
             </div>
 
             <div className="grid gap-4">
-              <Card className="pulse-glow rounded-[2rem] bg-[linear-gradient(135deg,#091a28_0%,#0d4760_46%,#178e83_100%)] p-6 text-white shadow-xl">
+              <Card className="pulse-glow rounded-[2rem] bg-[linear-gradient(135deg,#001b33_0%,#002c52_52%,#0073d1_100%)] p-6 text-white shadow-xl">
                 <p className="text-xs uppercase tracking-[0.22em] text-white/70">Your workflow</p>
                 <div className="mt-5 grid gap-3 sm:grid-cols-2">
                   {[
