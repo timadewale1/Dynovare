@@ -14,7 +14,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Dynovare",
   description: "AI policy intelligence for drafting, critique, simulation, and public energy policy analysis.",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://dynovare.web.app"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://dynovare.vercel.app"),
   applicationName: "Dynovare",
   manifest: "/manifest.webmanifest",
   openGraph: {
