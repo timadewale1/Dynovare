@@ -285,7 +285,7 @@ export default function Home() {
               }}
             >
               <div className="relative flex h-full flex-col justify-end">
-                <div className="rounded-[1.6rem] border border-white/12 bg-[rgba(0,35,63,0.48)] p-5 backdrop-blur-sm">
+                <div className="rounded-[1.6rem] border border-white/12 bg-[rgba(0,35,63,0.65)] p-5 backdrop-blur-sm">
                   <p className="text-xs uppercase tracking-[0.22em] text-white/70">Private workspace</p>
                   <h2 className="mt-3 max-w-xl text-[1.9rem] tracking-tight text-white md:text-[2.4rem]">
                     Draft privately, pressure-test carefully, and export only when the policy is ready.
