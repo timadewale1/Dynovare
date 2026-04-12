@@ -34,7 +34,7 @@ const HERO_IMAGE =
 const DISCOVERY_IMAGE =
   "https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=1400&q=80";
 const WORKFLOW_IMAGE =
-  "https://images.unsplash.com/photo-1521618755572-1f6c7d3f6d01?auto=format&fit=crop&w=1400&q=80";
+  "https://unsplash.com/photos/a-group-of-light-bulbs-sitting-on-top-of-a-blue-table-EQyGa5mOjyc?auto=format&fit=crop&w=1400&q=80";
 
 function SectionHeader({ kicker, title, subtitle }: { kicker: string; title: string; subtitle: string }) {
   return (
