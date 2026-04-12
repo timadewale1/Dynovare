@@ -34,7 +34,7 @@ const HERO_IMAGE =
 const DISCOVERY_IMAGE =
   "https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=1400&q=80";
 const WORKFLOW_IMAGE =
-  "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1400&q=80";
+  "https://images.unsplash.com/photo-1542744173-05336fcc7ad4?q=80&w=1400&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
 
 function SectionHeader({ kicker, title, subtitle }: { kicker: string; title: string; subtitle: string }) {
   return (
