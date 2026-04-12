@@ -99,6 +99,9 @@ export default function PolicyDetailPage() {
     return policy.jurisdictionLevel === "federal" ? "Federal" : policy.state;
   }, [policy]);
 
+  const latestCritique = critiques[0] ?? null;
+  const latestSimulation = simulations[0] ?? null;
+
   const saveDraft = async () => {
     if (!user || !policy) return;
 
@@ -365,6 +368,67 @@ export default function PolicyDetailPage() {
                         <Download size={15} />
                         {downloadingOriginal ? "Preparing original..." : "Open original file"}
                       </Button>
+                    ) : null}
+                  </div>
+                </Card>
+
+                <Card className="rounded-[2rem] border-white/70 bg-white/90 p-6 shadow-sm">
+                  <h2 className="text-xl font-black text-blue-deep">Export preview</h2>
+                  <p className="mt-2 text-sm text-[var(--text-secondary)]">
+                    The styled PDF uses an A4 layout with a cover page, justified body text, highlighted actions, critique insight, simulation visuals, and appended references.
+                  </p>
+
+                  <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                    <div className="rounded-[1.25rem] border bg-slate-50 p-4">
+                      <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-secondary)]">Sections</p>
+                      <p className="mt-2 text-2xl font-black text-blue-deep">{sections.length}</p>
+                    </div>
+                    <div className="rounded-[1.25rem] border bg-slate-50 p-4">
+                      <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-secondary)]">Evidence links</p>
+                      <p className="mt-2 text-2xl font-black text-blue-deep">{policy.aiEvidence?.length ?? 0}</p>
+                    </div>
+                    <div className="rounded-[1.25rem] border bg-slate-50 p-4">
+                      <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-secondary)]">Latest critique</p>
+                      <p className="mt-2 text-2xl font-black text-blue-deep">
+                        {typeof latestCritique?.overallScore === "number" ? `${latestCritique.overallScore}/100` : "-"}
+                      </p>
+                    </div>
+                    <div className="rounded-[1.25rem] border bg-slate-50 p-4">
+                      <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-secondary)]">Scenario chart</p>
+                      <p className="mt-2 text-sm font-semibold text-blue-deep">
+                        {Array.isArray(latestSimulation?.outputs?.yearByYear) && latestSimulation.outputs.yearByYear.length > 0
+                          ? "Included from latest simulation"
+                          : "Added when year-by-year data exists"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 space-y-3">
+                    {latestCritique?.executiveVerdict ? (
+                      <div className="rounded-[1.25rem] border bg-[rgba(0,115,209,0.05)] p-4">
+                        <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-secondary)]">Cover highlight</p>
+                        <p className="mt-2 text-sm text-blue-deep">{latestCritique.executiveVerdict}</p>
+                      </div>
+                    ) : null}
+
+                    {Array.isArray(latestCritique?.priorityActions) && latestCritique.priorityActions.length > 0 ? (
+                      <div className="rounded-[1.25rem] border bg-slate-50 p-4">
+                        <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-secondary)]">Highlighted actions</p>
+                        <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-[var(--text-secondary)]">
+                          {latestCritique.priorityActions.slice(0, 3).map((item: string, index: number) => (
+                            <li key={index}>{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
+
+                    {policy.aiEvidence?.length ? (
+                      <div className="rounded-[1.25rem] border bg-slate-50 p-4">
+                        <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-secondary)]">References appendix</p>
+                        <p className="mt-2 text-sm text-[var(--text-secondary)]">
+                          The export appends your AI evidence links and the latest critique or simulation references in a dedicated references section.
+                        </p>
+                      </div>
                     ) : null}
                   </div>
                 </Card>

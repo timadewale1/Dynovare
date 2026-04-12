@@ -24,9 +24,9 @@ export default function PublicNavbar() {
   const repoHref = user ? "/repository" : "/public/policies";
 
   return (
-    <header className="sticky top-0 z-50 w-full max-w-full overflow-x-clip border-b border-white/50 bg-[rgba(248,251,254,0.84)] backdrop-blur-2xl">
-      <div className="mx-auto max-w-7xl overflow-x-clip px-4">
-        <div className="flex h-16 items-center justify-between gap-3">
+    <header className="sticky top-0 z-50 w-full max-w-full overflow-x-clip border-b border-white/50 bg-[rgba(248,251,254,0.9)] backdrop-blur-2xl">
+      <div className="mx-auto max-w-7xl overflow-x-clip px-5 md:px-8 lg:px-10">
+        <div className="flex h-[4.5rem] items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-3">
             <DynovareLogo size={30} />
           </Link>
@@ -36,7 +36,7 @@ export default function PublicNavbar() {
               <Link
                 key={`${link.label}-${link.href}`}
                 href={link.href === "/public/policies" ? repoHref : link.href}
-                className="rounded-full px-3 py-2 text-sm font-semibold text-blue-deep transition hover:bg-[rgba(0,115,209,0.08)] hover:text-[#0073d1]"
+                className="rounded-full px-3 py-2 text-[13px] font-semibold text-blue-deep transition hover:bg-[rgba(0,115,209,0.08)] hover:text-[#0073d1]"
               >
                 {link.label}
               </Link>
@@ -46,10 +46,10 @@ export default function PublicNavbar() {
           <div className="hidden items-center gap-2 md:flex">
             <PwaInstallButton className="rounded-full" />
             <Link href="/login">
-              <Button variant="outline" className="rounded-full">Login</Button>
+              <Button variant="outline" className="rounded-full text-[13px]">Login</Button>
             </Link>
             <Link href="/register">
-              <Button className="rounded-full bg-[#0073d1] shadow-[0_16px_32px_rgba(0,115,209,0.24)] hover:bg-[#003869]">Create account</Button>
+              <Button className="rounded-full bg-[#0073d1] text-[13px] shadow-[0_16px_32px_rgba(0,115,209,0.24)] hover:bg-[#003869]">Create account</Button>
             </Link>
           </div>
 
@@ -64,14 +64,14 @@ export default function PublicNavbar() {
         </div>
 
         {open ? (
-          <div className="pb-4 md:hidden">
+          <div className="pb-5 md:hidden">
             <div className="grid gap-2">
               {NAV_LINKS.map((link) => (
                 <Link
                   key={`${link.label}-${link.href}`}
                   href={link.href === "/public/policies" ? repoHref : link.href}
                   onClick={() => setOpen(false)}
-                  className="rounded-2xl px-3 py-3 text-sm font-semibold text-blue-deep transition hover:bg-[rgba(0,115,209,0.08)]"
+                  className="rounded-2xl px-4 py-3 text-sm font-semibold text-blue-deep transition hover:bg-[rgba(0,115,209,0.08)]"
                 >
                   {link.label}
                 </Link>

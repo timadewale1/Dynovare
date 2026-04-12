@@ -18,6 +18,7 @@ import NigeriaPolicyMap from "@/components/public/NigeriaPolicyMap";
 import { fetchWorkspacePolicies } from "@/lib/workspacePolicies";
 import { importPublicPolicyToWorkspace } from "@/lib/policyWrites";
 import toast from "react-hot-toast";
+import ListPagination from "@/components/ui/ListPagination";
 
 type RankingItem = {
   id: string;
@@ -139,13 +140,21 @@ function RankingList({
   router,
   internal = false,
   onApply,
+  page,
+  onPageChange,
 }: {
   items: RankingItem[];
   loading: boolean;
   router: any;
   internal?: boolean;
   onApply?: (item: RankingItem) => void;
+  page: number;
+  onPageChange: (page: number) => void;
 }) {
+  const PAGE_SIZE = 5;
+  const totalPages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
+  const pagedItems = items.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
   return (
     <Card className="premium-card rounded-[2rem] p-4">
       {loading ? (
@@ -154,12 +163,12 @@ function RankingList({
         <p className="text-sm text-[var(--text-secondary)]">No rankings match your filters.</p>
       ) : (
         <div className="space-y-3">
-          {items.map((item, index) => (
+          {pagedItems.map((item, index) => (
             <div key={item.id} className="rounded-[1.5rem] border bg-white/80 p-4 transition hover:-translate-y-0.5 hover:shadow-sm">
               <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <Badge variant="secondary">#{index + 1}</Badge>
+                    <Badge variant="secondary">#{(page - 1) * PAGE_SIZE + index + 1}</Badge>
                     <p className="max-w-[560px] truncate font-bold text-blue-deep">{item.title ?? "Untitled policy"}</p>
                     {item.jurisdictionLevel ? <Badge variant="outline">{item.jurisdictionLevel === "federal" ? "Federal" : item.state ?? "State"}</Badge> : null}
                     {item.energySource ? <Badge variant="outline">{policyEnergySourceLabel(item.energySource)}</Badge> : null}
@@ -197,6 +206,14 @@ function RankingList({
           ))}
         </div>
       )}
+      <ListPagination
+        page={page}
+        totalPages={totalPages}
+        totalItems={items.length}
+        pageSize={PAGE_SIZE}
+        itemLabel="ranked policies"
+        onPageChange={onPageChange}
+      />
     </Card>
   );
 }
@@ -211,6 +228,7 @@ function PublicRankingsView() {
   const [energySource, setEnergySource] = useState("all");
   const [domain, setDomain] = useState("all");
   const [sortBy, setSortBy] = useState("avg");
+  const [page, setPage] = useState(1);
 
   const load = async () => {
     setLoading(true);
@@ -224,6 +242,10 @@ function PublicRankingsView() {
   useEffect(() => {
     void load();
   }, [jurisdiction, stateFilter, energySource, domain, sortBy]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [jurisdiction, stateFilter, energySource, domain, sortBy, search, items.length]);
 
   const summary = useMemo(() => {
     const avgRows = items.filter((item) => typeof item.avgOverallScore === "number");
@@ -293,7 +315,7 @@ function PublicRankingsView() {
             setSortBy={setSortBy}
             load={load}
           />
-          <RankingList items={items} loading={loading} router={router} />
+          <RankingList items={items} loading={loading} router={router} page={page} onPageChange={setPage} />
         </div>
       </main>
 
@@ -315,6 +337,7 @@ function InternalRankingsView() {
   const [energySource, setEnergySource] = useState("all");
   const [domain, setDomain] = useState("all");
   const [sortBy, setSortBy] = useState("avg");
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
 
   const load = async () => {
@@ -338,6 +361,10 @@ function InternalRankingsView() {
   useEffect(() => {
     void load();
   }, [user, jurisdiction, stateFilter, energySource, domain, sortBy]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [jurisdiction, stateFilter, energySource, domain, sortBy, search, items.length]);
 
   const applyToWorkspace = async (item: RankingItem) => {
     if (!user) return;
@@ -407,6 +434,7 @@ function InternalRankingsView() {
               <NigeriaPolicyMap
                 scores={insights?.stateScores ?? []}
                 compact
+                showHoverCard
                 onSelectState={(state) => router.push(`/repository?jurisdictionLevel=state&state=${encodeURIComponent(state)}`)}
               />
             </div>
@@ -463,7 +491,7 @@ function InternalRankingsView() {
           </Button>
         </div>
 
-        <RankingList items={items} loading={loading} router={router} internal onApply={applyToWorkspace} />
+        <RankingList items={items} loading={loading} router={router} internal onApply={applyToWorkspace} page={page} onPageChange={setPage} />
       </div>
     </DashboardLayout>
   );

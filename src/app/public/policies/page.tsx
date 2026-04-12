@@ -16,6 +16,7 @@ import { useUser } from "@/components/providers/UserProvider";
 import { importPublicPolicyToWorkspace } from "@/lib/policyWrites";
 import toast from "react-hot-toast";
 import { POLICY_DOMAINS, POLICY_ENERGY_SOURCES, policyDomainLabel, policyEnergySourceLabel } from "@/lib/policyTaxonomy";
+import ListPagination from "@/components/ui/ListPagination";
 
 type PublicPolicy = {
   id: string;
@@ -36,6 +37,7 @@ type PublicPolicy = {
 };
 
 function PublicPoliciesPageContent() {
+  const PAGE_SIZE = 5;
   const router = useRouter();
   const { user, profile } = useUser();
   const searchParams = useSearchParams();
@@ -52,6 +54,7 @@ function PublicPoliciesPageContent() {
   const [policies, setPolicies] = useState<PublicPolicy[]>([]);
   const [error, setError] = useState("");
   const [importingId, setImportingId] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
 
   const load = async () => {
     setLoading(true);
@@ -84,12 +87,22 @@ function PublicPoliciesPageContent() {
     void load();
   }, [jurisdictionFilter, stateFilter, typeFilter, energySourceFilter, domainFilter, yearFilter]);
 
+  useEffect(() => {
+    setPage(1);
+  }, [jurisdictionFilter, stateFilter, typeFilter, energySourceFilter, domainFilter, yearFilter, search, policies.length]);
+
   const emptyText = useMemo(() => {
     if (error) return error;
     if (loading) return "Loading public policies...";
     if (policies.length === 0) return "No public policies match this filter.";
     return "";
   }, [error, loading, policies.length]);
+
+  const totalPages = Math.max(1, Math.ceil(policies.length / PAGE_SIZE));
+  const pagedPolicies = useMemo(
+    () => policies.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+    [page, policies]
+  );
 
   const addToWorkspace = async (policyId: string) => {
     if (!user) {
@@ -274,7 +287,7 @@ function PublicPoliciesPageContent() {
             <p className="text-sm text-[var(--text-secondary)]">{emptyText}</p>
           ) : (
             <div className="space-y-3">
-              {policies.map((p) => (
+              {pagedPolicies.map((p) => (
                 <div key={p.id} className="border rounded-2xl p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                   <div className="min-w-0 max-w-full">
                     <div className="flex items-center gap-2 flex-wrap">
@@ -302,6 +315,14 @@ function PublicPoliciesPageContent() {
               ))}
             </div>
           )}
+          <ListPagination
+            page={page}
+            totalPages={totalPages}
+            totalItems={policies.length}
+            pageSize={PAGE_SIZE}
+            itemLabel="policies"
+            onPageChange={setPage}
+          />
         </Card>
 
         <div className="mt-8 flex items-center justify-between gap-3 flex-wrap">

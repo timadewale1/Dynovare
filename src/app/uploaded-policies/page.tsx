@@ -13,6 +13,7 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import { ArrowRight, Trash2, Upload } from "lucide-react";
 import { useRouter } from "next/navigation";
+import ListPagination from "@/components/ui/ListPagination";
 
 type UploadedPolicyRow = {
   id: string;
@@ -27,11 +28,13 @@ type UploadedPolicyRow = {
 };
 
 export default function UploadedPoliciesPage() {
+  const PAGE_SIZE = 5;
   const { user } = useUser();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<UploadedPolicyRow[]>([]);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     const load = async () => {
@@ -62,6 +65,13 @@ export default function UploadedPoliciesPage() {
 
     void load();
   }, [user]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [items.length]);
+
+  const totalPages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
+  const pagedItems = items.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   const handleDelete = async (policyId: string) => {
     if (!user) return;
@@ -106,7 +116,7 @@ export default function UploadedPoliciesPage() {
             <p className="text-sm text-[var(--text-secondary)]">You have not added any workspace policies yet.</p>
           ) : (
             <div className="space-y-3">
-              {items.map((p) => (
+              {pagedItems.map((p) => (
                 <div key={p.id} className="flex items-start justify-between gap-3 rounded-2xl border bg-white/90 p-4 transition hover:bg-blue-soft">
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-3">
@@ -142,6 +152,14 @@ export default function UploadedPoliciesPage() {
               ))}
             </div>
           )}
+          <ListPagination
+            page={page}
+            totalPages={totalPages}
+            totalItems={items.length}
+            pageSize={PAGE_SIZE}
+            itemLabel="policies"
+            onPageChange={setPage}
+          />
         </Card>
       </DashboardLayout>
     </ProtectedRoute>

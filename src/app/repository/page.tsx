@@ -15,6 +15,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useUser } from "@/components/providers/UserProvider";
 import { importPublicPolicyToWorkspace } from "@/lib/policyWrites";
 import toast from "react-hot-toast";
+import ListPagination from "@/components/ui/ListPagination";
 
 type PublicPolicy = {
   id: string;
@@ -34,6 +35,7 @@ type PublicPolicy = {
 };
 
 function RepositoryPageContent() {
+  const PAGE_SIZE = 5;
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, profile } = useUser();
@@ -49,6 +51,7 @@ function RepositoryPageContent() {
   const [policies, setPolicies] = useState<PublicPolicy[]>([]);
   const [importingId, setImportingId] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [page, setPage] = useState(1);
 
   const load = async () => {
     setLoading(true);
@@ -80,12 +83,22 @@ function RepositoryPageContent() {
     void load();
   }, [jurisdictionFilter, stateFilter, energySourceFilter, domainFilter, yearFilter]);
 
+  useEffect(() => {
+    setPage(1);
+  }, [jurisdictionFilter, stateFilter, energySourceFilter, domainFilter, yearFilter, search, policies.length]);
+
   const emptyText = useMemo(() => {
     if (error) return error;
     if (loading) return "Loading public repository...";
     if (policies.length === 0) return "No public policies match this filter.";
     return "";
   }, [error, loading, policies.length]);
+
+  const totalPages = Math.max(1, Math.ceil(policies.length / PAGE_SIZE));
+  const pagedPolicies = useMemo(
+    () => policies.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+    [page, policies]
+  );
 
   const importPolicy = async (policyId: string) => {
     if (!user) return;
@@ -229,7 +242,7 @@ function RepositoryPageContent() {
               <p className="text-sm text-[var(--text-secondary)]">{emptyText}</p>
             ) : (
               <div className="space-y-3">
-                {policies.map((policy) => (
+                {pagedPolicies.map((policy) => (
                   <div key={policy.id} className="rounded-[1.5rem] border bg-white/85 p-4">
                     <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
                       <div className="min-w-0">
@@ -281,6 +294,14 @@ function RepositoryPageContent() {
                 ))}
               </div>
             )}
+            <ListPagination
+              page={page}
+              totalPages={totalPages}
+              totalItems={policies.length}
+              pageSize={PAGE_SIZE}
+              itemLabel="policies"
+              onPageChange={setPage}
+            />
           </Card>
         </div>
       </DashboardLayout>

@@ -11,11 +11,11 @@ export default function PublicFooter() {
 
   return (
     <footer className="mt-20 w-full max-w-full overflow-x-clip border-t border-[#d8e6ec] bg-[linear-gradient(180deg,#00223f_0%,#002c52_40%,#0073d1_100%)] text-white">
-      <div className="mx-auto max-w-7xl overflow-x-clip px-4 py-16">
-        <div className="grid gap-10 md:grid-cols-[1.3fr_0.9fr_0.9fr_1fr]">
+      <div className="mx-auto max-w-7xl overflow-x-clip px-6 py-18 md:px-8 lg:px-10">
+        <div className="grid gap-12 md:grid-cols-[1.3fr_0.9fr_0.9fr_1fr]">
           <div>
             <DynovareLogo variant="white" />
-            <p className="mt-4 max-w-sm text-sm text-white/72">
+            <p className="mt-4 max-w-sm text-sm leading-7 text-white/72">
               Find public policy signals, sharpen private drafts, and move faster from idea to decision-ready policy output.
             </p>
             <div className="mt-5 flex flex-wrap gap-2">
@@ -25,7 +25,7 @@ export default function PublicFooter() {
             </div>
           </div>
 
-          <div className="space-y-2 text-sm">
+          <div className="space-y-3 text-sm">
             <p className="font-semibold text-white">Explore</p>
             <Link href={repoHref} className="block text-white/75 transition hover:text-white">Policy repository</Link>
             <Link href="/rankings" className="block text-white/75 transition hover:text-white">Rankings</Link>
@@ -33,7 +33,7 @@ export default function PublicFooter() {
             <Link href="/faq" className="block text-white/75 transition hover:text-white">FAQ</Link>
           </div>
 
-          <div className="space-y-2 text-sm">
+          <div className="space-y-3 text-sm">
             <p className="font-semibold text-white">Workspace</p>
             <Link href="/contact" className="block text-white/75 transition hover:text-white">Contact</Link>
             <Link href="/login" className="block text-white/75 transition hover:text-white">Login</Link>
@@ -41,7 +41,7 @@ export default function PublicFooter() {
             <p className="text-white/60">Sign in to draft, critique, simulate, revise, and export.</p>
           </div>
 
-          <div className="space-y-3 text-sm">
+          <div className="space-y-4 text-sm">
             <p className="font-semibold text-white">Contact signals</p>
             <div className="flex items-start gap-3 text-white/75">
               <Mail size={16} className="mt-0.5" />

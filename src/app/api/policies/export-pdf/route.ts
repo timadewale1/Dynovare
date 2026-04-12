@@ -21,6 +21,29 @@ export async function POST(req: Request) {
     }
 
     const policy = snap.data() as any;
+    const [critiqueSnap, simulationSnap] = await Promise.all([
+      adminDb
+        .collection("users")
+        .doc(ownerUid)
+        .collection("policies")
+        .doc(policyId)
+        .collection("critiques")
+        .orderBy("createdAt", "desc")
+        .limit(1)
+        .get(),
+      adminDb
+        .collection("users")
+        .doc(ownerUid)
+        .collection("policies")
+        .doc(policyId)
+        .collection("simulations")
+        .orderBy("createdAt", "desc")
+        .limit(1)
+        .get(),
+    ]);
+
+    const latestCritique = critiqueSnap.empty ? null : (critiqueSnap.docs[0].data() as any);
+    const latestSimulation = simulationSnap.empty ? null : (simulationSnap.docs[0].data() as any);
     const meta = [
       `Country: ${policy?.country ?? "Nigeria"}`,
       `Jurisdiction: ${policy?.jurisdictionLevel === "state" ? policy?.state ?? "State" : "Federal"}`,
@@ -34,6 +57,10 @@ export async function POST(req: Request) {
       body: policy?.contentText ?? "",
       sections: Array.isArray(policy?.editorSections) ? policy.editorSections : [],
       meta,
+      evidence: Array.isArray(policy?.aiEvidence) ? policy.aiEvidence : [],
+      guidance: policy?.aiGuidance ?? null,
+      critique: latestCritique,
+      simulation: latestSimulation,
     });
 
     return new NextResponse(Buffer.from(pdfBytes), {

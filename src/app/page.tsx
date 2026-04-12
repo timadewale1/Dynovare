@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ArrowRight,
   BarChart3,
@@ -24,22 +24,24 @@ import { useUser } from "@/components/providers/UserProvider";
 import PwaInstallPrompt from "@/components/branding/PwaInstallPrompt";
 
 type PublicInsights = {
-  totals: {
-    policies: number;
-    critiques: number;
-    averageScore: number | null;
-  };
   leaderboard: { rank: number; title: string; slug: string | null; score: number; state: string | null }[];
   stateLeaderboard: { state: string; score: number | null; policies: number }[];
   stateScores: { state: string; score: number | null; policies: number }[];
 };
 
+const HERO_IMAGE =
+  "https://images.unsplash.com/photo-1466611653911-95081537e5b7?auto=format&fit=crop&w=1800&q=80";
+const DISCOVERY_IMAGE =
+  "https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=1400&q=80";
+const WORKFLOW_IMAGE =
+  "https://images.unsplash.com/photo-1521618755572-1f6c7d3f6d01?auto=format&fit=crop&w=1400&q=80";
+
 function SectionHeader({ kicker, title, subtitle }: { kicker: string; title: string; subtitle: string }) {
   return (
     <div className="max-w-3xl">
       <p className="text-xs uppercase tracking-[0.22em] text-[var(--text-secondary)]">{kicker}</p>
-      <h2 className="mt-3 text-2xl font-black tracking-tight text-blue-deep md:text-4xl">{title}</h2>
-      <p className="mt-3 text-base text-[var(--text-secondary)] md:text-lg">{subtitle}</p>
+      <h2 className="mt-3 text-[1.85rem] tracking-tight text-blue-deep md:text-[2.4rem]">{title}</h2>
+      <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--text-secondary)] md:text-base">{subtitle}</p>
     </div>
   );
 }
@@ -67,156 +69,133 @@ export default function Home() {
     };
   }, []);
 
+  const repoHref = user ? "/repository" : "/public/policies";
+  const policyLeaderboard = useMemo(() => (insights?.leaderboard ?? []).slice(0, 3), [insights]);
+  const stateLeaderboard = useMemo(() => (insights?.stateLeaderboard ?? []).slice(0, 3), [insights]);
   const stateScores = insights?.stateScores ?? [];
-  const policyLeaderboard = (insights?.leaderboard ?? []).slice(0, 3);
-  const stateLeaderboard = (insights?.stateLeaderboard ?? []).slice(0, 3);
 
   return (
-    <div className="min-h-screen w-full max-w-full overflow-x-clip bg-[radial-gradient(circle_at_top,#d9edf2_0%,#f6fbfd_38%,#ffffff_100%)]">
+    <div className="min-h-screen w-full max-w-full overflow-x-clip bg-[linear-gradient(180deg,#f6fbff_0%,#f8fbfe_34%,#ffffff_100%)]">
       <PublicNavbar />
       <PwaInstallPrompt />
 
-      <main>
-        <section className="relative overflow-hidden">
-          <div className="pointer-events-none absolute left-0 top-16 h-72 w-72 -translate-x-1/2 rounded-full bg-[#8bd7c7]/22 blur-3xl" />
-          <div className="pointer-events-none absolute right-0 top-14 h-80 w-80 translate-x-1/3 rounded-full bg-[#8fc7ff]/24 blur-3xl" />
+      <main className="pb-12">
+        <section className="relative min-h-[calc(100vh-4rem)] overflow-hidden">
+          <div
+            className="absolute inset-0 hero-overlay-card"
+            style={{
+              backgroundImage: `linear-gradient(180deg, rgba(0, 56, 105, 0.86) 0%, rgba(0, 56, 105, 0.8) 38%, rgba(0, 56, 105, 0.72) 100%), url(${HERO_IMAGE})`,
+            }}
+          />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.12),transparent_28%)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,56,105,0.36)_0%,rgba(0,56,105,0.16)_44%,transparent_100%)]" />
 
-          <div className="relative mx-auto grid max-w-7xl gap-10 px-4 py-14 lg:grid-cols-[1.08fr_0.92fr] lg:items-start">
-            <div className="fade-up">
+          <div className="relative mx-auto flex min-h-[calc(100vh-4rem)] max-w-7xl items-end px-6 pb-16 pt-14 md:px-10 md:pb-20 lg:px-16">
+            <div className="max-w-3xl">
               <div className="flex flex-wrap gap-2">
-                <Badge variant="outline" className="rounded-full bg-white/80">Grant-ready policy intelligence</Badge>
-                <Badge variant="outline" className="rounded-full bg-white/80">Nigeria-first energy transition workflows</Badge>
+                <Badge variant="outline" className="rounded-full border-white/18 bg-white/10 text-white backdrop-blur">
+                  Nigeria-first policy intelligence
+                </Badge>
+                <Badge variant="outline" className="rounded-full border-white/18 bg-white/10 text-white backdrop-blur">
+                  Private drafting workspace
+                </Badge>
               </div>
 
-              <h1 className="mt-6 max-w-5xl text-4xl font-black leading-[0.94] tracking-tight text-blue-deep md:text-6xl">
-                Build sharper energy policy with evidence, critique, simulation, and export-ready design.
+              <h1 className="mt-7 max-w-3xl text-3xl leading-[0.97] tracking-tight text-white md:text-[4.25rem]">
+                Build stronger energy policy with real signals, sharper critique, and decision-ready export.
               </h1>
 
-              <p className="mt-6 max-w-2xl text-lg text-[var(--text-secondary)]">
-                Explore public policy signals across Nigeria, compare state performance, draft stronger interventions, test assumptions,
-                and export polished policy documents your team can actually use.
+              <p className="mt-6 max-w-2xl text-sm leading-8 text-white/84 md:text-lg">
+                Explore public policy patterns across Nigeria, draft inside a private studio, run critique and simulation,
+                and export a polished document when the work is ready to move.
               </p>
 
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Button asChild size="lg" className="rounded-full bg-[#0073d1] shadow-[0_18px_40px_rgba(0,115,209,0.22)] hover:bg-[#003869]">
-                  <Link href={user ? "/repository" : "/public/policies"}>
+              <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+                <Button asChild size="lg" className="rounded-full bg-white text-blue-deep hover:bg-white/92">
+                  <Link href={repoHref}>
                     Explore repository <ArrowRight size={16} className="ml-2" />
                   </Link>
                 </Button>
-                <Button asChild size="lg" variant="outline" className="rounded-full bg-white/80">
+                <Button
+                  asChild
+                  size="lg"
+                  variant="outline"
+                  className="rounded-full border-white/24 bg-transparent text-white hover:bg-white/10"
+                >
                   <Link href="/register">Open private workspace</Link>
                 </Button>
               </div>
+            </div>
+          </div>
+        </section>
 
-              <div className="mt-8 grid gap-4 sm:grid-cols-3">
-                <Card className="premium-card rounded-[1.75rem] p-5">
-                  <p className="text-sm text-[var(--text-secondary)]">Public policies</p>
-                  <p className="mt-2 text-3xl font-black text-blue-deep">{insights?.totals.policies ?? 0}</p>
-                  <p className="text-sm text-[var(--text-secondary)]">Browse the live repository faster</p>
-                </Card>
-                <Card className="premium-card rounded-[1.75rem] p-5">
-                  <p className="text-sm text-[var(--text-secondary)]">Average score</p>
-                  <p className="mt-2 text-3xl font-black text-blue-deep">{insights?.totals.averageScore ? `${insights.totals.averageScore}/100` : "-"}</p>
-                  <p className="text-sm text-[var(--text-secondary)]">See how strong the leading policies are</p>
-                </Card>
-                <Card className="premium-card rounded-[1.75rem] p-5">
-                  <p className="text-sm text-[var(--text-secondary)]">Public critiques</p>
-                  <p className="mt-2 text-3xl font-black text-blue-deep">{insights?.totals.critiques ?? 0}</p>
-                  <p className="text-sm text-[var(--text-secondary)]">Review signals behind the rankings</p>
-                </Card>
+        <section className="mx-auto max-w-7xl px-6 py-18 md:px-10 lg:px-16">
+          <div className="grid gap-8 lg:grid-cols-[1.02fr_0.98fr]">
+            <div
+              className="hero-overlay-card relative overflow-hidden rounded-[2rem] border border-white/40 p-8 text-white shadow-[0_24px_72px_rgba(0,56,105,0.12)] md:p-10"
+              style={{
+                backgroundImage: `linear-gradient(90deg, rgba(10, 18, 24, 0.76) 0%, rgba(10, 18, 24, 0.48) 40%, rgba(10, 18, 24, 0.12) 100%), url(${DISCOVERY_IMAGE})`,
+                backgroundPosition: "center right",
+              }}
+            >
+              <div className="relative max-w-lg">
+                <p className="text-xs uppercase tracking-[0.22em] text-white/70">Why it matters</p>
+                <h2 className="mt-3 text-[1.9rem] tracking-tight text-white md:text-[2.5rem]">
+                  Strong policy work starts with context, not assumption.
+                </h2>
+                <p className="mt-4 text-sm leading-7 text-white/82 md:text-base">
+                  Use public repository signals, comparative ranking patterns, and geographic context to understand what your next draft should respond to before you write.
+                </p>
               </div>
             </div>
 
-            <div className="grid gap-4">
-              <Card className="pulse-glow rounded-[2rem] bg-[linear-gradient(180deg,#00223f_0%,#002c52_40%,#0073d1_100%)] p-6 text-white shadow-xl">
-                <p className="text-xs uppercase tracking-[0.22em] text-white/70">Your workflow</p>
-                <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                  {[
-                    ["Discover", "Browse policy records, compare states, and understand what is already working."],
-                    ["Draft", "Generate or upload documents into an editable in-app policy studio."],
-                    ["Stress-test", "Run critique and simulation before your team commits to a path."],
-                    ["Export", "Download a polished PDF only when the document is ready to share."],
-                  ].map(([title, text]) => (
-                    <div key={title} className="rounded-[1.4rem] bg-white/8 p-4">
-                      <p className="font-bold">{title}</p>
-                      <p className="mt-2 text-sm text-white/76">{text}</p>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-
-              <Card className="premium-card aurora-border rounded-[2rem] p-6">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.22em] text-[var(--text-secondary)]">What you can do here</p>
-                    <h2 className="mt-2 text-xl font-black text-blue-deep">Everything you need to move a policy draft forward.</h2>
+            <Card className="premium-card rounded-[2rem] p-8 md:p-10">
+              <p className="text-xs uppercase tracking-[0.22em] text-[var(--text-secondary)]">What you can do here</p>
+              <div className="mt-6 grid gap-5 sm:grid-cols-2">
+                {[
+                  { icon: <Database className="text-[#0073d1]" size={20} />, title: "Explore public policy", text: "Search the live repository before writing or revising." },
+                  { icon: <FilePenLine className="text-[#0073d1]" size={20} />, title: "Draft in Policy Studio", text: "Work section by section inside a private editable workspace." },
+                  { icon: <Sparkles className="text-[#0073d1]" size={20} />, title: "Run AI critique", text: "See verdicts, risks, and actions that strengthen the policy." },
+                  { icon: <BarChart3 className="text-[#0073d1]" size={20} />, title: "Model likely outcomes", text: "Stress-test assumptions before your team commits." },
+                ].map((item) => (
+                  <div key={item.title} className="rounded-[1.4rem] border bg-slate-50 px-5 py-5">
+                    <div className="inline-flex rounded-2xl bg-[rgba(0,115,209,0.09)] p-3">{item.icon}</div>
+                    <h3 className="mt-4 text-lg text-blue-deep">{item.title}</h3>
+                    <p className="mt-2 text-sm leading-7 text-[var(--text-secondary)]">{item.text}</p>
                   </div>
-                  <Sparkles className="text-[#0073d1]" />
-                </div>
-                <div className="mt-5 grid gap-4 sm:grid-cols-2">
-                  {[
-                    ["Policy repository", "See what already exists before you write, revise, or benchmark your draft."],
-                    ["Policy studio", "Edit section by section, not inside a locked static file."],
-                    ["Critique engine", "Get verdicts, priority actions, risks, and strengths in one pass."],
-                    ["Simulation flow", "Test access, cost, reliability, and delivery risk under different assumptions."],
-                  ].map(([title, text]) => (
-                    <div key={title} className="rounded-[1.4rem] border bg-slate-50 p-4">
-                      <p className="font-bold text-blue-deep">{title}</p>
-                      <p className="mt-2 text-sm text-[var(--text-secondary)]">{text}</p>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-            </div>
+                ))}
+              </div>
+            </Card>
           </div>
         </section>
 
-        <section className="mx-auto max-w-7xl px-4 py-12">
+        <section className="mx-auto max-w-7xl px-6 py-16 md:px-10 lg:px-16">
           <SectionHeader
-            kicker="Product pillars"
-            title="Move from public signal to submission-ready policy work in one place."
-            subtitle="Start with evidence, sharpen the draft, pressure-test the idea, and export a document your team can stand behind."
+            kicker="Public signals"
+            title="A cleaner look at the strongest public policy movement."
+            subtitle="Focus on the leaders first, then dive deeper through the repository or the map."
           />
 
-          <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {[
-              { icon: <Database className="text-[#0073d1]" size={22} />, title: "Public repository", text: "Search energy policy records across federal and state contexts." },
-              { icon: <Scale className="text-[#0073d1]" size={22} />, title: "Rankings intelligence", text: "Spot strong policies, score movement, and review-backed performance." },
-              { icon: <FilePenLine className="text-[#0073d1]" size={22} />, title: "Editable policy studio", text: "Draft, refine, and export from a workspace built for policy writing." },
-              { icon: <ShieldCheck className="text-[#0073d1]" size={22} />, title: "Private workspace", text: "Keep uploads, AI drafts, critiques, and simulations under your account." },
-            ].map((item) => (
-              <Card key={item.title} className="premium-card rounded-[2rem] p-6 transition hover:-translate-y-1">
-                <div className="inline-flex rounded-2xl bg-[rgba(0,115,209,0.09)] p-3">{item.icon}</div>
-                <h3 className="mt-4 text-2xl font-black text-blue-deep">{item.title}</h3>
-                <p className="mt-3 text-sm text-[var(--text-secondary)]">{item.text}</p>
-              </Card>
-            ))}
-          </div>
-        </section>
-
-        <section className="mx-auto max-w-7xl px-4 py-12">
-          <div className="grid gap-5 lg:grid-cols-[1fr_1fr]">
-            <Card className="premium-card rounded-[2rem] p-6">
+          <div className="mt-8 grid gap-8 lg:grid-cols-2">
+            <Card className="premium-card rounded-[2rem] p-8 md:p-10">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.22em] text-[var(--text-secondary)]">Top public policies</p>
-                  <h2 className="mt-2 text-xl font-black text-blue-deep">Live leaderboard</h2>
+                  <p className="text-xs uppercase tracking-[0.2em] text-[var(--text-secondary)]">Top policies</p>
+                  <h3 className="mt-2 text-lg text-blue-deep">Live leaderboard</h3>
                 </div>
                 <Scale className="text-[#0073d1]" />
               </div>
-              <div className="mt-5 space-y-3">
+              <div className="mt-6 space-y-4">
                 {policyLeaderboard.length === 0 ? (
                   <p className="text-sm text-[var(--text-secondary)]">No public ranking data yet.</p>
                 ) : (
                   policyLeaderboard.map((item) => (
-                    <div key={`${item.rank}-${item.title}`} className="rounded-[1.4rem] border bg-white/70 px-4 py-3">
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="min-w-0 flex-1">
-                          <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-secondary)]">#{item.rank}</p>
-                          <p className="truncate font-bold text-blue-deep">{item.title}</p>
-                          <p className="text-sm text-[var(--text-secondary)]">{item.state ?? "Federal"}</p>
-                        </div>
-                        <p className="shrink-0 pl-3 text-right text-[1.85rem] leading-none font-black tabular-nums text-blue-deep">{item.score.toFixed(1)}</p>
+                    <div key={`${item.rank}-${item.title}`} className="rounded-[1.35rem] border bg-white px-5 py-5">
+                      <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-secondary)]">#{item.rank}</p>
+                      <p className="mt-2 line-clamp-2 text-base leading-7 text-blue-deep">{item.title}</p>
+                      <div className="mt-4 flex items-end justify-between gap-3">
+                        <p className="text-sm text-[var(--text-secondary)]">{item.state ?? "Federal"}</p>
+                        <p className="text-xl leading-none text-blue-deep tabular-nums">{item.score.toFixed(1)}</p>
                       </div>
                     </div>
                   ))
@@ -224,15 +203,15 @@ export default function Home() {
               </div>
             </Card>
 
-            <Card className="premium-card rounded-[2rem] p-6">
+            <Card className="premium-card rounded-[2rem] p-8 md:p-10">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.22em] text-[var(--text-secondary)]">Top states</p>
-                  <h2 className="mt-2 text-xl font-black text-blue-deep">State performance snapshot</h2>
+                  <p className="text-xs uppercase tracking-[0.2em] text-[var(--text-secondary)]">Top states</p>
+                  <h3 className="mt-2 text-lg text-blue-deep">State snapshot</h3>
                 </div>
                 <MapPinned className="text-[#0073d1]" />
               </div>
-              <div className="mt-5 space-y-3">
+              <div className="mt-6 space-y-4">
                 {stateLeaderboard.length === 0 ? (
                   <p className="text-sm text-[var(--text-secondary)]">No state-level scores yet.</p>
                 ) : (
@@ -240,15 +219,17 @@ export default function Home() {
                     <button
                       key={item.state}
                       type="button"
-                      onClick={() => window.location.assign(`${user ? "/repository" : "/public/policies"}?jurisdictionLevel=state&state=${encodeURIComponent(item.state)}`)}
-                      className="flex w-full items-center justify-between rounded-[1.4rem] border bg-white/70 px-4 py-3 text-left transition hover:bg-[rgba(0,115,209,0.05)]"
+                      onClick={() => window.location.assign(`${repoHref}?jurisdictionLevel=state&state=${encodeURIComponent(item.state)}`)}
+                      className="w-full rounded-[1.35rem] border bg-white px-5 py-5 text-left transition hover:bg-[rgba(0,115,209,0.05)]"
                     >
-                      <div className="min-w-0 flex-1">
-                        <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-secondary)]">#{index + 1}</p>
-                        <p className="font-bold text-blue-deep">{item.state}</p>
-                        <p className="text-sm text-[var(--text-secondary)]">{item.policies} public policies</p>
+                      <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-secondary)]">#{index + 1}</p>
+                      <div className="mt-3 flex items-end justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <p className="text-base text-blue-deep">{item.state}</p>
+                          <p className="mt-1 text-sm text-[var(--text-secondary)]">{item.policies} public policies</p>
+                        </div>
+                        <p className="text-xl leading-none text-blue-deep tabular-nums">{item.score?.toFixed(1) ?? "-"}</p>
                       </div>
-                      <p className="shrink-0 pl-3 text-right text-[1.85rem] leading-none font-black tabular-nums text-blue-deep">{item.score?.toFixed(1) ?? "-"}</p>
                     </button>
                   ))
                 )}
@@ -257,32 +238,72 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="mx-auto max-w-7xl px-4 py-12">
-          <NigeriaPolicyMap
-            scores={stateScores}
-            onSelectState={(state) => window.location.assign(`${user ? "/repository" : "/public/policies"}?jurisdictionLevel=state&state=${encodeURIComponent(state)}`)}
+        <section className="mx-auto max-w-7xl px-6 py-16 md:px-10 lg:px-16">
+          <SectionHeader
+            kicker="Nigeria map"
+            title="Read national policy movement with the map given full attention."
+            subtitle="Use the map as a clean entry point into state-level signals, then jump straight into the repository view that matters."
           />
+
+          <div className="mt-8">
+            <NigeriaPolicyMap
+              scores={stateScores}
+              onSelectState={(state) => window.location.assign(`${repoHref}?jurisdictionLevel=state&state=${encodeURIComponent(state)}`)}
+            />
+          </div>
         </section>
 
-        <section id="modeling" className="mx-auto max-w-7xl px-4 py-12">
-          <SectionHeader
-            kicker="Workflow"
-            title="From first insight to final PDF"
-            subtitle="Build with evidence first, refine with AI where it helps, and keep control of the document all the way through."
-          />
+        <section className="mx-auto max-w-7xl px-6 py-18 md:px-10 lg:px-16">
+          <div className="grid gap-8 lg:grid-cols-[1fr_1fr]">
+            <Card className="premium-card rounded-[2rem] p-8 md:p-10">
+              <SectionHeader
+                kicker="Workflow"
+                title="A calmer path from first signal to final document."
+                subtitle="Keep discovery, drafting, critique, simulation, and export inside one connected flow."
+              />
 
-          <div className="mt-8 grid gap-4 md:grid-cols-3">
-            {[
-              { icon: <Compass className="text-[#0073d1]" size={22} />, title: "Discover", text: "Use the repository, rankings, and map to understand the landscape before writing." },
-              { icon: <BarChart3 className="text-[#0073d1]" size={22} />, title: "Stress-test", text: "Run critique and simulation to test structure, implementation, and likely outcomes." },
-              { icon: <Globe2 className="text-[#0073d1]" size={22} />, title: "Deliver", text: "Refine the draft in Policy Studio and export a polished PDF when you are ready to share it." },
-            ].map((item) => (
-              <Card key={item.title} className="premium-card rounded-[2rem] p-6">
-                <div className="inline-flex rounded-2xl bg-[rgba(0,115,209,0.09)] p-3">{item.icon}</div>
-                <h3 className="mt-4 text-2xl font-black text-blue-deep">{item.title}</h3>
-                <p className="mt-3 text-sm text-[var(--text-secondary)]">{item.text}</p>
-              </Card>
-            ))}
+              <div className="mt-8 grid gap-5 md:grid-cols-3">
+                {[
+                  { icon: <Compass className="text-[#0073d1]" size={20} />, title: "Discover", text: "Start with repository, rankings, and the map before writing." },
+                  { icon: <Globe2 className="text-[#0073d1]" size={20} />, title: "Develop", text: "Generate or upload a draft and keep refining it in Policy Studio." },
+                  { icon: <ShieldCheck className="text-[#0073d1]" size={20} />, title: "Deliver", text: "Use critique, simulation, and styled export to move with confidence." },
+                ].map((item) => (
+                  <div key={item.title} className="rounded-[1.4rem] border bg-slate-50 px-5 py-5">
+                    <div className="inline-flex rounded-2xl bg-[rgba(0,115,209,0.09)] p-3">{item.icon}</div>
+                    <h3 className="mt-4 text-lg text-blue-deep">{item.title}</h3>
+                    <p className="mt-2 text-sm leading-7 text-[var(--text-secondary)]">{item.text}</p>
+                  </div>
+                ))}
+              </div>
+            </Card>
+
+            <div
+              className="hero-overlay-card relative overflow-hidden rounded-[2rem] border border-white/30 p-8 text-white shadow-[0_22px_60px_rgba(0,56,105,0.12)] md:p-10"
+              style={{
+                backgroundImage: `linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(0,0,0,0.2) 42%, rgba(0,29,54,0.78) 100%), url(${WORKFLOW_IMAGE})`,
+                backgroundPosition: "center center",
+              }}
+            >
+              <div className="relative flex h-full flex-col justify-end">
+                <div className="rounded-[1.6rem] border border-white/12 bg-[rgba(0,35,63,0.48)] p-5 backdrop-blur-sm">
+                  <p className="text-xs uppercase tracking-[0.22em] text-white/70">Private workspace</p>
+                  <h2 className="mt-3 max-w-xl text-[1.9rem] tracking-tight text-white md:text-[2.4rem]">
+                    Draft privately, pressure-test carefully, and export only when the policy is ready.
+                  </h2>
+                  <p className="mt-4 max-w-lg text-sm leading-7 text-white/82 md:text-base">
+                    Uploads and AI drafts stay in your workspace. Critique and simulation shape the next revision. Export stays the final move.
+                  </p>
+                  <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                    <Button asChild className="rounded-full bg-white text-blue-deep hover:bg-white/92">
+                      <Link href="/register">Create account</Link>
+                    </Button>
+                    <Button asChild variant="outline" className="rounded-full border-white/24 bg-transparent text-white hover:bg-white/10">
+                      <Link href={repoHref}>Browse public intelligence</Link>
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
       </main>

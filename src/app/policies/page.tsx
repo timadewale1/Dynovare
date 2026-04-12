@@ -16,8 +16,10 @@ import type { Policy, PolicyType } from "@/lib/policyTypes";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/components/providers/UserProvider";
 import { POLICY_DOMAINS, POLICY_ENERGY_SOURCES, policyDomainLabel, policyEnergySourceLabel } from "@/lib/policyTaxonomy";
+import ListPagination from "@/components/ui/ListPagination";
 
 export default function PoliciesPage() {
+  const PAGE_SIZE = 5;
   const router = useRouter();
   const { user } = useUser();
   const [jurisdictionFilter, setJurisdictionFilter] = useState<"all" | "federal" | "state">("all");
@@ -29,6 +31,7 @@ export default function PoliciesPage() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [policies, setPolicies] = useState<Policy[]>([]);
+  const [page, setPage] = useState(1);
 
   const load = async () => {
     if (!user) return;
@@ -51,11 +54,21 @@ export default function PoliciesPage() {
     void load();
   }, [user, jurisdictionFilter, stateFilter, typeFilter, energySourceFilter, domainFilter, yearFilter]);
 
+  useEffect(() => {
+    setPage(1);
+  }, [jurisdictionFilter, stateFilter, typeFilter, energySourceFilter, domainFilter, yearFilter, search, policies.length]);
+
   const emptyText = useMemo(() => {
     if (loading) return "Loading workspace policies...";
     if (policies.length === 0) return "No private policies match this filter.";
     return "";
   }, [loading, policies.length]);
+
+  const totalPages = Math.max(1, Math.ceil(policies.length / PAGE_SIZE));
+  const pagedPolicies = useMemo(
+    () => policies.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+    [page, policies]
+  );
 
   const typeBadge = (t: PolicyType) => {
     if (t === "uploaded") return <Badge>Uploaded</Badge>;
@@ -213,7 +226,7 @@ export default function PoliciesPage() {
             <p className="text-sm text-[var(--text-secondary)]">{emptyText}</p>
           ) : (
             <div className="space-y-3">
-              {policies.map((p: any) => (
+              {pagedPolicies.map((p: any) => (
                 <div key={p.id} className="border rounded-2xl p-4 bg-white/90 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                   <div className="min-w-0 max-w-full">
                     <div className="flex items-center gap-2 flex-wrap">
@@ -248,6 +261,14 @@ export default function PoliciesPage() {
               ))}
             </div>
           )}
+          <ListPagination
+            page={page}
+            totalPages={totalPages}
+            totalItems={policies.length}
+            pageSize={PAGE_SIZE}
+            itemLabel="policies"
+            onPageChange={setPage}
+          />
         </Card>
       </DashboardLayout>
     </ProtectedRoute>

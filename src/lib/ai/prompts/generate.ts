@@ -1,6 +1,10 @@
 export function buildGeneratePolicyPrompt(args: {
   originalTitle: string;
   originalText: string;
+  originalSections?: { title: string; body: string }[];
+  originalWordCount?: number;
+  minimumWords?: number;
+  targetWords?: number;
   critique?: any;
 }) {
   const system = `
@@ -27,6 +31,8 @@ JSON schema:
 
 HARD REQUIREMENTS:
 - Write a long-form policy draft intended to be substantial and publication-grade, with detailed sections and enough depth to support a long document workflow in Policy Studio.
+- The improved draft must preserve the substance of the original policy and should not collapse into a much shorter rewrite.
+- The improved draft must be at least ${Math.max(1200, args.minimumWords ?? 0).toLocaleString()} words and should aim for about ${Math.max(1600, args.targetWords ?? args.minimumWords ?? 0).toLocaleString()} words.
 - Use clean headings and subheadings with clear spacing.
 - Include: Executive Summary, Background, Problem Statement, Objectives, Scope and Definitions, Policy Measures,
   Implementation Plan, Roles and Responsibilities, Financing and Budget Approach, Legal and Regulatory Alignment,
@@ -47,9 +53,15 @@ HARD REQUIREMENTS:
 Task: Improve and expand the policy into a full, well-structured, implementation-ready draft.
 
 Original title: ${args.originalTitle}
+Original word count: ${Math.max(0, args.originalWordCount ?? 0)}
+Required minimum word count: ${Math.max(1200, args.minimumWords ?? 0)}
+Target word count: ${Math.max(1600, args.targetWords ?? args.minimumWords ?? 0)}
 
 Original text:
 ${args.originalText}
+
+Original section outline:
+${JSON.stringify(args.originalSections ?? [], null, 2)}
 
 Critique context:
 ${args.critique ? JSON.stringify(args.critique, null, 2) : "None"}

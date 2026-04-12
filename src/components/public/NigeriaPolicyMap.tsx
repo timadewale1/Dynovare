@@ -93,11 +93,13 @@ export default function NigeriaPolicyMap({
   onSelectState,
   compact = false,
   mapOnly = false,
+  showHoverCard = false,
 }: {
   scores: StateScore[];
   onSelectState?: (state: string) => void;
   compact?: boolean;
   mapOnly?: boolean;
+  showHoverCard?: boolean;
 }) {
   const [hoveredState, setHoveredState] = useState<string | null>(null);
   const [expanded, setExpanded] = useState(false);
@@ -208,7 +210,7 @@ export default function NigeriaPolicyMap({
                 </div>
               </div>
             ))}
-            {hoveredState && !compact ? (
+            {hoveredState && (!compact || showHoverCard) ? (
               <div className="pointer-events-none absolute right-[3%] top-[4%] hidden w-[220px] rounded-[1.25rem] border border-white/70 bg-white/92 p-4 text-left shadow-[0_18px_50px_rgba(0,56,105,0.14)] backdrop-blur md:block">
                 {(() => {
                   const entry = LABEL_POINTS.find((item) => item.state === hoveredState);
@@ -317,6 +319,7 @@ export default function NigeriaPolicyMap({
             <NigeriaPolicyMap
               scores={scores}
               mapOnly
+              showHoverCard
               onSelectState={(state) => {
                 setExpanded(false);
                 onSelectState?.(state);
