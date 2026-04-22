@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import AuthCard from "@/components/auth/AuthCard";
@@ -12,7 +12,7 @@ import { controlledGoogleSignIn } from "@/lib/authHelpers";
 import { shouldGoToOnboarding } from "@/lib/redirectAfterAuth";
 import Link from "next/link";
 
-export default function LoginPage() {
+function LoginPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
@@ -115,5 +115,26 @@ export default function LoginPage() {
         </p>
       </div>
     </AuthCard>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <AuthCard
+          title="Sign in"
+          subtitle="Open your workspace to draft, critique, simulate, and export policy work."
+        >
+          <div className="space-y-4">
+            <div className="studio-input animate-pulse bg-slate-100" />
+            <div className="studio-input animate-pulse bg-slate-100" />
+            <div className="h-12 rounded-full bg-slate-100" />
+          </div>
+        </AuthCard>
+      }
+    >
+      <LoginPageInner />
+    </Suspense>
   );
 }
