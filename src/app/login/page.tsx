@@ -4,7 +4,7 @@ import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import AuthCard from "@/components/auth/AuthCard";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 import { Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
@@ -14,13 +14,15 @@ import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const routeAfterAuth = async (uid: string) => {
     const goOnboard = await shouldGoToOnboarding(uid);
-    router.push(goOnboard ? "/onboarding" : "/dashboard");
+    const nextPath = searchParams.get("next");
+    router.push(goOnboard ? "/onboarding" : nextPath || "/dashboard");
   };
 
   const handleLogin = async () => {

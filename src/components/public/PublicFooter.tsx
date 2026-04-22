@@ -1,16 +1,25 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import DynovareLogo from "@/components/branding/DynovareLogo";
 import { Mail, MapPinned, ShieldCheck } from "lucide-react";
 import { useUser } from "@/components/providers/UserProvider";
 
 export default function PublicFooter() {
   const { user } = useUser();
+  const pathname = usePathname();
   const repoHref = user ? "/repository" : "/public/policies";
+  const isHome = pathname === "/";
 
   return (
-    <footer className="mt-20 w-full max-w-full overflow-x-clip border-t border-[#d8e6ec] bg-[linear-gradient(180deg,#00223f_0%,#002c52_40%,#0073d1_100%)] text-white">
+    <footer
+      className={`mt-20 w-full max-w-full overflow-x-clip border-t text-white ${
+        isHome
+          ? "border-white/10 bg-[linear-gradient(180deg,#0b1320_0%,#07111b_55%,#06101a_100%)]"
+          : "border-[#d8e6ec] bg-[linear-gradient(180deg,#00223f_0%,#002c52_40%,#0073d1_100%)]"
+      }`}
+    >
       <div className="mx-auto max-w-7xl overflow-x-clip px-6 py-18 md:px-8 lg:px-10">
         <div className="grid gap-12 md:grid-cols-[1.3fr_0.9fr_0.9fr_1fr]">
           <div>

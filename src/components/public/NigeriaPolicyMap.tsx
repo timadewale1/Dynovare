@@ -94,12 +94,14 @@ export default function NigeriaPolicyMap({
   compact = false,
   mapOnly = false,
   showHoverCard = false,
+  dark = false,
 }: {
   scores: StateScore[];
   onSelectState?: (state: string) => void;
   compact?: boolean;
   mapOnly?: boolean;
   showHoverCard?: boolean;
+  dark?: boolean;
 }) {
   const [hoveredState, setHoveredState] = useState<string | null>(null);
   const [expanded, setExpanded] = useState(false);
@@ -114,16 +116,16 @@ export default function NigeriaPolicyMap({
   );
 
   return (
-    <div className={`w-full max-w-full overflow-hidden ${mapOnly ? "" : `grid gap-5 rounded-[2rem] border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(246,250,252,0.96)_100%)] p-4 md:p-6 shadow-[0_24px_80px_rgba(0,56,105,0.08)] ${compact ? "grid-cols-1" : "xl:grid-cols-[1fr_0.8fr]"}`}`}>
+    <div className={`w-full max-w-full overflow-hidden ${mapOnly ? "" : `grid gap-5 rounded-[2rem] border p-4 md:p-6 ${dark ? "border-white/10 bg-[linear-gradient(180deg,#0b1523_0%,#0f1b2d_100%)] shadow-[0_24px_80px_rgba(0,0,0,0.22)]" : "border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(246,250,252,0.96)_100%)] shadow-[0_24px_80px_rgba(0,56,105,0.08)]"} ${compact ? "grid-cols-1" : "xl:grid-cols-[1fr_0.8fr]"}`}`}>
       <div>
         {!mapOnly ? (
           <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
             <div>
-              <p className="text-xs uppercase tracking-[0.22em] text-[var(--text-secondary)]">Nigeria policy map</p>
-              <h3 className="mt-2 text-xl font-black text-blue-deep">Scan state performance at a glance</h3>
+              <p className={`text-xs uppercase tracking-[0.22em] ${dark ? "text-white/44" : "text-[var(--text-secondary)]"}`}>Nigeria policy map</p>
+              <h3 className={`mt-2 text-xl font-black ${dark ? "text-white" : "text-blue-deep"}`}>Scan state performance at a glance</h3>
             </div>
             <div className="flex flex-wrap items-center justify-end gap-2 text-xs">
-              <Button variant="outline" className="rounded-full" onClick={() => setExpanded(true)}>
+              <Button variant="outline" className={`rounded-full ${dark ? "border-white/12 bg-white/6 text-white hover:bg-white/10" : ""}`} onClick={() => setExpanded(true)}>
                 <Expand size={14} />
                 Open map
               </Button>
@@ -135,8 +137,8 @@ export default function NigeriaPolicyMap({
           </div>
         ) : null}
 
-        <div className={`overflow-hidden rounded-[1.75rem] border bg-[linear-gradient(180deg,#f9f5ee_0%,#f3f7fb_100%)] ${mapOnly ? "p-1 md:p-2" : "p-2 md:p-3"}`}>
-          <div className={`relative mx-auto aspect-[5/4] w-full ${compact ? "max-w-[920px]" : "max-w-[760px]"}`}>
+        <div className={`overflow-hidden rounded-[1.75rem] border ${dark ? "border-white/10 bg-[linear-gradient(180deg,#101e31_0%,#0d1727_100%)]" : "bg-[linear-gradient(180deg,#f9f5ee_0%,#f3f7fb_100%)]"} ${mapOnly ? "p-1 md:p-2" : "p-2 md:p-3"}`}>
+          <div className={`relative mx-auto aspect-[5/4] w-full ${mapOnly ? "max-w-[min(92vw,980px)] max-h-[78vh]" : compact ? "max-w-[920px]" : "max-w-[760px]"}`}>
             <div className="pointer-events-none absolute inset-[6%_5%_4%_5%] rounded-[1.5rem] bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.92),rgba(246,250,252,0.3)_45%,transparent_76%)]" />
             <img
               src="/nigeria-states-base.svg"
@@ -165,7 +167,8 @@ export default function NigeriaPolicyMap({
 
             {LABEL_POINTS.map((entry) => {
               const item = scoreMap.get(entry.state) ?? { state: entry.state, score: null, policies: 0 };
-              const tone = scoreTone(item.score);
+              const numericScore = typeof item.score === "number" ? item.score : null;
+              const tone = scoreTone(numericScore);
               const active = hoveredState === entry.state;
 
               return (
@@ -179,7 +182,7 @@ export default function NigeriaPolicyMap({
                   onBlur={() => setHoveredState((current) => (current === entry.state ? null : current))}
                   className="absolute -translate-x-1/2 -translate-y-1/2 text-center transition duration-200 hover:scale-[1.04] focus:scale-[1.04]"
                   style={{ left: `${entry.x}%`, top: `${entry.y}%` }}
-                  title={`${entry.state}: ${item.score === null ? "No score yet" : `${item.score.toFixed(1)} / 100`} (${item.policies} policies)`}
+                  title={`${entry.state}: ${numericScore === null ? "No score yet" : `${numericScore.toFixed(1)} / 100`} (${item.policies} policies)`}
                 >
                   <span
                     className={`inline-block whitespace-pre-line rounded-md px-1 py-0.5 font-black uppercase leading-none tracking-[0.07em] transition ${
@@ -211,29 +214,30 @@ export default function NigeriaPolicyMap({
               </div>
             ))}
             {hoveredState && (!compact || showHoverCard) ? (
-              <div className="pointer-events-none absolute right-[3%] top-[4%] hidden w-[220px] rounded-[1.25rem] border border-white/70 bg-white/92 p-4 text-left shadow-[0_18px_50px_rgba(0,56,105,0.14)] backdrop-blur md:block">
+              <div className={`pointer-events-none absolute right-[3%] top-[4%] hidden w-[220px] rounded-[1.25rem] border p-4 text-left backdrop-blur md:block ${dark ? "border-white/12 bg-[#08111e]/92 shadow-[0_18px_50px_rgba(0,0,0,0.34)]" : "border-white/70 bg-white/92 shadow-[0_18px_50px_rgba(0,56,105,0.14)]"}`}>
                 {(() => {
                   const entry = LABEL_POINTS.find((item) => item.state === hoveredState);
                   const item = scoreMap.get(hoveredState) ?? { state: hoveredState, score: null, policies: 0 };
-                  const tone = scoreTone(item.score);
+                  const numericScore = typeof item.score === "number" ? item.score : null;
+                  const tone = scoreTone(numericScore);
                   return (
                     <>
-                      <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-secondary)]">State profile</p>
+                      <p className={`text-xs uppercase tracking-[0.18em] ${dark ? "text-white/44" : "text-[var(--text-secondary)]"}`}>State profile</p>
                       <div className="mt-2 flex items-center gap-2">
                         <span className="h-3 w-3 rounded-full" style={{ backgroundColor: tone.text }} />
-                        <p className="text-lg font-black text-blue-deep">{hoveredState}</p>
+                        <p className={`text-lg font-black ${dark ? "text-white" : "text-blue-deep"}`}>{hoveredState}</p>
                       </div>
-                      <p className="mt-2 text-sm text-[var(--text-secondary)]">
-                        Capital: <span className="font-semibold text-blue-deep">{String(entry?.capital || "N/A").replace(/\n/g, " ")}</span>
+                      <p className={`mt-2 text-sm ${dark ? "text-white/58" : "text-[var(--text-secondary)]"}`}>
+                        Capital: <span className={`font-semibold ${dark ? "text-white" : "text-blue-deep"}`}>{String(entry?.capital || "N/A").replace(/\n/g, " ")}</span>
                       </p>
                       <div className="mt-3 grid grid-cols-2 gap-2">
-                        <div className="rounded-xl bg-slate-50 px-3 py-2">
-                          <p className="text-[11px] uppercase tracking-[0.16em] text-[var(--text-secondary)]">Score</p>
-                          <p className="mt-1 text-lg font-black text-blue-deep">{item.score === null ? "-" : item.score.toFixed(1)}</p>
+                        <div className={`rounded-xl px-3 py-2 ${dark ? "bg-white/6" : "bg-slate-50"}`}>
+                          <p className={`text-[11px] uppercase tracking-[0.16em] ${dark ? "text-white/42" : "text-[var(--text-secondary)]"}`}>Score</p>
+                          <p className={`mt-1 text-lg font-black ${dark ? "text-white" : "text-blue-deep"}`}>{numericScore === null ? "-" : numericScore.toFixed(1)}</p>
                         </div>
-                        <div className="rounded-xl bg-slate-50 px-3 py-2">
-                          <p className="text-[11px] uppercase tracking-[0.16em] text-[var(--text-secondary)]">Policies</p>
-                          <p className="mt-1 text-lg font-black text-blue-deep">{item.policies}</p>
+                        <div className={`rounded-xl px-3 py-2 ${dark ? "bg-white/6" : "bg-slate-50"}`}>
+                          <p className={`text-[11px] uppercase tracking-[0.16em] ${dark ? "text-white/42" : "text-[var(--text-secondary)]"}`}>Policies</p>
+                          <p className={`mt-1 text-lg font-black ${dark ? "text-white" : "text-blue-deep"}`}>{item.policies}</p>
                         </div>
                       </div>
                     </>
@@ -247,34 +251,34 @@ export default function NigeriaPolicyMap({
 
       {!compact && !mapOnly ? (
       <div className="space-y-4">
-        <div className="rounded-[1.5rem] border bg-slate-50 p-5">
-          <p className="text-xs uppercase tracking-[0.22em] text-[var(--text-secondary)]">What to do here</p>
-          <p className="mt-3 text-sm text-[var(--text-secondary)]">
+        <div className={`rounded-[1.5rem] border p-5 ${dark ? "border-white/10 bg-white/4" : "bg-slate-50"}`}>
+          <p className={`text-xs uppercase tracking-[0.22em] ${dark ? "text-white/44" : "text-[var(--text-secondary)]"}`}>What to do here</p>
+          <p className={`mt-3 text-sm ${dark ? "text-white/58" : "text-[var(--text-secondary)]"}`}>
             Hover a state to see the quick profile, then click straight into that slice of the repository or rankings view.
           </p>
         </div>
 
-        <div className="rounded-[1.5rem] border bg-slate-50 p-5">
-          <p className="text-xs uppercase tracking-[0.22em] text-[var(--text-secondary)]">Top states right now</p>
+        <div className={`rounded-[1.5rem] border p-5 ${dark ? "border-white/10 bg-white/4" : "bg-slate-50"}`}>
+          <p className={`text-xs uppercase tracking-[0.22em] ${dark ? "text-white/44" : "text-[var(--text-secondary)]"}`}>Top states right now</p>
           <div className="mt-4 space-y-3">
             {topStates.length === 0 ? (
-              <p className="text-sm text-[var(--text-secondary)]">No state-level scores yet.</p>
+              <p className={`text-sm ${dark ? "text-white/58" : "text-[var(--text-secondary)]"}`}>No state-level scores yet.</p>
             ) : (
               topStates.map((item, index) => (
                 <button
                   key={item.state}
                   type="button"
                   onClick={() => onSelectState?.(item.state)}
-                  className="flex w-full items-center justify-between rounded-[1.25rem] border bg-white px-4 py-3 text-left transition hover:bg-blue-soft"
+                  className={`flex w-full items-center justify-between rounded-[1.25rem] border px-4 py-3 text-left transition ${dark ? "border-white/10 bg-[#0b1523] hover:bg-[#112038]" : "bg-white hover:bg-blue-soft"}`}
                 >
                   <div>
-                    <p className="text-xs uppercase tracking-[0.18em] text-[var(--text-secondary)]">#{index + 1}</p>
-                    <p className="font-bold text-blue-deep">{item.state}</p>
-                    <p className="text-sm text-[var(--text-secondary)]">{item.policies} public policies</p>
+                    <p className={`text-xs uppercase tracking-[0.18em] ${dark ? "text-white/42" : "text-[var(--text-secondary)]"}`}>#{index + 1}</p>
+                    <p className={`font-bold ${dark ? "text-white" : "text-blue-deep"}`}>{item.state}</p>
+                    <p className={`text-sm ${dark ? "text-white/58" : "text-[var(--text-secondary)]"}`}>{item.policies} public policies</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-black text-blue-deep">{item.score?.toFixed(1) ?? "-"}</p>
-                    <p className="text-xs text-[var(--text-secondary)]">score</p>
+                    <p className={`text-2xl font-black ${dark ? "text-white" : "text-blue-deep"}`}>{item.score?.toFixed(1) ?? "-"}</p>
+                    <p className={`text-xs ${dark ? "text-white/42" : "text-[var(--text-secondary)]"}`}>score</p>
                   </div>
                 </button>
               ))
@@ -282,11 +286,11 @@ export default function NigeriaPolicyMap({
           </div>
         </div>
 
-        <div className="rounded-[1.5rem] border bg-slate-50 p-5">
-          <p className="text-xs uppercase tracking-[0.22em] text-[var(--text-secondary)]">Geopolitical regions</p>
+        <div className={`rounded-[1.5rem] border p-5 ${dark ? "border-white/10 bg-white/4" : "bg-slate-50"}`}>
+          <p className={`text-xs uppercase tracking-[0.22em] ${dark ? "text-white/44" : "text-[var(--text-secondary)]"}`}>Geopolitical regions</p>
           <div className="mt-4 grid grid-cols-2 gap-2">
             {REGION_PLATES.map((region) => (
-              <div key={region.name} className="flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-sm text-blue-deep">
+              <div key={region.name} className={`flex items-center gap-2 rounded-xl px-3 py-2 text-sm ${dark ? "bg-[#0b1523] text-white" : "bg-white text-blue-deep"}`}>
                 <span className="h-3 w-3 rounded-full border border-white/80 shadow-sm" style={{ backgroundColor: region.color.replace(/0\.\d+\)/, "0.75)") }} />
                 <span className="font-semibold">{region.name}</span>
               </div>
@@ -301,7 +305,7 @@ export default function NigeriaPolicyMap({
 
       {expanded && !mapOnly ? (
         <div className="fixed inset-0 z-[70] flex items-center justify-center bg-[rgba(7,17,27,0.72)] p-4 backdrop-blur-sm">
-          <div className="relative w-full max-w-5xl">
+          <div className="relative w-full max-w-[min(94vw,1100px)]">
             <div className="mb-4 flex items-center justify-between gap-3">
               <div>
                 <p className="text-xs uppercase tracking-[0.22em] text-white/70">Expanded map</p>
@@ -320,6 +324,8 @@ export default function NigeriaPolicyMap({
               scores={scores}
               mapOnly
               showHoverCard
+              compact
+              dark={dark}
               onSelectState={(state) => {
                 setExpanded(false);
                 onSelectState?.(state);
