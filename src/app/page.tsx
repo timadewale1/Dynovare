@@ -26,7 +26,7 @@ const syne = Syne({ subsets: ["latin"], weight: ["500", "600", "700", "800"], va
 const dmSans = DM_Sans({ subsets: ["latin"], weight: ["400", "500", "700"], variable: "--font-home-body" });
 
 const HERO_IMAGE =
-  "https://images.unsplash.com/photo-1466611653911-95081537e5b7?auto=format&fit=crop&w=1600&q=80";
+  "/hero-image.png";
 
 const ENERGY_IMPACT_DATA = [
   { value: 85, suffix: "M+", label: "Nigerians without access to the national grid" },
@@ -342,7 +342,7 @@ export default function HomePage() {
       >
       <section className="relative overflow-hidden border-b border-white/10">
         <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('${HERO_IMAGE}')` }} />
-        <div className="absolute inset-0 bg-[#003869]/88" />
+        <div className="absolute inset-0 bg-[#003869]/70" />
         <div className="relative mx-auto flex min-h-[76vh] max-w-7xl items-center justify-center px-6 py-20 text-center md:px-10 lg:px-14">
           <div className="max-w-4xl">
             <div className="mb-5 flex flex-wrap items-center justify-center gap-3 text-[11px] uppercase tracking-[0.28em] text-[#7fe7cb]">
