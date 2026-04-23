@@ -1,13 +1,13 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { DM_Sans, Syne } from "next/font/google";
 import { useRouter } from "next/navigation";
 import NigeriaPolicyMap from "@/components/public/NigeriaPolicyMap";
 import { useUser } from "@/components/providers/UserProvider";
 import PublicNavbar from "@/components/public/PublicNavbar";
 import PublicFooter from "@/components/public/PublicFooter";
 import PwaInstallPrompt from "@/components/branding/PwaInstallPrompt";
+import { usePublicTheme } from "@/components/public/usePublicTheme";
 import {
   ArrowRight,
   BookOpenText,
@@ -21,9 +21,6 @@ import {
   SunMedium,
   Trees,
 } from "lucide-react";
-
-const syne = Syne({ subsets: ["latin"], weight: ["500", "600", "700", "800"], variable: "--font-home-heading" });
-const dmSans = DM_Sans({ subsets: ["latin"], weight: ["400", "500", "700"], variable: "--font-home-body" });
 
 const HERO_IMAGE =
   "/hero-image.png";
@@ -263,6 +260,8 @@ function CountUpNumber({
 export default function HomePage() {
   const router = useRouter();
   const { user } = useUser();
+  const { theme } = usePublicTheme();
+  const dark = theme === "dark";
   const [insights, setInsights] = useState<InsightResponse | null>(null);
   const [rankings, setRankings] = useState<RankingItem[]>([]);
   const [repository, setRepository] = useState<RepoItem[]>([]);
@@ -327,32 +326,61 @@ export default function HomePage() {
   const featuredLocation =
     [featuredPolicy?.state, titleCase(featuredPolicy?.jurisdictionLevel)].filter(Boolean).join(", ") || "Nigeria";
 
+  const shellClass = dark
+    ? "dyn-home-shell min-h-screen text-white"
+    : "min-h-screen bg-[linear-gradient(180deg,#eef6fd_0%,#f8fbff_30%,#ffffff_100%)] text-[#003869]";
+  const panelClass = dark
+    ? "dyn-home-card"
+    : "rounded-[1.9rem] border border-[#d8e6ec] bg-white/88 shadow-[0_24px_80px_rgba(0,56,105,0.08)]";
+  const softPanelClass = dark
+    ? "dyn-home-stat-card"
+    : "rounded-[1.6rem] border border-[#d8e6ec] bg-white/82";
+  const titleClass = dark ? "text-white" : "text-blue-deep";
+  const bodyClass = dark ? "text-white/64" : "text-[var(--text-secondary)]";
+  const subtleClass = dark ? "text-white/44" : "text-[var(--text-secondary)]";
+  const sectionBorderClass = dark ? "border-white/8" : "border-[#d8e6ec]";
+  const featureCardClass = dark
+    ? "dyn-home-card rounded-[1.8rem] p-6 text-left transition hover:border-[#0073d1]/40 hover:bg-white/[0.08]"
+    : "rounded-[1.8rem] border border-[#d8e6ec] bg-white/88 p-6 text-left shadow-[0_18px_55px_rgba(0,56,105,0.08)] transition hover:border-[#0073d1]/26 hover:shadow-[0_24px_70px_rgba(0,56,105,0.12)]";
+  const innerPanelClass = dark
+    ? "rounded-[1.3rem] border border-white/8 bg-[#0c1625]"
+    : "rounded-[1.3rem] border border-[#d8e6ec] bg-[#f8fbff]";
+  const rowClass = dark
+    ? "border-b border-white/8 bg-[#0b1523]"
+    : "border-b border-[#d8e6ec] bg-white/92";
+  const secondaryButtonClass = dark
+    ? "inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+    : "inline-flex items-center gap-2 rounded-full border border-[#d8e6ec] bg-white px-5 py-3 text-sm font-semibold text-[#003869] transition hover:bg-[#eef6ff]";
+  const activeChipClass = dark
+    ? "border-[#49d2b6]/40 bg-[#49d2b6]/10 text-[#81ebd5]"
+    : "border-[#0073d1]/20 bg-[#e8f4ff] text-[#0073d1]";
+  const passiveChipClass = dark
+    ? "border-white/10 bg-white/[0.03] text-white/62"
+    : "border-[#d8e6ec] bg-white text-[#6b8399]";
+  const panelTitleClass = dark ? "text-white" : "text-[#003869]";
+  const panelBodyClass = dark ? "text-white/64" : "text-[#5c748b]";
+  const panelMetaClass = dark ? "text-white/46" : "text-[#7890a5]";
+
   return (
-    <div className={`${syne.variable} ${dmSans.variable}`}>
+    <div>
       <PublicNavbar />
       <PwaInstallPrompt />
       <main
-        className="dyn-home-shell min-h-screen"
-        style={
-          {
-            ["--font-dyn-heading" as string]: "var(--font-home-heading)",
-            ["--font-dyn-body" as string]: "var(--font-home-body)",
-          } as React.CSSProperties
-        }
+        className={shellClass}
       >
-      <section className="relative overflow-hidden border-b border-white/10">
+      <section className={`relative overflow-hidden border-b ${dark ? "border-white/10" : "border-[#d8e6ec]"}`}>
         <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('${HERO_IMAGE}')` }} />
-        <div className="absolute inset-0 bg-[#003869]/70" />
+        <div className={`absolute inset-0 ${dark ? "bg-[#003869]/70" : "bg-[rgba(255,255,255,0.62)]"}`} />
         <div className="relative mx-auto flex min-h-[76vh] max-w-7xl items-center justify-center px-6 py-20 text-center md:px-10 lg:px-14">
           <div className="max-w-4xl">
-            <div className="mb-5 flex flex-wrap items-center justify-center gap-3 text-[11px] uppercase tracking-[0.28em] text-[#7fe7cb]">
-              <span className="rounded-full border border-white/12 bg-white/6 px-4 py-2">Africa's energy policy intelligence layer</span>
-              <span className="rounded-full border border-white/12 bg-white/6 px-4 py-2">Private drafting workspace</span>
+            <div className={`mb-5 flex flex-wrap items-center justify-center gap-3 text-[11px] uppercase tracking-[0.28em] ${dark ? "text-[#7fe7cb]" : "text-[#0073d1]"}`}>
+              <span className={`rounded-full px-4 py-2 ${dark ? "border border-white/12 bg-white/6" : "border border-[#cfe0ef] bg-white/82"}`}>Africa's energy policy intelligence layer</span>
+              <span className={`rounded-full px-4 py-2 ${dark ? "border border-white/12 bg-white/6" : "border border-[#cfe0ef] bg-white/82"}`}>Private drafting workspace</span>
             </div>
-            <h1 className="mx-auto max-w-[20ch] text-[2.1rem] font-bold leading-[1.04] text-white sm:text-[2.75rem] md:text-[3.65rem]">
+            <h1 className={`mx-auto max-w-[20ch] text-[2.1rem] font-bold leading-[1.04] sm:text-[2.75rem] md:text-[3.65rem] ${titleClass}`}>
               Turn policy signals into decisions that electrify Africa
             </h1>
-            <p className="mx-auto mt-6 max-w-3xl text-base leading-8 text-white/80 md:text-lg">
+            <p className={`mx-auto mt-6 max-w-3xl text-base leading-8 md:text-lg ${dark ? "text-white/80" : "text-[#23425f]"}`}>
               An AI-powered platform that evaluates, synthesises, and simulates African energy policies, transforming incoherent frameworks into context-specific, evidence-driven solutions.
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
@@ -367,7 +395,7 @@ export default function HomePage() {
               <button
                 type="button"
                 onClick={() => openProtected("/policies")}
-                className="inline-flex items-center gap-2 rounded-full border border-white/18 bg-white/8 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/12"
+                className={`inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition ${dark ? "border border-white/18 bg-white/8 text-white hover:bg-white/12" : "border border-[#cfe0ef] bg-white/90 text-[#003869] hover:bg-[#eef6ff]"}`}
               >
                 Open private workspace
               </button>
@@ -376,25 +404,25 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="border-b border-white/8">
+      <section className={`border-b ${dark ? "border-white/8" : "border-[#d8e6ec]"}`}>
         <div className="mx-auto grid max-w-7xl gap-4 px-6 py-10 md:grid-cols-2 md:px-10 lg:grid-cols-3 lg:px-14">
           {ENERGY_IMPACT_DATA.map((item) => (
-            <article key={item.label} className="dyn-home-stat-card rounded-[1.6rem] p-5">
-              <p className="text-[2rem] font-semibold leading-none text-white">
+            <article key={item.label} className={`${softPanelClass} p-5`}>
+              <p className={`text-[2rem] font-semibold leading-none ${titleClass}`}>
                 <CountUpNumber value={item.value} prefix={item.prefix} suffix={item.suffix} decimals={item.decimals ?? 0} />
               </p>
-              <p className="mt-3 max-w-[28ch] text-sm leading-6 text-white/66">{item.label}</p>
+              <p className={`mt-3 max-w-[28ch] text-sm leading-6 ${bodyClass}`}>{item.label}</p>
             </article>
           ))}
         </div>
       </section>
 
-      <section className="border-b border-white/8">
+      <section className={`border-b ${sectionBorderClass}`}>
         <div className="mx-auto max-w-7xl px-6 py-16 md:px-10 lg:px-14">
           <div className="mb-8 max-w-3xl">
             <p className="text-xs uppercase tracking-[0.28em] text-[#49d2b6]">Platform capabilities</p>
-            <h2 className="mt-3 text-3xl font-semibold text-white md:text-[2.7rem]">From raw policy to decision-ready intelligence.</h2>
-            <p className="mt-4 text-base leading-7 text-white/66">
+            <h2 className={`mt-3 text-3xl font-semibold md:text-[2.7rem] ${titleClass}`}>From raw policy to decision-ready intelligence.</h2>
+            <p className={`mt-4 text-base leading-7 ${bodyClass}`}>
               Search public records, generate drafts, run critique, model scenarios, and export a stronger policy package from one connected system.
             </p>
           </div>
@@ -411,16 +439,16 @@ export default function HomePage() {
                 key={item.title}
                 type="button"
                 onClick={() => (item.href === "/rankings" || item.href.includes("public") ? router.push(item.href) : openProtected(item.href))}
-                className="dyn-home-card rounded-[1.8rem] p-6 text-left transition hover:border-[#0073d1]/40 hover:bg-white/[0.08]"
+                className={featureCardClass}
               >
                 <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-[#0073d1]/25 bg-[#0073d1]/10 text-[#72c4ff]">
                   <item.icon size={21} />
                 </div>
-                <h3 className="mt-5 text-xl font-semibold text-white">{item.title}</h3>
-                <p className="mt-3 text-sm leading-7 text-white/64">{item.body}</p>
+                <h3 className={`mt-5 text-xl font-semibold ${panelTitleClass}`}>{item.title}</h3>
+                <p className={`mt-3 text-sm leading-7 ${panelBodyClass}`}>{item.body}</p>
                 <div className="mt-5 flex flex-wrap gap-2">
                   {item.tags.map((tag) => (
-                    <span key={tag} className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-[#8ecbff]">
+                    <span key={tag} className={`rounded-full border px-3 py-1 text-[11px] uppercase tracking-[0.18em] ${dark ? "border-white/10 bg-white/5 text-[#8ecbff]" : "border-[#d8e6ec] bg-[#f4f9ff] text-[#0073d1]"}`}>
                       {tag}
                     </span>
                   ))}
@@ -430,32 +458,32 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-      <section className="border-b border-white/8">
+      <section className={`border-b ${sectionBorderClass}`}>
         <div className="mx-auto grid max-w-7xl gap-6 px-6 py-16 md:px-10 xl:grid-cols-[1.35fr_0.95fr] lg:px-14">
-          <div className="dyn-home-card rounded-[1.9rem] p-6">
+          <div className={`${panelClass} rounded-[1.9rem] p-6`}>
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="min-w-0 flex-1">
                 <p className="text-xs uppercase tracking-[0.28em] text-[#49d2b6]">Policy repository</p>
-                <h2 className="mt-3 text-3xl font-semibold text-white">Nigeria national policy intelligence</h2>
-                <p className="mt-3 text-sm leading-7 text-white/64">
+                <h2 className={`mt-3 text-3xl font-semibold ${titleClass}`}>Nigeria national policy intelligence</h2>
+                <p className={`mt-3 text-sm leading-7 ${bodyClass}`}>
                   Search policies, regulations, and strategy documents, then carry the strongest public examples straight into your own workflow.
                 </p>
               </div>
             </div>
-            <div className="mt-6 rounded-[1.3rem] border border-white/8 bg-[#0c1625] px-4 py-3">
-              <div className="flex items-center gap-3 text-white/46">
+            <div className={`mt-6 px-4 py-3 ${innerPanelClass}`}>
+              <div className={`flex items-center gap-3 ${panelMetaClass}`}>
                 <Search size={16} />
                 <span className="text-sm">Search policies, institutions, regulations...</span>
               </div>
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
               {["All", "Electricity Act", "ETP", "Mini-grid", "NERC", "REA", "Off-grid"].map((chip) => (
-                <span key={chip} className={`rounded-full border px-3 py-1.5 text-xs ${chip === "All" ? "border-[#49d2b6]/40 bg-[#49d2b6]/10 text-[#81ebd5]" : "border-white/10 bg-white/[0.03] text-white/62"}`}>
+                <span key={chip} className={`rounded-full border px-3 py-1.5 text-xs ${chip === "All" ? activeChipClass : passiveChipClass}`}>
                   {chip}
                 </span>
               ))}
             </div>
-            <div className="mt-6 overflow-hidden rounded-[1.4rem] border border-white/8">
+            <div className={`mt-6 overflow-hidden rounded-[1.4rem] ${dark ? "border border-white/8" : "border border-[#d8e6ec]"}`}>
               {repository.map((policy, index) => {
                 const Icon = [Bolt, Trees, SunMedium, ShieldAlert, BookOpenText][index % 5];
                 const score =
@@ -463,14 +491,14 @@ export default function HomePage() {
                   rankings.find((item) => item.id === policy.id)?.avgOverallScore ??
                   60;
                 return (
-                  <div key={policy.id} className="flex items-center gap-4 border-b border-white/8 bg-[#0b1523] px-4 py-4 last:border-b-0">
+                  <div key={policy.id} className={`flex items-center gap-4 px-4 py-4 last:border-b-0 ${rowClass}`}>
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-[#0073d1]/25 bg-[#0073d1]/10 text-[#72c4ff]">
                       <Icon size={16} />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-white">{policy.title}</p>
-                      <p className="mt-1 text-xs text-white/48">
-                        {titleCase(policy.type)} · {policy.state || titleCase(policy.jurisdictionLevel)} · {policy.policyYear || "Recent"}
+                      <p className={`truncate text-sm font-semibold ${panelTitleClass}`}>{policy.title}</p>
+                      <p className={`mt-1 text-xs ${panelMetaClass}`}>
+                        {titleCase(policy.type)} - {policy.state || titleCase(policy.jurisdictionLevel)} - {policy.policyYear || "Recent"}
                       </p>
                     </div>
                     <div className="rounded-full border border-[#49d2b6]/25 bg-[#49d2b6]/10 px-3 py-1 text-xs font-medium text-[#7de9d0]">
@@ -482,49 +510,49 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="dyn-home-card rounded-[1.9rem] p-6">
+          <div className={`${panelClass} rounded-[1.9rem] p-6`}>
             <p className="text-xs uppercase tracking-[0.28em] text-[#49d2b6]">AI critique engine</p>
             <div className="mt-3">
-              <h2 className="text-[2rem] font-semibold text-white">{featuredPolicy?.title ?? "Loading live policy critique..."}</h2>
-              <p className="mt-2 text-sm text-white/56">
-                {featuredLocation} · {titleCase(featuredPolicy?.domain)} · {titleCase(featuredPolicy?.energySource)}
+              <h2 className={`text-[2rem] font-semibold ${titleClass}`}>{featuredPolicy?.title ?? "Loading live policy critique..."}</h2>
+              <p className={`mt-2 text-sm ${panelMetaClass}`}>
+                {featuredLocation} - {titleCase(featuredPolicy?.domain)} - {titleCase(featuredPolicy?.energySource)}
               </p>
             </div>
-            <div className="mt-5 rounded-[1.3rem] border border-[#0073d1]/18 bg-[#102034] p-4 text-sm leading-7 text-white/70">
+            <div className={`mt-5 rounded-[1.3rem] border border-[#0073d1]/18 p-4 text-sm leading-7 ${dark ? "bg-[#102034] text-white/70" : "bg-[#edf6ff] text-[#264866]"}`}>
               Overall score: <CountUpNumber value={critique.overall} suffix="/100" className="font-semibold text-[#79caff]" />. The current public signal suggests stronger direction in some areas than others, with the featured document anchored to live repository data on each load.
             </div>
             <div className="mt-5 space-y-3">
               {critique.criteria.map((row) => (
                 <div key={row.key}>
-                  <div className="mb-1 flex items-center justify-between text-sm text-white/76">
+                  <div className={`mb-1 flex items-center justify-between text-sm ${dark ? "text-white/76" : "text-[#4f6880]"}`}>
                     <span>{row.label}</span>
-                    <span className="font-semibold text-white"><CountUpNumber value={row.value} suffix="%" /></span>
+                    <span className={`font-semibold ${panelTitleClass}`}><CountUpNumber value={row.value} suffix="%" /></span>
                   </div>
-                  <div className="h-2 overflow-hidden rounded-full bg-white/8">
+                  <div className={`h-2 overflow-hidden rounded-full ${dark ? "bg-white/8" : "bg-[#dfeaf2]"}`}>
                     <div className={`h-full rounded-full ${row.value >= 80 ? "bg-[#2fd0a2]" : row.value >= 65 ? "bg-[#5eb6ff]" : row.value >= 50 ? "bg-[#f4a83a]" : "bg-[#ff6b64]"}`} style={{ width: `${row.value}%` }} />
                   </div>
                 </div>
               ))}
             </div>
             <div className="mt-5 space-y-3">
-              <div className="rounded-[1.25rem] border border-white/8 bg-[#0c1625] p-4">
+              <div className={`${innerPanelClass} p-4`}>
                 <p className="text-sm font-semibold text-[#7ce8d1]">Strength - {critique.strongest.label}</p>
-                <p className="mt-2 text-sm leading-7 text-white/64">{critique.strengthText}</p>
+                <p className={`mt-2 text-sm leading-7 ${panelBodyClass}`}>{critique.strengthText}</p>
               </div>
-              <div className="rounded-[1.25rem] border border-white/8 bg-[#0c1625] p-4">
+              <div className={`${innerPanelClass} p-4`}>
                 <p className="text-sm font-semibold text-[#ffc86e]">Gap - {critique.weakest.label}</p>
-                <p className="mt-2 text-sm leading-7 text-white/64">{critique.gapText}</p>
+                <p className={`mt-2 text-sm leading-7 ${panelBodyClass}`}>{critique.gapText}</p>
               </div>
-              <div className="rounded-[1.25rem] border border-white/8 bg-[#0c1625] p-4">
+              <div className={`${innerPanelClass} p-4`}>
                 <p className="text-sm font-semibold text-[#ff8a84]">Risk - Implementation bottleneck</p>
-                <p className="mt-2 text-sm leading-7 text-white/64">{critique.riskText}</p>
+                <p className={`mt-2 text-sm leading-7 ${panelBodyClass}`}>{critique.riskText}</p>
               </div>
             </div>
             <div className="mt-5 flex flex-wrap gap-3">
               <button type="button" onClick={() => openProtected("/critique")} className="inline-flex items-center gap-2 rounded-full bg-[#0073d1] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#0059a3]">
                 Run critique
               </button>
-              <button type="button" onClick={() => openProtected("/ai-generate")} className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
+              <button type="button" onClick={() => openProtected("/ai-generate")} className={secondaryButtonClass}>
                 Generate improvement draft
               </button>
             </div>
@@ -532,14 +560,14 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section id="modeling" className="border-b border-white/8">
+      <section id="modeling" className={`border-b ${sectionBorderClass}`}>
         <div className="mx-auto grid max-w-7xl gap-6 px-6 py-16 md:px-10 xl:grid-cols-[1.35fr_0.95fr] lg:px-14">
-          <div className="dyn-home-card rounded-[1.9rem] p-6">
+          <div className={`${panelClass} rounded-[1.9rem] p-6`}>
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs uppercase tracking-[0.28em] text-[#49d2b6]">Scenario modelling</p>
-                <h2 className="mt-3 text-3xl font-semibold text-white">Simulate policy impact across time horizons.</h2>
-                <p className="mt-3 text-sm leading-7 text-white/64">
+                <h2 className={`mt-3 text-3xl font-semibold ${titleClass}`}>Simulate policy impact across time horizons.</h2>
+                <p className={`mt-3 text-sm leading-7 ${bodyClass}`}>
                   The live panel below uses the same featured public policy as the critique engine, so the scenario preview stays tied to the same policy signal.
                 </p>
               </div>
@@ -547,12 +575,12 @@ export default function HomePage() {
                 {scenario.status}
               </span>
             </div>
-            <div className="mt-6 rounded-[1.5rem] border border-white/8 bg-[#0b1523] p-5">
-              <p className="text-sm font-semibold text-white">{scenario.title}</p>
-              <p className="mt-1 text-xs text-white/46">Live preview from the current featured policy.</p>
-              <div className="mt-6 h-[220px] rounded-[1.2rem] border border-white/8 bg-[linear-gradient(180deg,#0a1320_0%,#0d1829_100%)] p-4">
+            <div className={`mt-6 rounded-[1.5rem] p-5 ${dark ? "border border-white/8 bg-[#0b1523]" : "border border-[#d8e6ec] bg-[#f8fbff]"}`}>
+              <p className={`text-sm font-semibold ${panelTitleClass}`}>{scenario.title}</p>
+              <p className={`mt-1 text-xs ${panelMetaClass}`}>Live preview from the current featured policy.</p>
+              <div className={`mt-6 h-[220px] rounded-[1.2rem] p-4 ${dark ? "border border-white/8 bg-[linear-gradient(180deg,#0a1320_0%,#0d1829_100%)]" : "border border-[#d8e6ec] bg-[linear-gradient(180deg,#ffffff_0%,#eef6fd_100%)]"}`}>
                 <div className="relative h-full w-full">
-                  <div className="absolute inset-x-0 bottom-8 h-px bg-white/8" />
+                  <div className={`absolute inset-x-0 bottom-8 h-px ${dark ? "bg-white/8" : "bg-[#d8e6ec]"}`} />
                   <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 h-full w-full">
                     <defs>
                       <linearGradient id="accessFill" x1="0" y1="0" x2="0" y2="1">
@@ -564,7 +592,7 @@ export default function HomePage() {
                     <polyline fill="none" stroke="#5eb6ff" strokeDasharray="4 2" strokeWidth="2" points={`5,75 35,${92 - scenario.baseline[0]} 68,${92 - scenario.baseline[1]} 95,${92 - scenario.baseline[2]}`} />
                     <polygon fill="url(#accessFill)" points={`5,100 5,75 35,${92 - scenario.access[0]} 68,${92 - scenario.access[1]} 95,${92 - scenario.access[2]} 95,100`} />
                   </svg>
-                  <div className="absolute bottom-0 left-0 right-0 flex justify-between text-[11px] uppercase tracking-[0.16em] text-white/34">
+                  <div className={`absolute bottom-0 left-0 right-0 flex justify-between text-[11px] uppercase tracking-[0.16em] ${subtleClass}`}>
                     {scenario.years.map((year) => <span key={year}>{year}</span>)}
                   </div>
                 </div>
@@ -572,11 +600,11 @@ export default function HomePage() {
               <div className="mt-5 grid gap-4">
                 {scenario.sliders.map((slider) => (
                   <div key={slider.label}>
-                    <div className="mb-2 flex items-center justify-between text-sm text-white/66">
+                    <div className={`mb-2 flex items-center justify-between text-sm ${bodyClass}`}>
                       <span>{slider.label}</span>
                       <span className="font-semibold text-[#7de9d0]"><CountUpNumber value={slider.value} decimals={slider.decimals} /></span>
                     </div>
-                    <div className="h-1.5 rounded-full bg-white/8">
+                    <div className={`h-1.5 rounded-full ${dark ? "bg-white/8" : "bg-[#dfeaf2]"}`}>
                       <div className="h-full rounded-full bg-[#2fd0a2]" style={{ width: `${(slider.value / slider.max) * 100}%` }} />
                     </div>
                   </div>
@@ -585,9 +613,9 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="dyn-home-card rounded-[1.9rem] p-6">
+          <div className={`${panelClass} rounded-[1.9rem] p-6`}>
             <p className="text-xs uppercase tracking-[0.28em] text-[#49d2b6]">Projected outcomes</p>
-            <div className="mt-5 overflow-hidden rounded-[1.35rem] border border-white/8">
+            <div className={`mt-5 overflow-hidden rounded-[1.35rem] ${dark ? "border border-white/8" : "border border-[#d8e6ec]"}`}>
               {[
                 { label: "Energy access rate", values: scenario.access, suffix: "%" },
                 { label: "GDP growth uplift", values: scenario.growth, prefix: "+", suffix: "%" },
@@ -595,14 +623,14 @@ export default function HomePage() {
                 { label: "CO2 emissions", values: scenario.emissions, suffix: "%" },
                 { label: "Fiscal cost (NGN trillion)", values: scenario.fiscal, prefix: "₦" },
               ].map((row) => (
-                <div key={row.label} className="grid grid-cols-[1.2fr_repeat(3,0.6fr)] gap-3 border-b border-white/8 bg-[#0b1523] px-4 py-4 last:border-b-0">
-                  <p className="text-sm text-white/68">{row.label}</p>
+                <div key={row.label} className={`grid grid-cols-[1.2fr_repeat(3,0.6fr)] gap-3 px-4 py-4 last:border-b-0 ${rowClass}`}>
+                  <p className={`text-sm ${dark ? "text-white/68" : "text-[#5b748b]"}`}>{row.label}</p>
                   {row.values.map((value, index) => (
                     <div key={`${row.label}-${scenario.years[index]}`} className="text-right">
                       <p className={`text-sm font-semibold ${index === 2 ? "text-[#2fd0a2]" : index === 1 ? "text-[#5eb6ff]" : "text-[#ffbf5a]"}`}>
                         <CountUpNumber value={Math.abs(Number(value))} prefix={Number(value) < 0 ? "-" : row.prefix ?? ""} suffix={row.suffix ?? ""} decimals={typeof value === "number" && !Number.isInteger(value) ? 1 : 0} />
                       </p>
-                      <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-white/34">{scenario.years[index]}</p>
+                      <p className={`mt-1 text-[11px] uppercase tracking-[0.14em] ${subtleClass}`}>{scenario.years[index]}</p>
                     </div>
                   ))}
                 </div>
@@ -612,19 +640,19 @@ export default function HomePage() {
               <button type="button" onClick={() => openProtected("/simulations")} className="rounded-full bg-[#2fd0a2] px-5 py-3 text-sm font-semibold text-[#07131e] transition hover:bg-[#45dfb3]">
                 Run full simulation
               </button>
-              <button type="button" onClick={() => router.push("/rankings")} className="rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
+              <button type="button" onClick={() => router.push("/rankings")} className={secondaryButtonClass}>
                 Compare scenarios
               </button>
             </div>
           </div>
         </div>
       </section>
-      <section className="border-b border-white/8">
+      <section className={`border-b ${sectionBorderClass}`}>
         <div className="mx-auto grid max-w-7xl gap-6 px-6 py-16 md:px-10 xl:grid-cols-[1.1fr_0.95fr] lg:px-14">
-          <div className="dyn-home-card rounded-[1.9rem] p-6">
+          <div className={`${panelClass} rounded-[1.9rem] p-6`}>
             <p className="text-xs uppercase tracking-[0.28em] text-[#49d2b6]">Rankings & index</p>
-            <h2 className="mt-3 text-3xl font-semibold text-white">African energy policy quality and impact index.</h2>
-            <p className="mt-3 text-sm leading-7 text-white/64">
+            <h2 className={`mt-3 text-3xl font-semibold ${titleClass}`}>African energy policy quality and impact index.</h2>
+            <p className={`mt-3 text-sm leading-7 ${bodyClass}`}>
               Annual public ranking signals highlight stronger policy examples, state-level momentum, and where the biggest delivery gaps still sit.
             </p>
             <div className="mt-6 space-y-3">
@@ -632,13 +660,13 @@ export default function HomePage() {
                 const score = item.avgScore ?? 0;
                 const status = score >= 80 ? "Leading" : score >= 65 ? "Steady" : score >= 50 ? "Developing" : "Gaps";
                 return (
-                  <div key={`${item.id ?? item.title ?? "rank"}-${index}`} className="flex items-center gap-4 rounded-[1.3rem] border border-white/8 bg-[#0b1523] px-4 py-4">
+                  <div key={`${item.id ?? item.title ?? "rank"}-${index}`} className={`flex items-center gap-4 rounded-[1.3rem] px-4 py-4 ${dark ? "border border-white/8 bg-[#0b1523]" : "border border-[#d8e6ec] bg-white/92"}`}>
                     <div className="flex h-11 w-11 items-center justify-center rounded-full border border-[#0073d1]/28 bg-[#0073d1]/10 text-sm font-semibold text-[#82cfff]">
                       <CountUpNumber value={score} decimals={0} />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-white">{item.title}</p>
-                      <p className="mt-1 text-xs text-white/46">{item.state || titleCase(item.jurisdictionLevel)}</p>
+                      <p className={`truncate text-sm font-semibold ${panelTitleClass}`}>{item.title}</p>
+                      <p className={`mt-1 text-xs ${panelMetaClass}`}>{item.state || titleCase(item.jurisdictionLevel)}</p>
                     </div>
                     <span className={`rounded-full px-3 py-1 text-xs font-medium ${status === "Leading" ? "bg-[#2fd0a2]/12 text-[#84ead7]" : status === "Steady" ? "bg-[#5eb6ff]/12 text-[#8ecfff]" : status === "Developing" ? "bg-[#f4a83a]/12 text-[#ffcc7b]" : "bg-[#ff6b64]/12 text-[#ff9f9b]"}`}>
                       #{index + 1} {status}
@@ -649,21 +677,21 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="dyn-home-card rounded-[1.9rem] p-6">
+          <div className={`${panelClass} rounded-[1.9rem] p-6`}>
             <p className="text-xs uppercase tracking-[0.28em] text-[#49d2b6]">Nigeria - state-level snapshot</p>
             <div className="mt-6 space-y-4">
               {topStates.map((item, index) => (
-                <div key={item.state} className="flex items-center gap-4 rounded-[1.3rem] border border-white/8 bg-[#0b1523] px-4 py-4">
+                <div key={item.state} className={`flex items-center gap-4 rounded-[1.3rem] px-4 py-4 ${dark ? "border border-white/8 bg-[#0b1523]" : "border border-[#d8e6ec] bg-white/92"}`}>
                   <div className="flex h-11 w-11 items-center justify-center rounded-full border border-[#2fd0a2]/28 bg-[#2fd0a2]/10 text-sm font-semibold text-[#7fe7cf]">
                     {index + 1}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold text-white">{item.state}</p>
-                    <p className="mt-1 text-xs text-white/46">{item.policies} indexed public policies</p>
+                    <p className={`text-sm font-semibold ${panelTitleClass}`}>{item.state}</p>
+                    <p className={`mt-1 text-xs ${panelMetaClass}`}>{item.policies} indexed public policies</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-xl font-semibold text-white"><CountUpNumber value={Number(item.avgScore ?? 0)} decimals={1} /></p>
-                    <p className="text-[11px] uppercase tracking-[0.14em] text-white/32">score</p>
+                    <p className={`text-xl font-semibold ${panelTitleClass}`}><CountUpNumber value={Number(item.avgScore ?? 0)} decimals={1} /></p>
+                    <p className={`text-[11px] uppercase tracking-[0.14em] ${subtleClass}`}>score</p>
                   </div>
                 </div>
               ))}
@@ -671,11 +699,11 @@ export default function HomePage() {
             <div className="mt-6 space-y-3">
               {critique.criteria.map((row) => (
                 <div key={`breakdown-${row.key}`}>
-                  <div className="mb-1 flex items-center justify-between text-sm text-white/68">
+                  <div className={`mb-1 flex items-center justify-between text-sm ${dark ? "text-white/68" : "text-[#5b748b]"}`}>
                     <span>{row.label}</span>
-                    <span className="font-semibold text-white"><CountUpNumber value={row.value} /></span>
+                    <span className={`font-semibold ${panelTitleClass}`}><CountUpNumber value={row.value} /></span>
                   </div>
-                  <div className="h-1.5 rounded-full bg-white/8">
+                  <div className={`h-1.5 rounded-full ${dark ? "bg-white/8" : "bg-[#dfeaf2]"}`}>
                     <div className={`h-full rounded-full ${row.value >= 80 ? "bg-[#2fd0a2]" : row.value >= 65 ? "bg-[#5eb6ff]" : row.value >= 50 ? "bg-[#f4a83a]" : "bg-[#ff6b64]"}`} style={{ width: `${row.value}%` }} />
                   </div>
                 </div>
@@ -688,12 +716,12 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="border-b border-white/8">
+      <section className={`border-b ${sectionBorderClass}`}>
         <div className="mx-auto max-w-7xl px-6 py-16 md:px-10 lg:px-14">
           <div className="mb-8 max-w-3xl">
             <p className="text-xs uppercase tracking-[0.28em] text-[#49d2b6]">Nigeria map intelligence</p>
-            <h2 className="mt-3 text-3xl font-semibold text-white">See public policy performance geographically.</h2>
-            <p className="mt-3 text-sm leading-7 text-white/64">
+            <h2 className={`mt-3 text-3xl font-semibold ${titleClass}`}>See public policy performance geographically.</h2>
+            <p className={`mt-3 text-sm leading-7 ${bodyClass}`}>
               Hover a state, see the live profile, then move directly into the repository or rankings with better geographic context.
             </p>
           </div>
@@ -712,13 +740,13 @@ export default function HomePage() {
         <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-6 py-16 md:px-10 lg:flex-row lg:items-center lg:px-14">
           <div className="max-w-2xl">
             <p className="text-xs uppercase tracking-[0.28em] text-[#49d2b6]">Connected workflow</p>
-            <h2 className="mt-3 text-3xl font-semibold text-white">Move from public signals to private execution without losing context.</h2>
-            <p className="mt-4 text-sm leading-7 text-white/64">
+            <h2 className={`mt-3 text-3xl font-semibold ${titleClass}`}>Move from public signals to private execution without losing context.</h2>
+            <p className={`mt-4 text-sm leading-7 ${bodyClass}`}>
               Discover a public policy, bring it into your workspace, improve the draft, test the scenario, and export a polished document when the work is ready.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
-            <button type="button" onClick={() => router.push(user ? "/repository" : "/public/policies")} className="rounded-full border border-white/12 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
+            <button type="button" onClick={() => router.push(user ? "/repository" : "/public/policies")} className={secondaryButtonClass}>
               Open repository
             </button>
             <button type="button" onClick={() => openProtected("/ai-generate")} className="rounded-full bg-[#0073d1] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#0059a3]">
@@ -732,3 +760,5 @@ export default function HomePage() {
     </div>
   );
 }
+
+

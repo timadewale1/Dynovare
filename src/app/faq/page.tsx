@@ -3,8 +3,8 @@
 import { useState } from "react";
 import PublicNavbar from "@/components/public/PublicNavbar";
 import PublicFooter from "@/components/public/PublicFooter";
-import { Card } from "@/components/ui/card";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, HelpCircle, ShieldCheck } from "lucide-react";
+import { usePublicTheme } from "@/components/public/usePublicTheme";
 
 const FAQ_ITEMS = [
   {
@@ -31,16 +31,33 @@ const FAQ_ITEMS = [
 
 export default function FAQPage() {
   const [open, setOpen] = useState<string | null>(FAQ_ITEMS[0].q);
+  const { theme, mounted } = usePublicTheme();
+  const dark = !mounted || theme === "dark";
+  const shellClass = dark
+    ? "min-h-screen bg-[radial-gradient(circle_at_top,rgba(0,115,209,0.12),transparent_24%),linear-gradient(180deg,#09111b_0%,#0a1320_40%,#08101a_100%)] text-white"
+    : "min-h-screen bg-[linear-gradient(180deg,#eef6fd_0%,#f8fbff_30%,#ffffff_100%)] text-[#003869]";
+  const panelClass = dark
+    ? "rounded-[1.9rem] border border-white/10 bg-[#0b1523]/92 shadow-[0_24px_80px_rgba(0,0,0,0.22)]"
+    : "premium-card rounded-[1.9rem]";
+  const bodyClass = dark ? "text-white/64" : "text-[var(--text-secondary)]";
+  const titleClass = dark ? "text-white" : "text-blue-deep";
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,#e7f4f6_0%,#f8fbfd_40%,#ffffff_100%)]">
+    <div className={shellClass}>
       <PublicNavbar />
 
-      <main className="mx-auto max-w-5xl px-4 py-10">
-        <section className="rounded-[2.25rem] bg-[linear-gradient(135deg,#00223f_0%,#0073d1_100%)] p-8 text-white shadow-[0_28px_80px_rgba(0,56,105,0.16)]">
-          <p className="text-xs uppercase tracking-[0.22em] text-white/70">FAQ</p>
-          <h1 className="mt-3 text-3xl font-black md:text-4xl">Answers to the questions teams ask most.</h1>
-          <p className="mt-4 max-w-2xl text-white/78">
+      <main className="mx-auto max-w-6xl px-6 py-10 md:px-10 lg:px-14">
+        <section className={`${panelClass} p-8`}>
+          <div className="flex items-center gap-3">
+            <div className={`rounded-2xl p-3 ${dark ? "border border-[#0073d1]/20 bg-[#0073d1]/10 text-[#7ac8ff]" : "bg-[rgba(0,115,209,0.09)] text-[#0073d1]"}`}>
+              <HelpCircle size={22} />
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-[0.22em] text-[#49d2b6]">FAQ</p>
+              <h1 className={`mt-2 text-3xl font-semibold md:text-4xl ${titleClass}`}>Answers to the questions teams ask most.</h1>
+            </div>
+          </div>
+          <p className={`mt-4 max-w-3xl leading-7 ${bodyClass}`}>
             Find quick answers on privacy, drafting, critique, simulation, rankings, and exports.
           </p>
         </section>
@@ -49,23 +66,35 @@ export default function FAQPage() {
           {FAQ_ITEMS.map((item) => {
             const isOpen = open === item.q;
             return (
-              <Card key={item.q} className="premium-card overflow-hidden rounded-[1.75rem]">
+              <div key={item.q} className={`${panelClass} overflow-hidden`}>
                 <button
                   type="button"
                   onClick={() => setOpen(isOpen ? null : item.q)}
                   className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left"
                 >
-                  <p className="text-lg font-bold text-blue-deep">{item.q}</p>
-                  {isOpen ? <ChevronUp size={18} className="text-[#0073d1]" /> : <ChevronDown size={18} className="text-[#0073d1]" />}
+                  <p className={`text-lg font-semibold ${titleClass}`}>{item.q}</p>
+                  {isOpen ? <ChevronUp size={18} className={dark ? "text-[#7ac8ff]" : "text-[#0073d1]"} /> : <ChevronDown size={18} className={dark ? "text-[#7ac8ff]" : "text-[#0073d1]"} />}
                 </button>
                 {isOpen ? (
-                  <div className="border-t px-6 py-5 text-sm leading-7 text-[var(--text-secondary)]">
+                  <div className={`border-t px-6 py-5 text-sm leading-7 ${dark ? "border-white/10 text-white/68" : "text-[var(--text-secondary)]"}`}>
                     {item.a}
                   </div>
                 ) : null}
-              </Card>
+              </div>
             );
           })}
+        </section>
+
+        <section className={`${panelClass} mt-8 p-7`}>
+          <div className="flex items-start gap-3">
+            <ShieldCheck className={dark ? "mt-1 text-[#7ce8d1]" : "mt-1 text-[#0073d1]"} size={18} />
+            <div>
+              <p className="text-xs uppercase tracking-[0.22em] text-[#49d2b6]">Quick principle</p>
+              <p className={`mt-2 leading-7 ${bodyClass}`}>
+                Public discovery and private work are intentionally separate. Browse public signals openly, then move into the private workspace for critique, simulation, drafting, and export.
+              </p>
+            </div>
+          </div>
         </section>
       </main>
 

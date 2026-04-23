@@ -1,15 +1,9 @@
 // src/app/layout.tsx
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import { UserProvider } from "@/components/providers/UserProvider";
 import PwaBootstrap from "@/components/app/PwaBootstrap";
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Dynovare",
@@ -49,7 +43,6 @@ export default function RootLayout({
     <html lang="en" className="h-full">
       <body
         className={[
-          inter.variable,
           "h-full min-h-screen bg-white text-[var(--text-primary)]",
           "overflow-x-hidden",
         ].join(" ")}

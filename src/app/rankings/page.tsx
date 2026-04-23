@@ -19,6 +19,7 @@ import { fetchWorkspacePolicies } from "@/lib/workspacePolicies";
 import { importPublicPolicyToWorkspace } from "@/lib/policyWrites";
 import toast from "react-hot-toast";
 import ListPagination from "@/components/ui/ListPagination";
+import { usePublicTheme } from "@/components/public/usePublicTheme";
 
 type RankingItem = {
   id: string;
@@ -57,28 +58,29 @@ function RankingFilters({
   sortBy,
   setSortBy,
   load,
+  dark = false,
 }: any) {
   return (
-    <Card className="premium-card rounded-[2rem] p-5">
+    <Card className={`${dark ? "rounded-[2rem] border border-white/10 bg-[#0b1523]/92 p-5 shadow-[0_24px_80px_rgba(0,0,0,0.22)]" : "premium-card rounded-[2rem] p-5"}`}>
       <div className="mb-4 flex items-center gap-2">
-        <Filter size={16} className="text-[#0073d1]" />
-        <p className="font-bold text-blue-deep">Filters</p>
+        <Filter size={16} className={dark ? "text-[#7ac8ff]" : "text-[#0073d1]"} />
+        <p className={`font-bold ${dark ? "text-white" : "text-blue-deep"}`}>Filters</p>
       </div>
 
       <div className="flex flex-col gap-4">
         <div>
-          <p className="mb-2 text-sm font-medium">Search</p>
-          <div className="flex gap-2">
-            <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search title, state, domain..." />
+            <p className={`mb-2 text-sm font-medium ${dark ? "text-white" : ""}`}>Search</p>
+            <div className="flex gap-2">
+            <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search title, state, domain..." className={dark ? "border-white/10 bg-[#09111b] text-white placeholder:text-white/52" : ""} />
             <Button onClick={load} className="rounded-full bg-[#0073d1] hover:bg-[#003869]">Search</Button>
           </div>
         </div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
           <div>
-            <p className="mb-2 text-sm font-medium">Jurisdiction</p>
+            <p className={`mb-2 text-sm font-medium ${dark ? "text-white" : ""}`}>Jurisdiction</p>
             <Select value={jurisdiction} onValueChange={(value) => { setJurisdiction(value); if (value === "federal") setStateFilter("all"); }}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className={dark ? "border-white/10 bg-[#09111b] text-white" : ""}><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All</SelectItem>
                 <SelectItem value="federal">Federal</SelectItem>
@@ -87,9 +89,9 @@ function RankingFilters({
             </Select>
           </div>
           <div>
-            <p className="mb-2 text-sm font-medium">State</p>
+            <p className={`mb-2 text-sm font-medium ${dark ? "text-white" : ""}`}>State</p>
             <Select value={stateFilter} onValueChange={setStateFilter} disabled={jurisdiction === "federal"}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className={dark ? "border-white/10 bg-[#09111b] text-white" : ""}><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All states</SelectItem>
                 {NIGERIA_STATES.map((state) => <SelectItem key={state} value={state}>{state}</SelectItem>)}
@@ -97,9 +99,9 @@ function RankingFilters({
             </Select>
           </div>
           <div>
-            <p className="mb-2 text-sm font-medium">Energy source</p>
+            <p className={`mb-2 text-sm font-medium ${dark ? "text-white" : ""}`}>Energy source</p>
             <Select value={energySource} onValueChange={setEnergySource}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className={dark ? "border-white/10 bg-[#09111b] text-white" : ""}><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All</SelectItem>
                 {POLICY_ENERGY_SOURCES.map((item) => <SelectItem key={item} value={item}>{policyEnergySourceLabel(item)}</SelectItem>)}
@@ -107,9 +109,9 @@ function RankingFilters({
             </Select>
           </div>
           <div>
-            <p className="mb-2 text-sm font-medium">Domain</p>
+            <p className={`mb-2 text-sm font-medium ${dark ? "text-white" : ""}`}>Domain</p>
             <Select value={domain} onValueChange={setDomain}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className={dark ? "border-white/10 bg-[#09111b] text-white" : ""}><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All</SelectItem>
                 {POLICY_DOMAINS.map((item) => <SelectItem key={item} value={item}>{policyDomainLabel(item)}</SelectItem>)}
@@ -117,9 +119,9 @@ function RankingFilters({
             </Select>
           </div>
           <div>
-            <p className="mb-2 text-sm font-medium">Sort by</p>
+            <p className={`mb-2 text-sm font-medium ${dark ? "text-white" : ""}`}>Sort by</p>
             <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger className={dark ? "border-white/10 bg-[#09111b] text-white" : ""}><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="avg">Average score</SelectItem>
                 <SelectItem value="latest">Latest score</SelectItem>
@@ -142,6 +144,7 @@ function RankingList({
   onApply,
   page,
   onPageChange,
+  dark = false,
 }: {
   items: RankingItem[];
   loading: boolean;
@@ -150,55 +153,89 @@ function RankingList({
   onApply?: (item: RankingItem) => void;
   page: number;
   onPageChange: (page: number) => void;
+  dark?: boolean;
 }) {
   const PAGE_SIZE = 5;
   const totalPages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
   const pagedItems = items.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
-    <Card className="premium-card rounded-[2rem] p-4">
+    <Card className={`${dark ? "rounded-[2rem] border border-white/10 bg-[#0b1523]/92 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.22)]" : "premium-card rounded-[2rem] p-4"}`}>
       {loading ? (
-        <p className="text-sm text-[var(--text-secondary)]">Loading rankings...</p>
+        <p className={`text-sm ${dark ? "text-white/58" : "text-[var(--text-secondary)]"}`}>Loading rankings...</p>
       ) : items.length === 0 ? (
-        <p className="text-sm text-[var(--text-secondary)]">No rankings match your filters.</p>
+        <p className={`text-sm ${dark ? "text-white/58" : "text-[var(--text-secondary)]"}`}>No rankings match your filters.</p>
       ) : (
         <div className="space-y-3">
           {pagedItems.map((item, index) => (
-            <div key={item.id} className="rounded-[1.5rem] border bg-white/80 p-4 transition hover:-translate-y-0.5 hover:shadow-sm">
+            <div key={item.id} className={`rounded-[1.5rem] border p-4 transition hover:-translate-y-0.5 ${dark ? "border-white/10 bg-white/[0.04] hover:bg-white/[0.06]" : "bg-white/80 hover:shadow-sm"}`}>
               <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <Badge variant="secondary">#{(page - 1) * PAGE_SIZE + index + 1}</Badge>
-                    <p className="max-w-[560px] truncate font-bold text-blue-deep">{item.title ?? "Untitled policy"}</p>
-                    {item.jurisdictionLevel ? <Badge variant="outline">{item.jurisdictionLevel === "federal" ? "Federal" : item.state ?? "State"}</Badge> : null}
-                    {item.energySource ? <Badge variant="outline">{policyEnergySourceLabel(item.energySource)}</Badge> : null}
-                    {item.domain ? <Badge variant="outline">{policyDomainLabel(item.domain)}</Badge> : null}
+                    <p className={`max-w-[560px] truncate font-bold ${dark ? "text-white" : "text-blue-deep"}`}>{item.title ?? "Untitled policy"}</p>
+                    {item.jurisdictionLevel ? <Badge variant="outline" className={dark ? "border-white/10 bg-white/[0.03] text-white/72" : ""}>{item.jurisdictionLevel === "federal" ? "Federal" : item.state ?? "State"}</Badge> : null}
+                    {item.energySource ? <Badge variant="outline" className={dark ? "border-white/10 bg-white/[0.03] text-white/72" : ""}>{policyEnergySourceLabel(item.energySource)}</Badge> : null}
+                    {item.domain ? <Badge variant="outline" className={dark ? "border-white/10 bg-white/[0.03] text-white/72" : ""}>{policyDomainLabel(item.domain)}</Badge> : null}
                   </div>
-                  <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
-                    <Badge variant="outline">Avg</Badge>
+                  <div className={`mt-2 flex flex-wrap items-center gap-2 text-sm ${dark ? "text-white/72" : ""}`}>
+                    <Badge variant="outline" className={dark ? "border-white/10 bg-white/[0.03] text-white/72" : ""}>Avg</Badge>
                     <span className="font-bold">{typeof item.avgOverallScore === "number" ? `${item.avgOverallScore}/100` : "-"}</span>
-                    <Badge variant="outline">Latest</Badge>
+                    <Badge variant="outline" className={dark ? "border-white/10 bg-white/[0.03] text-white/72" : ""}>Latest</Badge>
                     <span className="font-bold">{typeof item.latestOverallScore === "number" ? `${item.latestOverallScore}/100` : "-"}</span>
-                    <Badge variant="outline">Trend</Badge>
+                    <Badge variant="outline" className={dark ? "border-white/10 bg-white/[0.03] text-white/72" : ""}>Trend</Badge>
                     <span className="inline-flex items-center gap-1 font-semibold">
                       {Number(item.trendDelta ?? 0) > 0 ? <TrendingUp size={14} className="text-green-600" /> : null}
                       {Number(item.trendDelta ?? 0) < 0 ? <TrendingDown size={14} className="text-red-600" /> : null}
                       {typeof item.trendDelta === "number" ? item.trendDelta : "-"}
                     </span>
-                    <Badge variant="outline">Critiques</Badge>
+                    <Badge variant="outline" className={dark ? "border-white/10 bg-white/[0.03] text-white/72" : ""}>Critiques</Badge>
                     <span className="font-bold">{item.critiquesCount ?? 0}</span>
+                  </div>
+                  <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                    {[
+                      {
+                        label: "Score strength",
+                        value:
+                          typeof item.avgOverallScore === "number"
+                            ? item.avgOverallScore >= 80
+                              ? "Leading"
+                              : item.avgOverallScore >= 65
+                                ? "Steady"
+                                : item.avgOverallScore >= 50
+                                  ? "Developing"
+                                  : "Gaps"
+                            : "Pending",
+                      },
+                      {
+                        label: "Jurisdiction focus",
+                        value: item.jurisdictionLevel === "federal" ? "National" : item.state ?? "State",
+                      },
+                      {
+                        label: "Review signal",
+                        value: Number(item.critiquesCount ?? 0) >= 3 ? "Deeply reviewed" : "Early-stage signal",
+                      },
+                    ].map((signal) => (
+                      <div
+                        key={`${item.id}-${signal.label}`}
+                        className={`rounded-2xl border px-3 py-3 ${dark ? "border-white/10 bg-white/[0.03]" : "border-[#d8e6ec] bg-[#f8fbff]"}`}
+                      >
+                        <p className={`text-[11px] uppercase tracking-[0.18em] ${dark ? "text-white/46" : "text-[#7890a5]"}`}>{signal.label}</p>
+                        <p className={`mt-2 text-sm font-semibold ${dark ? "text-white" : "text-blue-deep"}`}>{signal.value}</p>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
                 <div className="flex flex-wrap gap-2">
-                  <Button variant="secondary" onClick={() => router.push(internal ? `/repository/${item.slug ?? item.id}` : `/public/policies/${item.slug ?? item.id}`)}>View</Button>
+                  <Button variant="secondary" className={dark ? "bg-white text-[#003869] hover:bg-[#dcebfa]" : ""} onClick={() => router.push(internal ? `/repository/${item.slug ?? item.id}` : `/public/policies/${item.slug ?? item.id}`)}>View</Button>
                   {internal ? (
-                    <Button variant="outline" className="gap-2" onClick={() => onApply?.(item)}>
+                    <Button variant="outline" className={`gap-2 ${dark ? "border-white/12 bg-transparent text-white hover:bg-white/8" : ""}`} onClick={() => onApply?.(item)}>
                       <Sparkles size={14} />
                       Apply to my work
                     </Button>
                   ) : (
-                    <Button variant="outline" onClick={() => router.push("/register")}>Open private workspace</Button>
+                    <Button variant="outline" className={dark ? "border-white/12 bg-transparent text-white hover:bg-white/8" : ""} onClick={() => router.push("/register")}>Open private workspace</Button>
                   )}
                 </div>
               </div>
@@ -220,6 +257,8 @@ function RankingList({
 
 function PublicRankingsView() {
   const router = useRouter();
+  const { theme, mounted } = usePublicTheme();
+  const dark = !mounted || theme === "dark";
   const [items, setItems] = useState<RankingItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -259,29 +298,64 @@ function PublicRankingsView() {
     };
   }, [items]);
 
+  const rankingSignals = useMemo(() => {
+    const topMover = [...items]
+      .filter((item) => typeof item.trendDelta === "number")
+      .sort((a, b) => Number(b.trendDelta ?? 0) - Number(a.trendDelta ?? 0))[0] ?? null;
+    const strongest = [...items]
+      .filter((item) => typeof item.avgOverallScore === "number")
+      .sort((a, b) => Number(b.avgOverallScore ?? 0) - Number(a.avgOverallScore ?? 0))[0] ?? null;
+    const mostReviewed = [...items]
+      .sort((a, b) => Number(b.critiquesCount ?? 0) - Number(a.critiquesCount ?? 0))[0] ?? null;
+
+    return { topMover, strongest, mostReviewed };
+  }, [items]);
+
+  const stateScores = useMemo(
+    () =>
+      items
+        .filter((item) => item.state)
+        .reduce<{ state: string; score: number | null; policies: number }[]>((acc, item) => {
+          const state = item.state as string;
+          const existing = acc.find((entry) => entry.state === state);
+          const score = item.avgOverallScore ?? item.latestOverallScore ?? null;
+          if (!existing) {
+            acc.push({ state, score, policies: 1 });
+          } else {
+            existing.policies += 1;
+            if (typeof score === "number" && (existing.score === null || score > existing.score)) {
+              existing.score = score;
+            }
+          }
+          return acc;
+        }, []),
+    [items]
+  );
+
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#f5fbff_0%,#ffffff_24%)]">
+    <div className={dark ? "min-h-screen bg-[radial-gradient(circle_at_top,rgba(0,115,209,0.12),transparent_24%),linear-gradient(180deg,#09111b_0%,#0a1320_40%,#08101a_100%)] text-white" : "min-h-screen bg-[linear-gradient(180deg,#eff7fd_0%,#f8fbff_30%,#ffffff_100%)] text-[#003869]"}>
       <PublicNavbar />
 
-      <main className="mx-auto max-w-7xl px-4 py-8">
-        <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
-          <Card className="premium-card rounded-[2rem] p-6">
+      <main className="mx-auto max-w-7xl px-6 py-10 md:px-10 lg:px-14">
+        <div className="grid gap-5 xl:grid-cols-[1.08fr_0.92fr]">
+          <Card className={`${dark ? "rounded-[2rem] border border-white/10 bg-[#0b1523]/92 p-7 shadow-[0_24px_80px_rgba(0,0,0,0.22)]" : "premium-card rounded-[2rem] p-7"}`}>
             <div className="flex items-center gap-3">
-              <div className="rounded-2xl bg-[rgba(0,115,209,0.09)] p-3 text-[#0073d1]">
+              <div className={`rounded-2xl p-3 ${dark ? "border border-[#0073d1]/20 bg-[#0073d1]/10 text-[#7ac8ff]" : "bg-[rgba(0,115,209,0.09)] text-[#0073d1]"}`}>
                 <Trophy size={24} />
               </div>
               <div>
-                <p className="text-xs uppercase tracking-[0.22em] text-[var(--text-secondary)]">Public rankings</p>
-                <h1 className="mt-2 text-3xl font-black text-blue-deep">See which public policies are setting the pace.</h1>
-                <p className="mt-1 text-sm text-[var(--text-secondary)]">
+                <p className="text-xs uppercase tracking-[0.22em] text-[#49d2b6]">Public rankings</p>
+                <h1 className={`mt-2 text-3xl font-semibold ${dark ? "text-white" : "text-blue-deep"}`}>See which public policies are setting the pace.</h1>
+                <p className={`mt-1 text-sm ${dark ? "text-white/58" : "text-[var(--text-secondary)]"}`}>
                   Compare quality, trend movement, and review volume across public policies.
                 </p>
               </div>
             </div>
           </Card>
 
-          <Card className="rounded-[2rem] bg-[linear-gradient(135deg,#00223f_0%,#0073d1_100%)] p-6 text-white shadow-sm">
-            <p className="text-xs uppercase tracking-[0.22em] text-white/70">Snapshot</p>
+          <Card className={`${dark ? "rounded-[2rem] border border-white/10 bg-[linear-gradient(135deg,#07121e_0%,#0b1523_50%,#10253f_100%)] p-7 text-white shadow-[0_24px_80px_rgba(0,0,0,0.22)]" : "rounded-[2rem] bg-[linear-gradient(135deg,#00223f_0%,#0073d1_100%)] p-7 text-white shadow-sm"}`}>
+            <p className="text-xs uppercase tracking-[0.22em] text-[#49d2b6]">Snapshot</p>
+            <h2 className="mt-3 text-2xl font-semibold">Public ranking intelligence at a glance.</h2>
               <div className="mt-4 grid grid-cols-3 gap-3">
               <div className="min-w-0">
                 <p className="truncate text-[1.9rem] leading-none font-black tabular-nums">{summary.policies}</p>
@@ -299,6 +373,74 @@ function PublicRankingsView() {
           </Card>
         </div>
 
+        <div className="mt-6 grid gap-6 xl:grid-cols-[1.08fr_0.92fr]">
+          <Card className={`${dark ? "rounded-[2rem] border border-white/10 bg-[#0b1523]/92 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.22)]" : "premium-card rounded-[2rem] p-6"}`}>
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs uppercase tracking-[0.22em] text-[#49d2b6]">Nigeria map</p>
+                <h2 className={`mt-2 text-2xl font-semibold ${dark ? "text-white" : "text-blue-deep"}`}>Track state-level public signals.</h2>
+              </div>
+              <MapPinned className={dark ? "text-[#7ac8ff]" : "text-[#0073d1]"} />
+            </div>
+            <div className="mt-5">
+              <NigeriaPolicyMap
+                scores={stateScores}
+                compact
+                dark={dark}
+                showHoverCard
+                onSelectState={(state) => router.push(`/public/policies?jurisdictionLevel=state&state=${encodeURIComponent(state)}`)}
+              />
+            </div>
+          </Card>
+
+          <Card className={`${dark ? "rounded-[2rem] border border-white/10 bg-[#0b1523]/92 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.22)]" : "premium-card rounded-[2rem] p-6"}`}>
+            <div className="flex items-center gap-3">
+              <ShieldCheck size={18} className={dark ? "text-[#7ce8d1]" : "text-[#0073d1]"} />
+              <div>
+                <p className="text-xs uppercase tracking-[0.22em] text-[#49d2b6]">What to do next</p>
+                <h2 className={`mt-2 text-2xl font-semibold ${dark ? "text-white" : "text-blue-deep"}`}>Use the strongest public examples deliberately.</h2>
+              </div>
+            </div>
+            <div className="mt-5 space-y-3">
+              {[
+                "Look for high-average policies with strong critique volume, not just one-off scores.",
+                "Open the repository after filtering to inspect the policy context behind the ranking.",
+                "Create an account to import a public policy into your private workspace and improve it.",
+              ].map((item) => (
+                <div key={item} className={`${dark ? "rounded-[1.4rem] border border-white/10 bg-white/[0.04]" : "rounded-[1.4rem] border border-[#d8e6ec] bg-white"} p-4`}>
+                  <p className={`text-sm leading-7 ${dark ? "text-white/64" : "text-[var(--text-secondary)]"}`}>{item}</p>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
+
+        <section className="mt-6 grid gap-4 lg:grid-cols-3">
+          {[
+            {
+              label: "Top mover",
+              title: rankingSignals.topMover?.title ?? "No trend data yet",
+              body: rankingSignals.topMover ? `${rankingSignals.topMover.trendDelta ?? 0} point movement across recent critiques.` : "Run more critiques to surface movement between reviews.",
+            },
+            {
+              label: "Strongest average",
+              title: rankingSignals.strongest?.title ?? "No scoring data yet",
+              body: rankingSignals.strongest ? `${rankingSignals.strongest.avgOverallScore ?? "-"} average score across visible ranking items.` : "Average score cards will populate as public critique data grows.",
+            },
+            {
+              label: "Most reviewed",
+              title: rankingSignals.mostReviewed?.title ?? "No review leader yet",
+              body: rankingSignals.mostReviewed ? `${rankingSignals.mostReviewed.critiquesCount ?? 0} critiques logged against this public policy.` : "Review depth appears here when enough public critique records exist.",
+            },
+          ].map((item) => (
+            <Card key={item.label} className={`${dark ? "rounded-[1.75rem] border border-white/10 bg-[#0b1523]/92 p-5 shadow-[0_24px_60px_rgba(0,0,0,0.2)]" : "premium-card rounded-[1.75rem] p-5"}`}>
+              <p className="text-[11px] uppercase tracking-[0.22em] text-[#49d2b6]">{item.label}</p>
+              <h3 className={`mt-3 text-lg font-semibold ${dark ? "text-white" : "text-blue-deep"}`}>{item.title}</h3>
+              <p className={`mt-3 text-sm leading-7 ${dark ? "text-white/64" : "text-[var(--text-secondary)]"}`}>{item.body}</p>
+            </Card>
+          ))}
+        </section>
+
         <div className="mt-6 space-y-6">
           <RankingFilters
             search={search}
@@ -314,8 +456,9 @@ function PublicRankingsView() {
             sortBy={sortBy}
             setSortBy={setSortBy}
             load={load}
+            dark={dark}
           />
-          <RankingList items={items} loading={loading} router={router} page={page} onPageChange={setPage} />
+          <RankingList items={items} loading={loading} router={router} page={page} onPageChange={setPage} dark={dark} />
         </div>
       </main>
 
