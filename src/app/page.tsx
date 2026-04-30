@@ -20,18 +20,18 @@ import {
   Sparkles,
   SunMedium,
   Trees,
+  MedalIcon
 } from "lucide-react";
 
-const HERO_IMAGE =
-  "/hero-image.png";
+const HERO_IMAGE = "/hero-image.png";
 
 const ENERGY_IMPACT_DATA = [
-  { value: 85, suffix: "M+", label: "Nigerians without access to the national grid" },
-  { value: 55, suffix: "%", label: "National electrification rate" },
-  { value: 4.5, suffix: "GW", decimals: 1, label: "Supplied vs. 13GW installed capacity" },
-  { value: 7, label: "Blackouts per week per connected household" },
-  { value: 29, prefix: "$", suffix: "B", label: "Lost annually to power outages" },
-  { value: 2, suffix: "%", label: "Contribution from renewable energy in total primary energy supply" },
+  { value: 85, suffix: "M+", label: "NIGERIANS WITHOUT POWER" },
+  { value: 55, suffix: "%", label: "ELECTRIFICATION RATE" },
+  { value: 4.5, suffix: "GW", decimals: 1, label: "CAPACITY SUPPLIED " },
+  { value: 7, label: "BLACKOUTS PER WEEK" },
+  { value: 29, prefix: "$", suffix: "B", label: "LOST ANNUALLY" },
+  // { value: 2, suffix: "%", label: "Contribution from renewable energy in total primary energy supply " },
 ];
 
 type InsightResponse = {
@@ -252,7 +252,7 @@ function CountUpNumber({
     <span className={className}>
       {prefix}
       {animated.toFixed(decimals)}
-      {suffix}
+      {suffix ? <span className="text-[#0073d1]">{suffix}</span> : null}
     </span>
   );
 }
@@ -370,26 +370,29 @@ export default function HomePage() {
       >
       <section className={`relative overflow-hidden border-b ${dark ? "border-white/10" : "border-[#d8e6ec]"}`}>
         <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('${HERO_IMAGE}')` }} />
-        <div className={`absolute inset-0 ${dark ? "bg-[#003869]/70" : "bg-[rgba(255,255,255,0.62)]"}`} />
-        <div className="relative mx-auto flex min-h-[76vh] max-w-7xl items-center justify-center px-6 py-20 text-center md:px-10 lg:px-14">
-          <div className="max-w-4xl">
-            <div className={`mb-5 flex flex-wrap items-center justify-center gap-3 text-[11px] uppercase tracking-[0.28em] ${dark ? "text-[#7fe7cb]" : "text-[#0073d1]"}`}>
-              <span className={`rounded-full px-4 py-2 ${dark ? "border border-white/12 bg-white/6" : "border border-[#cfe0ef] bg-white/82"}`}>Africa's energy policy intelligence layer</span>
-              <span className={`rounded-full px-4 py-2 ${dark ? "border border-white/12 bg-white/6" : "border border-[#cfe0ef] bg-white/82"}`}>Private drafting workspace</span>
+        <div className={`absolute inset-0 ${dark ? "bg-[#08182B]/90" : "bg-[rgba(255,255,255,0.62)]"}`} />
+        <div className="relative mx-auto flex min-h-[70vh] max-w-7xl items-center justify-center px-6 py-2 text-center md:px-10 lg:px-14">
+          <div className="max-w-5xl">
+            <div className={`mb-2 flex flex-wrap items-center justify-center gap-3 text-[11px] uppercase tracking-[0.28em] ${dark ? "text-[#7fe7cb]" : "text-[#0073d1]"}`}>
+              Nigeria's energy policy intelligence layer
+              {/* <span className={`rounded-full px-4 py-2 ${dark ? "border border-white/12 bg-white/6" : "border border-[#cfe0ef] bg-white/82"}`}>Private drafting workspace</span> */}
             </div>
-            <h1 className={`mx-auto max-w-[20ch] text-[2.1rem] font-bold leading-[1.04] sm:text-[2.75rem] md:text-[3.65rem] ${titleClass}`}>
-              Turn policy signals into decisions that electrify Africa
+            <h1
+              className={`mx-auto max-w-[17ch] text-[2.1rem] leading-[0.78] sm:text-[2.75rem] md:text-[3.65rem] ${titleClass}`}
+              style={{ fontWeight: 700 }}
+            >
+              Turn policy signals into <br /> decisions that <br /> electrify Nigeria
             </h1>
-            <p className={`mx-auto mt-6 max-w-3xl text-base leading-8 md:text-lg ${dark ? "text-white/80" : "text-[#23425f]"}`}>
-              An AI-powered platform that evaluates, synthesises, and simulates African energy policies, transforming incoherent frameworks into context-specific, evidence-driven solutions.
+            <p className={`mx-auto mt-2 max-w-[44rem] text-base leading-[1.35] md:text-lg ${dark ? "text-white/80" : "text-[#23425f]"}`}>
+              An AI-powered platform that evaluates, synthesises, and simulates Nigerian energy policies, transforming incoherent frameworks into context-specific, evidence-driven solutions.
             </p>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
               <button
                 type="button"
                 onClick={() => router.push(user ? "/repository" : "/public/policies")}
                 className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-[#003869] transition hover:bg-[#dcebfa]"
               >
-                Explore repository
+                Explore Nigeria Pilot
                 <ArrowRight size={16} />
               </button>
               <button
@@ -397,25 +400,62 @@ export default function HomePage() {
                 onClick={() => openProtected("/policies")}
                 className={`inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition ${dark ? "border border-white/18 bg-white/8 text-white hover:bg-white/12" : "border border-[#cfe0ef] bg-white/90 text-[#003869] hover:bg-[#eef6ff]"}`}
               >
-                Open private workspace
+                Open policy studio
+              </button>
+              <button
+                type="button"
+                onClick={() => router.push(user ? "/rankings" : "/public/rankings")}
+                className="inline-flex items-center gap-2 rounded-full bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#0073d1]/90"
+              >
+                View Rankings
+                <MedalIcon size={20} />
               </button>
             </div>
+
+          </div>
+        </div>
+        <div className={`relative z-10 w-full overflow-hidden border-t ${dark ? "border-white/8 bg-[#0a1320]" : "border-[#d8e6ec] bg-[#f7fbff]"}`}>
+          <div className="grid w-full md:grid-cols-2 lg:grid-cols-5">
+            {ENERGY_IMPACT_DATA.map((item, index) => (
+              <article
+                key={item.label}
+                className={`flex min-h-[92px] flex-col items-center justify-center px-6 py-4 text-center ${
+                  index !== ENERGY_IMPACT_DATA.length - 1
+                    ? dark
+                      ? "border-b border-white/8 md:border-b-0 md:border-r md:border-white/8"
+                      : "border-b border-[#d8e6ec] md:border-b-0 md:border-r md:border-[#d8e6ec]"
+                    : ""
+                }`}
+              >
+                <p className={`text-[1.85rem] leading-none ${dark ? "text-white" : "text-blue-deep"}`} style={{ fontWeight: 750 }}>
+                  <CountUpNumber
+                    value={item.value}
+                    prefix={item.prefix}
+                    suffix={item.suffix}
+                    decimals={item.decimals ?? 0}
+                  />
+                </p>
+                <p className={`mt-2 text-[11px] uppercase tracking-[0.24em] leading-[1.15] ${dark ? "text-white/42" : "text-[#6c8498]"}`}>
+                  {item.label}
+                </p>
+              </article>
+            ))}
           </div>
         </div>
       </section>
 
-      <section className={`border-b ${dark ? "border-white/8" : "border-[#d8e6ec]"}`}>
-        <div className="mx-auto grid max-w-7xl gap-4 px-6 py-10 md:grid-cols-2 md:px-10 lg:grid-cols-3 lg:px-14">
+      {/* <section className={`border-b ${dark ? "border-white/8" : "border-[#d8e6ec]"}`}>
+        <div className="mx-auto grid max-w-9xl px-6 py-10 md:grid-cols-2 md:px-10 lg:grid-cols-6 lg:px-14 line-height-0.3 text-center">
           {ENERGY_IMPACT_DATA.map((item) => (
             <article key={item.label} className={`${softPanelClass} p-5`}>
               <p className={`text-[2rem] font-semibold leading-none ${titleClass}`}>
                 <CountUpNumber value={item.value} prefix={item.prefix} suffix={item.suffix} decimals={item.decimals ?? 0} />
               </p>
-              <p className={`mt-3 max-w-[28ch] text-sm leading-6 ${bodyClass}`}>{item.label}</p>
+              <p className={`mt-3 max-w-[35ch] text-sm leading-6 ${bodyClass}`}>{item.label}</p>
             </article>
           ))}
         </div>
-      </section>
+      </section> */}
 
       <section className={`border-b ${sectionBorderClass}`}>
         <div className="mx-auto max-w-7xl px-6 py-16 md:px-10 lg:px-14">
@@ -760,5 +800,3 @@ export default function HomePage() {
     </div>
   );
 }
-
-

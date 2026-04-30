@@ -84,12 +84,17 @@ body {
   box-sizing: border-box;
 }
 
-h1,
+h1 {
+  font-family: var(--font-dyn-heading);
+  line-height: 1.02;
+  font-weight: 700;
+}
+
 h2,
 h3,
 h4 {
   font-family: var(--font-dyn-heading);
-  line-height: 1.08;
+  line-height: 1.04;
   font-weight: 600;
 }
 
@@ -390,7 +395,7 @@ div {
 .dyn-home-shell .dyn-heading {
   font-family: var(--font-dyn-heading);
   font-weight: 700;
-  line-height: 1.04;
+  line-height: 0.96;
 }
 
 .dyn-home-shell,
@@ -399,6 +404,10 @@ div {
 .dyn-home-shell a,
 .dyn-home-shell button {
   font-family: var(--font-dyn-body);
+}
+
+.dyn-home-shell p {
+  line-height: 1.45;
 }
 
 .dyn-home-card {
