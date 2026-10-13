@@ -4,6 +4,7 @@ import { llmJSON } from "@/lib/ai/llmClient";
 import { buildSimulationPrompt } from "@/lib/ai/prompts/simulate";
 import { resolvePolicyForAction } from "@/lib/policyStoreAdmin";
 
+// Simulation route: resolve the source policy, feed the scenario assumptions to the model, and return structured projections.
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {

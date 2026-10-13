@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useUser } from "@/components/providers/UserProvider";
 import PwaInstallButton from "@/components/branding/PwaInstallButton";
 
+// Topbar is intentionally light: mobile menu trigger, install action, and the signed-in identity cue.
 export default function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
   const { profile } = useUser();
 
@@ -32,8 +33,8 @@ export default function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
         )}
 
         <div className="min-w-0">
-          <span className="block truncate text-base font-bold text-blue-deep">Policy Studio</span>
-          <p className="truncate text-xs text-[var(--text-secondary)]">Draft, critique, simulate, export</p>
+          <span className="block truncate text-base font-bold text-blue-deep">CIEGMA</span>
+          <p className="truncate text-xs text-[var(--text-secondary)]">Draft, critique, simulate, improve</p>
         </div>
       </div>
 

@@ -2,6 +2,7 @@ import "server-only";
 import { NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebaseAdmin";
 
+// Public policies API: the homepage, repository, and policy detail views all draw their read-only public records from here.
 export const runtime = "nodejs";
 
 function safeString(v: any) {

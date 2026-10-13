@@ -2,6 +2,7 @@ import "server-only";
 import { NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebaseAdmin";
 
+// Public rankings API: this is the filtered/sorted read model behind the rankings page and homepage ranking slices.
 function safeString(v: unknown) {
   return typeof v === "string" ? v : "";
 }

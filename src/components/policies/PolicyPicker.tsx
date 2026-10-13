@@ -9,6 +9,7 @@ import { Search, Sparkles, FileText, ArrowRight } from "lucide-react";
 import { useUser } from "@/components/providers/UserProvider";
 import { policyDomainLabel, policyEnergySourceLabel } from "@/lib/policyTaxonomy";
 
+// This picker is the shared "choose a policy first" step used before critique and simulation.
 export default function PolicyPicker({
   onSelect,
 }: {

@@ -7,7 +7,7 @@ export default function DynovareLogo({
   size?: number;
   variant?: "default" | "white";
 }) {
-  const width = Math.round(size * 3.2);
+  const width = Math.round(size * 7.67);
 
   return (
     <Image
@@ -15,7 +15,7 @@ export default function DynovareLogo({
       alt="Dynovare"
       width={width}
       height={size}
-      className="h-auto w-auto max-h-[40px] object-contain"
+      className="block h-auto w-auto max-h-[40px] object-contain"
       priority
     />
   );

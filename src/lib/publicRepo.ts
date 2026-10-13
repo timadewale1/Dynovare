@@ -2,6 +2,7 @@
 import "server-only";
 import { adminDb } from "@/lib/firebaseAdmin";
 
+// Public repository reads are server-side on purpose so only curated/public-safe fields leave the backend.
 function toMillis(ts: any): number | null {
   // Firestore Timestamp has toMillis()
   if (ts && typeof ts.toMillis === "function") return ts.toMillis();

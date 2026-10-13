@@ -1,6 +1,7 @@
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import { normalizePolicySections, type PolicyEvidence, type PolicySection } from "@/lib/policyEditor";
 
+// Styled PDF export lives here because it needs its own layout logic separate from the editable web view.
 type ExportCritique = {
   overallScore?: number | null;
   summary?: string | null;

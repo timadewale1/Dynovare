@@ -7,6 +7,7 @@ import { doc, getDoc } from "firebase/firestore";
 import type { UserProfile } from "@/lib/types";
 import { logout as doLogout } from "@/lib/logout";
 
+// UserProvider keeps auth state, profile state, and the 3-hour session window in one place for the whole app tree.
 type UserContextValue = {
   user: User | null;
   profile: UserProfile | null;

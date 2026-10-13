@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { llmJSON } from "@/lib/ai/llmClient";
 import { buildSectionsFromText, composePolicyText, normalizePolicySections } from "@/lib/policyEditor";
 
+// "Generate from prompt" is the first-pass draft route: structured brief in, long-form policy package out.
 export const runtime = "nodejs";
 
 function countWords(text: string) {

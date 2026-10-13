@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Expand, X } from "lucide-react";
 
+// The map is one reusable state-level intelligence view, with compact and full modes depending on where I drop it in.
 type StateScore = {
   state: string;
   score: number | null;

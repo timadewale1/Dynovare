@@ -3,6 +3,7 @@ import { composePolicyText, normalizePolicySections, summarizePolicyText, type P
 import type { PolicyAIGuidance } from "@/lib/policyTypes";
 import { doc, serverTimestamp, updateDoc } from "firebase/firestore";
 
+// Small draft edits in Policy Studio come through here so title/summary/sections stay normalized in one place.
 export async function updateWorkspacePolicyDraft(args: {
   uid: string;
   policyId: string;

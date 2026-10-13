@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { NIGERIA_STATES } from "@/lib/ngStates";
 
+// Public insights API: small aggregate feed for homepage/dashboard cards so those screens do not rebuild counts themselves.
 type PolicyStat = {
   state?: string | null;
   latestOverallScore?: number | null;

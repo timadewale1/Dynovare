@@ -2,6 +2,7 @@
 import "server-only";
 import { getOpenAI, getDefaultModel } from "@/lib/ai/openai";
 
+// This is the small wrapper around the LLM calls so prompt routes can ask for JSON without repeating parsing/repair logic.
 function stripCodeFences(s: string) {
   const t = (s || "").trim();
   // Remove ```json ... ``` or ``` ... ```

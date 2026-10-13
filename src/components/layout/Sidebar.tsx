@@ -12,9 +12,9 @@ import {
   LogOut,
   X,
 } from "lucide-react";
-import DynovareLogo from "@/components/branding/DynovareLogo";
 import { useUser } from "@/components/providers/UserProvider";
 
+// Sidebar owns the signed-in navigation map, so this is the quickest place to scan the main private routes.
 const navItems = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "My Workspace", href: "/policies", icon: FileText },
@@ -65,8 +65,9 @@ export default function Sidebar({
       </button>
 
       <div className="mb-8 rounded-[1.75rem] border border-white/12 bg-white/8 px-4 py-4 backdrop-blur">
-        <DynovareLogo size={30} variant="white" />
-        <p className="mt-3 text-sm text-white/68">Draft, test, revise, and export your policy work without leaving the workspace.</p>
+        <span className="text-xl font-extrabold tracking-[0.12em] text-white">CIEGMA</span>
+        <p className="mt-3 text-xs font-semibold uppercase tracking-[0.12em] text-[#8bdcca]">Energy governance & market analytics</p>
+        <p className="mt-2 text-sm text-white/68">Draft, test, revise, and export energy policy work in one workspace.</p>
       </div>
 
       <nav className="space-y-2 overflow-y-auto pr-1 flex-1">

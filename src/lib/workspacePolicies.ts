@@ -11,6 +11,7 @@ import {
   where,
 } from "firebase/firestore";
 
+// Workspace reads live here so the private policy shelf and the "resolve this policy for this user" logic stay in one place.
 export async function fetchWorkspacePolicies(
   uid: string,
   params: {

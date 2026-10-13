@@ -5,6 +5,7 @@ import { buildGeneratePolicyPrompt } from "@/lib/ai/prompts/generate";
 import { composePolicyText, normalizePolicySections } from "@/lib/policyEditor";
 import { resolvePolicyForAction } from "@/lib/policyStoreAdmin";
 
+// "Generate policy" is the critique-to-regeneration route, so it starts from an existing policy instead of a blank brief.
 export const runtime = "nodejs";
 
 function countWords(text: string) {

@@ -1,3 +1,4 @@
+// Core policy shapes live here so pages, helpers, and API routes all talk about the same document shape.
 export type PolicyType = "uploaded" | "ai_generated" | "public_source";
 export type JurisdictionLevel = "federal" | "state";
 export type PolicyVisibility = "public" | "private";

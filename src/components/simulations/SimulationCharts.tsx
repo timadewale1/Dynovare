@@ -16,6 +16,7 @@ import {
   Legend,
 } from "recharts";
 
+// Simulation charts are isolated here so the scenario UI can stay focused on inputs/results instead of chart plumbing.
 function buildFallbackTrendData(horizonYears: number, accessImpactPct: number, reliabilityImpactPct: number, emissionsChangePct: number) {
   const arr: { year: string; access: number; reliability: number; emissions: number }[] = [];
   for (let y = 1; y <= horizonYears; y++) {

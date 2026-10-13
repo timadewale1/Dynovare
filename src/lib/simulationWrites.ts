@@ -7,6 +7,7 @@ import {
   increment,
 } from "firebase/firestore";
 
+// Simulation persistence mirrors critique persistence, but stores scenario inputs/outputs instead of quality review data.
 export async function saveSimulation(params: {
   policyId: string;
   policyTitle: string;

@@ -4,6 +4,7 @@ import { composePolicyText, normalizePolicySections, summarizePolicyText, type P
 import type { PolicyAIGuidance } from "@/lib/policyTypes";
 import { slugify } from "@/lib/slugify";
 
+// AI-generated drafts use a separate write helper because they carry evidence and guidance metadata on top of normal policy fields.
 export async function createAIGeneratedPolicy(params: {
   uid: string;
   userName?: string;

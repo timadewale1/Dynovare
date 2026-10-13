@@ -9,6 +9,7 @@ import {
   where,
 } from "firebase/firestore";
 
+// Dashboard stats are assembled here so the dashboard page stays mostly presentational.
 export type ActivityItem = {
   type: "upload" | "critique" | "simulation";
   title: string;

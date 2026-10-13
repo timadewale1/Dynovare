@@ -2,31 +2,26 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import DynovareLogo from "@/components/branding/DynovareLogo";
 import PwaInstallButton from "@/components/branding/PwaInstallButton";
 import { Menu, X } from "lucide-react";
 import { useUser } from "@/components/providers/UserProvider";
 import { usePublicTheme } from "@/components/public/usePublicTheme";
 import PublicThemeToggle from "@/components/public/PublicThemeToggle";
 
+// Public navbar is shared across all outward-facing pages and is where public routes switch over to signed-in equivalents.
 const NAV_LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/public/policies", label: "Policy Repository" },
-  { href: "/rankings", label: "Rankings" },
-  { href: "/#modeling", label: "Scenario Modeling" },
-  { href: "/about", label: "About" },
-  { href: "/faq", label: "FAQ" },
-  { href: "/contact", label: "Contact" },
+  { href: "/ciegma/public/policies", label: "Repository" },
+  { href: "/ciegma/rankings", label: "Rankings" },
+  { href: "/ciegma#modeling", label: "Scenario Modeling" },
+  { href: "/ciegma/about", label: "About CIEGMA" },
+  { href: "/ciegma/faq", label: "FAQ" },
 ];
 
 export default function PublicNavbar() {
   const { user } = useUser();
   const [open, setOpen] = useState(false);
-  const pathname = usePathname();
-  const repoHref = user ? "/repository" : "/public/policies";
-  const isHome = pathname === "/";
+  const repoHref = user ? "/ciegma/repository" : "/ciegma/public/policies";
   const { theme, mounted } = usePublicTheme();
   const dark = !mounted || theme === "dark";
 
@@ -40,15 +35,15 @@ export default function PublicNavbar() {
     >
       <div className="mx-auto max-w-7xl overflow-x-clip px-6 md:px-10 lg:px-14">
         <div className="flex h-[4.5rem] items-center justify-between gap-4">
-          <Link href="/" className="flex items-center gap-3">
-            <DynovareLogo size={30} variant={dark ? "white" : "default"} />
+          <Link href="/ciegma" aria-label="CIEGMA home" className={`text-xl font-extrabold tracking-[0.12em] ${dark ? "text-white" : "text-blue-deep"}`}>
+            CIEGMA
           </Link>
 
           <nav className="hidden items-center gap-2 md:flex">
             {NAV_LINKS.map((link) => (
               <Link
                 key={`${link.label}-${link.href}`}
-                href={link.href === "/public/policies" ? repoHref : link.href}
+                href={link.href === "/ciegma/public/policies" ? repoHref : link.href}
                 className={`rounded-full px-3 py-2 text-[13px] font-semibold transition ${
                   dark
                     ? "text-white/72 hover:bg-white/8 hover:text-white"
@@ -70,18 +65,8 @@ export default function PublicNavbar() {
                   : "border-[#cfe0ef] bg-white/88 text-[#003869] hover:bg-[#eef6ff]"
               }`}
             />
-            <Link href="/login">
-              <Button
-                variant="outline"
-                className={`rounded-full text-[13px] ${
-                  dark ? "border-white/16 bg-transparent text-white hover:bg-white/10" : ""
-                }`}
-              >
-                Login
-              </Button>
-            </Link>
-            <Link href="/register">
-              <Button className="rounded-full bg-[#0073d1] text-[13px] shadow-[0_16px_32px_rgba(0,115,209,0.24)] hover:bg-[#003869]">Create account</Button>
+            <Link href="/ciegma/register">
+              <Button className="rounded-full bg-[#0073d1] text-[13px] text-white shadow-[0_16px_32px_rgba(0,115,209,0.24)] hover:bg-[#003869] hover:text-white">Get started</Button>
             </Link>
           </div>
 
@@ -105,7 +90,7 @@ export default function PublicNavbar() {
               {NAV_LINKS.map((link) => (
                 <Link
                   key={`${link.label}-${link.href}`}
-                  href={link.href === "/public/policies" ? repoHref : link.href}
+                  href={link.href === "/ciegma/public/policies" ? repoHref : link.href}
                     onClick={() => setOpen(false)}
                     className={`rounded-2xl px-4 py-3 text-sm font-semibold transition ${
                     dark
@@ -127,11 +112,8 @@ export default function PublicNavbar() {
                       : "border-[#cfe0ef] bg-white/88 text-[#003869] hover:bg-[#eef6ff]"
                   }`}
                 />
-                <Link href="/login">
-                  <Button variant="outline" className={`w-full rounded-full ${dark ? "border-white/16 bg-transparent text-white hover:bg-white/10" : ""}`}>Login</Button>
-                </Link>
-                <Link href="/register">
-                  <Button className="w-full rounded-full bg-[#0073d1] hover:bg-[#003869]">Create account</Button>
+                <Link href="/ciegma/register">
+                  <Button className="w-full rounded-full bg-[#0073d1] text-white hover:bg-[#003869] hover:text-white">Get started</Button>
                 </Link>
               </div>
             </div>

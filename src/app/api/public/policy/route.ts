@@ -2,6 +2,7 @@ import "server-only";
 import { NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebaseAdmin";
 
+// Single public policy lookup for detail pages and featured-record moments on the homepage.
 export const runtime = "nodejs";
 
 function toMillis(v: any): number | null {

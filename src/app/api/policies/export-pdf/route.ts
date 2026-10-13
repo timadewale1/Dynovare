@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { generatePolicyPdfBytes } from "@/lib/pdfPolicy";
 
+// Export route: load one private workspace policy plus its latest critique/simulation context and turn it into a PDF.
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {

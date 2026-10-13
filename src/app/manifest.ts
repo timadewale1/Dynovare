@@ -2,10 +2,10 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Dynovare",
-    short_name: "Dynovare",
-    description: "AI policy intelligence for drafting, critique, simulation, and public energy policy analysis.",
-    start_url: "/",
+    name: "CIEGMA Policy",
+    short_name: "CIEGMA",
+    description: "Central Intelligence for Energy Governance and Market Analytics.",
+    start_url: "/ciegma",
     display: "standalone",
     background_color: "#f5fbff",
     theme_color: "#003869",

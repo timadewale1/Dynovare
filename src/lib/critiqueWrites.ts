@@ -9,6 +9,7 @@ import {
 } from "firebase/firestore";
 import type { CritiqueStandardId } from "@/lib/critiqueStandards";
 
+// Critique persistence is separate because one critique write also updates the related policy summary counters.
 export async function saveCritique(params: {
   policyId: string;
   policyTitle: string;

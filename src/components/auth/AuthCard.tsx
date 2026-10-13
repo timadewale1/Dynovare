@@ -1,7 +1,6 @@
 "use client";
 
 import { ReactNode } from "react";
-import DynovareLogo from "@/components/branding/DynovareLogo";
 
 export default function AuthCard({
   children,
@@ -17,13 +16,13 @@ export default function AuthCard({
       <div className="mx-auto grid min-h-[calc(100vh-5rem)] max-w-6xl gap-6 lg:grid-cols-[1.05fr_0.95fr]">
         <div className="hidden rounded-[2.25rem] bg-[linear-gradient(135deg,#001b33_0%,#002c52_52%,#0073d1_100%)] p-10 text-white shadow-[0_30px_90px_rgba(0,56,105,0.18)] lg:flex lg:flex-col lg:justify-between">
           <div>
-            <DynovareLogo size={38} variant="white" />
-            <p className="mt-8 text-xs uppercase tracking-[0.22em] text-white/70">Policy intelligence workspace</p>
+            <p className="text-2xl font-extrabold tracking-[0.12em] text-white">CIEGMA</p>
+            <p className="mt-8 text-xs uppercase tracking-[0.22em] text-white/70">Energy governance & market analytics</p>
             <h1 className="mt-4 text-4xl font-black leading-[0.98]">
               Research, draft, critique, simulate, and export from one place.
             </h1>
             <p className="mt-4 max-w-xl text-sm text-white/78">
-              Built for serious energy policy work across Nigeria, with private drafting flows and public intelligence working side by side.
+              Built for energy policy work across Nigeria, with private drafting flows and public intelligence working side by side.
             </p>
           </div>
 
@@ -45,7 +44,7 @@ export default function AuthCard({
         <div className="flex items-center justify-center">
           <div className="premium-card w-full max-w-xl rounded-[2rem] p-8 shadow-[0_24px_70px_rgba(0,56,105,0.12)]">
             <div className="mb-6 lg:hidden">
-              <DynovareLogo size={34} />
+              <p className="text-xl font-extrabold tracking-[0.12em] text-blue-deep">CIEGMA</p>
             </div>
             {title ? <h1 className="text-3xl font-black text-blue-deep">{title}</h1> : null}
             {subtitle ? <p className="mt-3 text-sm text-[var(--text-secondary)]">{subtitle}</p> : null}

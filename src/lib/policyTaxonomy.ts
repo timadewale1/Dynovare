@@ -1,3 +1,4 @@
+// These are the classification lists I reuse across forms, filters, chips, and labels.
 export const POLICY_SECTORS = [
   "Electricity",
   "Renewable Energy",

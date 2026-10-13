@@ -5,6 +5,7 @@ import { buildCritiquePrompt } from "@/lib/ai/prompts/critique";
 import { CRITIQUE_STANDARDS } from "@/lib/critiqueStandards";
 import { resolvePolicyForAction } from "@/lib/policyStoreAdmin";
 
+// Critique route: resolve the right policy source, build the prompt, and return a structured review payload.
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
 
+// Shared signed-in shell: sidebar, topbar, and content spacing live here so private pages stay consistent.
 export default function DashboardLayout({
   children,
 }: {

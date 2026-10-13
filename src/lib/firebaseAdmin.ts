@@ -1,5 +1,6 @@
 import admin from "firebase-admin";
 
+// Server-side Firebase setup: I only use this where admin privileges are needed and client rules should be bypassed.
 function getPrivateKey() {
   const key = process.env.FIREBASE_PRIVATE_KEY;
   if (!key) return undefined;

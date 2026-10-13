@@ -53,10 +53,10 @@ export default function PwaInstallPrompt() {
       <div className="pointer-events-auto w-full max-w-lg rounded-[1.75rem] border border-white/70 bg-white/94 p-5 shadow-[0_30px_80px_rgba(0,56,105,0.16)] backdrop-blur-xl fade-up">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="text-xs uppercase tracking-[0.22em] text-[var(--text-secondary)]">Install Dynovare</p>
+            <p className="text-xs uppercase tracking-[0.22em] text-[var(--text-secondary)]">Install CIEGMA</p>
             <h3 className="mt-2 text-xl font-black text-blue-deep">Keep the platform one tap away.</h3>
             <p className="mt-2 text-sm text-[var(--text-secondary)]">
-              Install Dynovare for faster access to drafting, critique, simulations, and your workspace.
+              Install CIEGMA for faster access to drafting, critique, simulations, and your workspace.
             </p>
           </div>
           <button

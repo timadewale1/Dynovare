@@ -4,6 +4,7 @@ import { buildSectionsFromText, summarizePolicyText } from "@/lib/policyEditor";
 import { slugify } from "@/lib/slugify";
 import type { PolicyType } from "@/lib/policyTypes";
 
+// Plain uploads and imported public policies both end up here before they become private workspace records.
 type UploadPolicyInput = {
   uid: string;
   uploaderName: string;

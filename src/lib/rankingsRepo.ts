@@ -8,6 +8,7 @@ import {
   where,
 } from "firebase/firestore";
 
+// Ranking reads are grouped here so sorting/filtering logic stays reusable across public and signed-in views.
 export type RankingSort =
   | "latest_score"
   | "avg_score"
